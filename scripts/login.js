@@ -3,7 +3,7 @@ async function get_data(query){
   const response = await fetch('/query', { 
     method: 'POST', 
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(query) 
+    body: JSON.stringify(query) // this is the body of req in main 
   });
   return await response.json();
 }
@@ -13,14 +13,14 @@ async function handle_login() {
   const userid = document.getElementById('userid').value;
   const password = document.getElementById('password').value;
 
-  const table = await get_data({ sql: `select * from user where uid = '${userid}'` });
+  const table = await get_data({ sql: `select * from user where uid = ?`, params: [userid]});
 
   if (table.length == 0) { 
     alert("User ID not found!");
   } else {
     if (password == table[0].pass) {
       alert("Logged In!");
-      window.location.href = "dashboard.html";
+      window.location.href = "dashboard.html"; // Dashboard e pathao
     } else {
       alert("User ID or Password incorrect!");
     }
@@ -31,4 +31,11 @@ async function handle_login() {
 
 function registerNow() {
   alert("Klk korbo!");
+}
+
+function logout() {
+  if (confirm('Are you sure you want to logout?')) {
+    alert('Logged out successfully!');
+    window.location.href = 'login.html';
+  }
 }

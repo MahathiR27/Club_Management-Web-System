@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Management - Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>Club Management System</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h2>Welcome to Dashboard!</h2>
+            <p>Manage your club activities, members, and events from here.</p>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div class="cards-grid">
+            <div class="card" onclick="alert('Clubs feature coming soon!')">
+                <div class="card-header">
+                    <div class="card-icon clubs-icon">🏛️</div>
+                    <div>
+                        <h3>Clubs</h3>
+                        <p>Manage all clubs</p>
+                    </div>
+                </div>
+                <div class="card-stat">12</div>
+            </div>
+
+            <div class="card" onclick="alert('Members feature coming soon!')">
+                <div class="card-header">
+                    <div class="card-icon members-icon">👥</div>
+                    <div>
+                        <h3>Members</h3>
+                        <p>Active members</p>
+                    </div>
+                </div>
+                <div class="card-stat">256</div>
+            </div>
+
+            <div class="card" onclick="alert('Events feature coming soon!')">
+                <div class="card-header">
+                    <div class="card-icon events-icon">📅</div>
+                    <div>
+                        <h3>Events</h3>
+                        <p>Upcoming events</p>
+                    </div>
+                </div>
+                <div class="card-stat">8</div>
+            </div>
+
+            <div class="card" onclick="alert('Reports feature coming soon!')">
+                <div class="card-header">
+                    <div class="card-icon reports-icon">📊</div>
+                    <div>
+                        <h3>Reports</h3>
+                        <p>Analytics & reports</p>
+                    </div>
+                </div>
+                <div class="card-stat">24</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="actions-grid">
+                <button class="action-btn" onclick="alert('Add new club feature coming soon!')">Add New Club</button>
+                <button class="action-btn" onclick="alert('Register member feature coming soon!')">Register Member</button>
+                <button class="action-btn" onclick="alert('Create event feature coming soon!')">Create Event</button>
+                <button class="action-btn" onclick="alert('Generate report feature coming soon!')">Generate Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>
