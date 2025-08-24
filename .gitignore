@@ -1,4 +1,5 @@
-config.json
+config_files/config.json
+temp/
 node_modules/
 package-lock.json
 package.json
