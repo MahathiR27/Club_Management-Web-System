@@ -209,3 +209,45 @@ INSERT INTO oca VALUES
 (538742),
 (538743),
 (538744);
+
+INSERT INTO club (cid, email, name, advisor_uid) VALUES
+('ROBU', 'roboticsclub@bracu.ac.bd', 'Robotics Club', 623781),
+('BUCUC', 'culturalclub@bracu.ac.bd', 'Cultural Club', 623785),
+('BUDC', 'debateclub@bracu.ac.bd', 'Debate Club', 623784),
+('BUCC', 'computerclub@bracu.ac.bd', 'Computer Club', 623782),
+('BUESC', 'esportsclub@bracu.ac.bd', 'Esports Club', 623783);
+
+
+INSERT INTO requisition (cid, date_time) VALUES
+('ROBU', '2025-09-20 10:00:00'),
+('BUCUC', '2025-09-21 14:30:00'),
+('BUESC', '2025-09-22 09:15:00'),
+('BUDC', '2025-09-22 16:45:00'),
+('BUCC', '2025-09-23 11:00:00'),
+('ROBU', '2025-09-23 15:30:00');
+
+
+INSERT INTO members (cid, student_uid, position, joining_sem) VALUES
+('ROBU', 23301451, 'President', 'Summer 2023'),
+('ROBU', 25316789, 'Vice President', 'Summer 2024'),
+('BUCUC', 23304562, 'President', 'Spring 2023'),
+('BUCUC', 25313456, 'Treasurer', 'Spring 2024'),
+('BUDC', 23307890, 'President', 'Fall 2023'),
+('BUDC', 25310123, 'Member', 'Summer 2023'),
+('BUCC', 24302345, 'President', 'Summer 2024'),
+('BUCC', 25301234, 'Member', 'Summer 2025'),
+('BUESC', 23311234, 'President', 'Spring 2024'),
+('BUESC', 25307891, 'Member', 'Spring 2023');
+
+
+INSERT INTO room (rid, room_assigned, room_type, date_requested, time_requested_from, time_requested_to) VALUES
+(1, 'R105', 'Class Room', '2025-09-20', '10:00:00', '12:00:00'),
+(2, 'R212', 'Conference Room', '2025-09-21', '14:30:00', '16:00:00'),
+(3, 'R307', 'Auditorium', '2025-09-22', '09:15:00', '11:15:00'),
+(4, 'R409', 'Theatre', '2025-09-22', '16:45:00', '18:30:00');
+
+INSERT INTO approval (oca_uid, rid) VALUES
+(538741, 1),
+(538742, 2);
+
+
