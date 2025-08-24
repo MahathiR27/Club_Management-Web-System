@@ -19,6 +19,8 @@ async function handle_login() {
     alert("User ID not found!");
   } else {
     if (password == table[0].pass) {
+      // userid local storage e rakhbo 
+      localStorage.setItem('currentUser', userid);
       alert("Logged In!");
       window.location.href = "dashboard.html"; // Dashboard e pathao
     } else {
@@ -31,11 +33,4 @@ async function handle_login() {
 
 function registerNow() {
   alert("Klk korbo!");
-}
-
-function logout() {
-  if (confirm('Are you sure you want to logout?')) {
-    alert('Logged out successfully!');
-    window.location.href = 'login.html';
-  }
 }
