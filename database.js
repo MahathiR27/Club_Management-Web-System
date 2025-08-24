@@ -10,7 +10,7 @@ const sql = mysql.createConnection({
 
 sql.connect((error) => { // Tries to connect to sql using the credentials
   if (error) {
-    console.log('--- Failed to Connect Database:', err); // If there is any error returns that
+    console.log('--- Failed to Connect Database:', error); // If there is any error returns that
   }
   else{
   console.log(`+++ Connected to Database: ${config.db_name}`);
