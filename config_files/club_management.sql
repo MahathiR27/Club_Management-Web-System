@@ -152,9 +152,8 @@ CREATE TABLE approval (
 -- Populating
 
 INSERT INTO user (uid, email, pass, name, phone) VALUES
-(24341269, 'md.mahathir.alam@g.bracu.ac.bd', '12345', 'Md. Mahathir Alam', '01854943188'),
-(24241289, 'mahinul.islam.mahin@g.bracu.ac.bd', 'mahin1234', 'Mahinul Islam', '01518918916'),
-(23301451, 'abdullah.al.noman@g.bracu.ac.bd', '1234', 'Abdullah Al Noman', '01782345678'),
+(23301451, 'md.mahathir.alam@g.bracu.ac.bd', '12345', 'Md. Mahathir Alam', '01854943188'),
+(23304562, 'abdullah.al.noman@g.bracu.ac.bd', '90218456', 'Abdullah Al Noman', '01782345678'),
 (23307890, 'sadia.afrin@g.bracu.ac.bd', '71930284', 'Sadia Afrin', '01912876543'),
 (23311234, 'tahsin.haque@g.bracu.ac.bd', '56472918', 'Tahsin Haque', '01693452781'),
 (24302345, 'farhan.kabir@g.bracu.ac.bd', '38194026', 'Farhan Kabir', '01578234961'),
