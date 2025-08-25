@@ -12,31 +12,21 @@ async function get_data(query) {
 window.addEventListener("DOMContentLoaded", async function () {
   const currentUser = localStorage.getItem("currentUser");
   if (currentUser) {
-    try {
-      const userData = await get_data({
-        sql: `SELECT name FROM user WHERE uid = ?`,
-        params: [currentUser],
-      });
-
+      const userData = await get_data({sql: `SELECT name FROM user WHERE uid = ?`, params: [currentUser]});
       if (userData.length > 0) {
         const username = userData[0].name;
-        document.getElementById(
-          "welcome-message"
-        ).textContent = `Welcome ${username}!`;
+        document.getElementById("welcome-message").textContent = `Welcome ${username}!`;
 
         // Load user profile information for the dropdown menu
         await loadUserProfile(currentUser);
-
         // Check user role and setup dashboard
         await setupDashboardByRole(currentUser);
+
       } else {
         document.getElementById("welcome-message").textContent = "Welcome!";
       }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      document.getElementById("welcome-message").textContent = "Welcome!";
-    }
-  } else {
+  } 
+  else {
     // user logged in na thakle login page e pathabe
     window.location.href = "login.html";
   }
@@ -44,7 +34,6 @@ window.addEventListener("DOMContentLoaded", async function () {
 
 // check user role and setup dashboard
 async function setupDashboardByRole(userId) {
-  try {
     const roleCheck = await get_data({
       sql: `
         SELECT 'student' as role, uid FROM student WHERE uid = ?
@@ -56,10 +45,10 @@ async function setupDashboardByRole(userId) {
       params: [userId, userId, userId],
     });
 
-    if (roleCheck.length === 0) {
-      showRoleNotFoundError();
-      return;
-    }
+    // if (roleCheck.length === 0) {
+    //   showRoleNotFoundError();
+    //   return;
+    // }
 
     const userRole = roleCheck[0].role;
 
@@ -84,10 +73,6 @@ async function setupDashboardByRole(userId) {
       default:
         showRoleNotFoundError();
     }
-  } catch (error) {
-    console.error("Error checking user role:", error);
-    showRoleNotFoundError();
-  }
 }
 
 // Setup dashboard for students
