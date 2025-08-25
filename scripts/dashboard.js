@@ -24,7 +24,10 @@ window.addEventListener("DOMContentLoaded", async function () {
           "welcome-message"
         ).textContent = `Welcome ${username}!`;
 
-        // Check user role and setup appropriate dashboard
+        // Load user profile information for the dropdown menu
+        await loadUserProfile(currentUser);
+
+        // Check user role and setup dashboard
         await setupDashboardByRole(currentUser);
       } else {
         document.getElementById("welcome-message").textContent = "Welcome!";
@@ -59,6 +62,14 @@ async function setupDashboardByRole(userId) {
     }
 
     const userRole = roleCheck[0].role;
+
+    // Update the user role in the profile dropdown
+    const roleDisplayMap = {
+      'student': 'Student',
+      'advisor': 'Advisor', 
+      'oca': 'OCA'
+    };
+    document.getElementById('userRole').textContent = roleDisplayMap[userRole];
 
     switch (userRole) {
       case "student":
@@ -386,5 +397,53 @@ function logout() {
     localStorage.removeItem("currentUser");
     alert("Logged out successfully!");
     window.location.href = "login.html";
+  }
+}
+
+// Toggle user dropdown menu
+function toggleUserMenu() {
+  const dropdown = document.getElementById('userDropdown');
+  dropdown.classList.toggle('show');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+  const userMenu = document.querySelector('.user-menu');
+  const dropdown = document.getElementById('userDropdown');
+  
+  if (!userMenu.contains(event.target)) {
+    dropdown.classList.remove('show');
+  }
+});
+
+// Load user profile information
+async function loadUserProfile(userId) {
+  try {
+    // Get basic user data
+    const userData = await get_data({
+      sql: `SELECT name, uid, email FROM user WHERE uid = ?`,
+      params: [userId]
+    });
+    
+    if (userData.length > 0) {
+      const user = userData[0];
+      document.getElementById('userName').textContent = user.name;
+      document.getElementById('userId').textContent = user.uid;
+      document.getElementById('userEmail').textContent = user.email;
+      // Role will be set by setupDashboardByRole function
+    } else {
+      // Fallback if user data not found
+      document.getElementById('userName').textContent = 'User';
+      document.getElementById('userRole').textContent = 'Unknown';
+      document.getElementById('userId').textContent = userId;
+      document.getElementById('userEmail').textContent = 'No email found';
+    }
+  } catch (error) {
+    console.error('Error loading user profile:', error);
+    // Fallback on error
+    document.getElementById('userName').textContent = 'User';
+    document.getElementById('userRole').textContent = 'Error';
+    document.getElementById('userId').textContent = userId;
+    document.getElementById('userEmail').textContent = 'Error loading email';
   }
 }
