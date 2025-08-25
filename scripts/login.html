@@ -20,9 +20,10 @@
                     <label for="password">Password:</label>
                     <input type="password" id="password" name="password" placeholder="••••••••" required>
                 </div>
+                <div id="loginErrorText" class="otp-status-text" style="display: none; color: #e74c3c; margin: 10px 0; text-align: center;">Invalid User ID or Password.</div>
                 <button type="submit" class="login-btn">Login</button>
             </form>
-            <button type="button" class="register-btn" onclick="registerNow()">Register Now</button>
+            <button type="button" class="register-btn" onclick="handle_register()">Register Now</button>
             <div id="message" class="message"></div>
         </div>
     </div>
@@ -39,6 +40,111 @@
                 <p>You will be informed via Email as soon as you are authorised</p>
             </div>
             <button class="pending-btn" onclick="close_pending()">Got it!</button>
+        </div>
+    </div>
+
+    <!-- Registration Popup Window -->
+    <div id="registrationOverlay" class="registration-overlay">
+        <div class="registration-window">
+            <div class="registration-header">
+                <h3>Register Account</h3>
+                <button onclick="close_registration()" class="close-btn">×</button>
+            </div>
+            <div class="registration-content">
+                <div class="input-group">
+                    <label for="regEmail">Email Address:</label>
+                    <input type="email" id="regEmail" name="regEmail" placeholder="your.email@example.com" required>
+                    <div id="otpStatusText" class="otp-status-text">OTP sent to email</div>
+                    <div id="emailErrorText" class="otp-status-text" style="display: none; color: #e74c3c;">Please enter a valid BRACU G-Suit Email Address</div>
+                </div>
+                <button type="button" class="get-otp-btn" onclick="sendOTP()">Get OTP</button>
+                
+                <div class="input-group" id="otpGroup" style="display: none;">
+                    <label for="otpCode">Enter OTP:</label>
+                    <input type="text" id="otpCode" name="otpCode" placeholder="123456" maxlength="6" required>
+                    <div id="otpErrorText" class="otp-status-text" style="display: none; color: #e74c3c;">Please enter the OTP</div>
+                </div>
+                <button type="button" class="verify-btn" id="verifyBtn" onclick="verify_otp()" style="display: none;">Verify OTP</button>
+                
+                <div id="registrationMessage" class="message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Form 2 Popup Window -->
+    <div id="register2Overlay" class="registration-overlay">
+        <div class="registration-window" style="max-width: 500px;">
+            <div class="registration-header">
+                <h3>Complete Registration</h3>
+                <button onclick="close_register2()" class="close-btn">×</button>
+            </div>
+            <div class="registration-content">
+                <form onsubmit="event.preventDefault(); handle_final_registration();">
+                    <input type="hidden" id="reg2Email" name="reg2Email">
+                    
+                    <div class="input-group">
+                        <label for="reg2Name">Full Name:</label>
+                        <input type="text" id="reg2Name" name="reg2Name" placeholder="Enter your full name" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="reg2StudentId">Student ID:</label>
+                        <input type="text" id="reg2StudentId" name="reg2StudentId" placeholder="23301451" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="reg2Phone">Phone Number:</label>
+                        <input type="tel" id="reg2Phone" name="reg2Phone" placeholder="01712345678" maxlength="11" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="reg2Department">Department:</label>
+                        <select id="reg2Department" name="reg2Department" required>
+                            <option value="">Select Department</option>
+                            <option value="CSE">CSE - Computer Science & Engineering</option>
+                            <option value="EEE">EEE - Electrical & Electronic Engineering</option>
+                            <option value="MNS">MNS - Mathematics & Natural Sciences</option>
+                            <option value="PHR">PHR - Pharmacy</option>
+                            <option value="LLB">LLB - Law</option>
+                            <option value="ARC">ARC - Architecture</option>
+                            <option value="BBS">BBS - Business Studies</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="reg2AdmissionSem">Admission Semester:</label>
+                        <select id="reg2AdmissionSem" name="reg2AdmissionSem" required>
+                            <option value="">Select Admission Semester</option>
+                            <option value="Spring 2022">Spring 2022</option>
+                            <option value="Summer 2022">Summer 2022</option>
+                            <option value="Fall 2022">Fall 2022</option>
+                            <option value="Spring 2023">Spring 2023</option>
+                            <option value="Summer 2023">Summer 2023</option>
+                            <option value="Fall 2023">Fall 2023</option>
+                            <option value="Spring 2024">Spring 2024</option>
+                            <option value="Summer 2024">Summer 2024</option>
+                            <option value="Fall 2024">Fall 2024</option>
+                            <option value="Spring 2025">Spring 2025</option>
+                            <option value="Summer 2025">Summer 2025</option>
+                            <option value="Fall 2025">Fall 2025</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="reg2Password">Password:</label>
+                        <input type="password" id="reg2Password" name="reg2Password" placeholder="••••••••" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="reg2ConfirmPassword">Confirm Password:</label>
+                        <input type="password" id="reg2ConfirmPassword" name="reg2ConfirmPassword" placeholder="••••••••" required>
+                    </div>
+                    
+                    <div id="register2ErrorText" class="otp-status-text" style="display: none; color: #e74c3c; margin: 10px 0; text-align: center;"></div>
+                    
+                    <button type="submit" class="register-btn">Complete Registration</button>
+                </form>
+            </div>
         </div>
     </div>
 

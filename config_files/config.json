@@ -2,5 +2,7 @@
   "db_host": "localhost",
   "db_user": "root",
   "db_pass": "",
-  "db_name": "club_management"
+  "db_name": "club_management",
+  "gmail_app_pass": "xnti ekdq gugm ykbh",
+  "gmail_address": "club.management.bracu@gmail.com"
 }
