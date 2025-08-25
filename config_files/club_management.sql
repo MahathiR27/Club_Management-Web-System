@@ -185,7 +185,6 @@ INSERT INTO user (uid, email, pass, name, phone) VALUES
 INSERT INTO student VALUES
 (23301451, 'CSE', 'Summer 2023'),
 (24241289, 'CSE', 'Summer 2023'),
-(23304562, 'BBS', 'Spring 2023'),
 (23307890, 'MNS', 'Fall 2023'),
 (23311234, 'PHR', 'Spring 2024'),
 (24302345, 'LLB', 'Summer 2024'),

@@ -10,8 +10,8 @@ async function get_data(query){
 
 // Page load howar pore check if he is already logged in if he is then go to dashboard
 window.addEventListener('DOMContentLoaded', () => {
-  const current_user = localStorage.getItem('current_user');
-  if (current_user) {
+  const currentUser = localStorage.getItem('currentUser');
+  if (currentUser) {
     window.location.href = 'dashboard.html';
   }
 });
@@ -33,8 +33,9 @@ async function handle_login() {
     }
     else if (password == table[0].pass) {
       // userid local storage e rakhbo 
-      localStorage.setItem('current_user', userid);
+      localStorage.setItem('currentUser', userid);
       window.location.href = "dashboard.html"; // Dashboard e pathao
+      return ;
     }
   }
   alert('Invalid User ID or Password.');
