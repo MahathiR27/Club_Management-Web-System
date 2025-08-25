@@ -835,3 +835,66 @@ body {
   background: linear-gradient(135deg, #c82333, #bd2130);
   transform: translateY(-1px);
 }
+
+/* Apply to Club Button Styles */
+.apply-club-btn {
+  background: #4fb8fa;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.apply-club-btn:hover {
+  background: #3a9bd9;
+}
+
+.applied-btn {
+  background: #ffa500;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: not-allowed;
+}
+
+.reapply-btn {
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.reapply-btn:hover {
+  background: #ff5252;
+}
+
+.application-status {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.application-status.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.application-status.approved {
+  background: #d1edff;
+  color: #0c5460;
+}
+
+.application-status.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
