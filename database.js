@@ -1,4 +1,4 @@
-const mysql = require('mysql'); // Import the SQL module from npm install mysql
+const mysql = require('mysql2'); // Import the SQL module from npm install mysql
 const config = require('./config_files/config.json'); // Imports config files
 
 const sql = mysql.createConnection({

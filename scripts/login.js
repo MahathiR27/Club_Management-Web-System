@@ -29,13 +29,13 @@ async function handle_login() {
   if (table.length != 0){
     if (table[0].status != 'active'){
       show_pending();
-      return ;
     }
     else if (password == table[0].pass) {
       // userid local storage e rakhbo 
       localStorage.setItem('current_user', userid);
       window.location.href = "dashboard.html"; // Dashboard e pathao
     }
+    return;
   }
   alert('Invalid User ID or Password.');
   return ;
