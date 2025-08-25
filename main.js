@@ -1,10 +1,15 @@
 const express = require('express');
+const nodemailer = require('nodemailer');
 const db = require('./database.js');
+const config = require('./config_files/config.json');
+const e = require('express');
+
 const app = express();
 
 app.use(express.json());
 app.use(express.static('.')); // Serves everything from current directory
 
+///////////////////////// Database ////////////////////////
 // Direct database query endpoint
 app.post('/query', (req, res) => {
     const { sql, params } = req.body;
@@ -12,12 +17,90 @@ app.post('/query', (req, res) => {
         res.json(results);
     });
 });
+///////////////////////////////////////////////////////////
 
+/////////////////////////// OTP /////////////////////////// 
+otp_storage = {}
+
+function otp_generator(email){
+  if (email in otp_storage) {
+    return otp_storage.email;
+  }
+  else{
+    const otp = Math.floor(Math.random() * 900000) + 100000;
+    otp_storage.email = otp;
+    return otp;
+  }
+}
+
+function otp_verify(email, otp){
+  if (otp_storage.email == otp){
+    delete otp_storage.email;
+    return true;
+  }
+  return false;
+}
+
+app.post('/otp', (req, res) => {
+  const {email, otp} = req.body;
+    if (otp_verify(email, otp)){
+      delete otp_storage.email
+      res.json(true);
+    }
+    else {res.json(false);}
+});
+///////////////////////////////////////////////////////////
+
+////////////////////////// Email ////////////////////////// 
+//const email = prompt("Enter your email:");
+//await send_email({ receiver: email, subject: `OTP`,body:`123`});
+
+// Transporter object
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // use false for STARTTLS; true for SSL on port 465
+  auth: {
+    user: config.gmail_address,
+    pass: config.gmail_app_pass,
+  }
+});
+
+app.post('/email', (req, res) => {
+  let { receiver, subject, body } = req.body;
+
+  if (subject.includes('OTP')){
+    const otp = otp_generator(receiver);
+    body = `Your OTP is: ${otp}`;
+  }
+
+  // Configure email er sender receiver
+  const mail_options = {
+    from: config.gmail_address,
+    to: receiver,
+    subject: subject,
+    text: body
+  };
+
+  // Send the email
+  transporter.sendMail(mail_options, function(error, info){
+    if (error) {
+      console.log(`Couldn't Send Email to ${receiver} \n ${error}`);
+      res.json({success: false});
+    } else {
+      console.log(`Email sent to: ${receiver}, Subject: ${subject}`);
+      res.json({success: true});
+    }
+  });
+});
+///////////////////////////////////////////////////////////
+
+///////////////////////// Server /////////////////////////
 // Start server
 app.listen(3000, () => {
   console.log('Server Live: http://localhost:3000/scripts/login.html');
 });
-
+///////////////////////// Server /////////////////////////
 /* Sql Query function to fetch data, apparently browser side e require() kaj kore na 
 async function get_data(query){
   const response = await fetch('/query', { 
