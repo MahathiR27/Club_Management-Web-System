@@ -1,52 +1,64 @@
 // OCA Dashboard Functions
 
-// OCA Dashboard- apajoto dummy set kora
-function setupOCADashboard(userId) {
-  const dashboardContainer = document.querySelector(".student-dashboard");
-  dashboardContainer.innerHTML = `
-    <div class="oca-dashboard">
-      <div class="dashboard-section">
-        <div class="section-header">
-          <div class="section-icon">🏢</div>
-          <h3>OCA Dashboard</h3>
-        </div>
-        <div class="oca-content">
-          <div class="oca-card">
-            <h4>🏛️ All Clubs</h4>
-            <p>Oversee all clubs across the university</p>
-            <button class="oca-btn" onclick="alert('All clubs management coming soon!')">Manage All Clubs</button>
-          </div>
-          <div class="oca-card">
-            <h4>📈 System Analytics</h4>
-            <p>View comprehensive system reports and statistics</p>
-            <button class="oca-btn" onclick="alert('System analytics coming soon!')">View Analytics</button>
-          </div>
-          <div class="oca-card">
-            <h4>⚙️ System Settings</h4>
-            <p>Configure system-wide settings and policies</p>
-            <button class="oca-btn" onclick="alert('System settings coming soon!')">System Settings</button>
-          </div>
-          <div class="oca-card">
-            <h4>👨‍🏫 Advisor Management</h4>
-            <p>Manage advisor assignments and permissions</p>
-            <button class="oca-btn" onclick="alert('Advisor management coming soon!')">Manage Advisors</button>
-          </div>
-          <div class="oca-card">
-            <h4>📋 Club Approvals</h4>
-            <p>Review and approve new club applications</p>
-            <button class="oca-btn" onclick="alert('Club approvals coming soon!')">Review Applications</button>
-          </div>
-          <div class="oca-card">
-            <h4>📢 Announcements</h4>
-            <p>Send system-wide announcements and notifications</p>
-            <button class="oca-btn" onclick="alert('Announcements coming soon!')">Send Announcements</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
+// Function to fetch data from table
+async function get_data(query) {
+  const response = await fetch('/query', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(query)
+  });
+  return await response.json();
+}
+
+const table = await get_data({ sql: `select * from user where uid = ?`, params: [userid]}); // To prevent SQL injections
+
 
   // Update welcome message for OCA
-  document.querySelector(".welcome-section p").textContent =
-    "Oversee the entire club management system and university activities.";
-}
+  document.querySelector('.welcome-section p').textContent =
+    'Oversee the entire club management system and university activities.';
+
+  // Modal close function
+  window.closeVerification = function() {
+    document.getElementById('verificationOverlay').classList.remove('show');
+  };
+
+  // Account Verification Modal logic
+  document.getElementById('accountVerificationBtn').addEventListener('click', async function() {
+    document.getElementById('verificationOverlay').classList.add('show');
+    const pending_users = await get_data({ sql: `SELECT * FROM user WHERE status = 'pending'` });
+    const tbody = document.querySelector('#pendingUsersTable tbody');
+    tbody.innerHTML = '';
+    if (!pending_users || pending_users.length === 0) {
+      tbody.innerHTML = `<tr><td colspan='6' style='text-align:center;color:#aaa;'>No pending users found.</td></tr>`;
+    } else {
+      pending_users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${user.uid}</td>
+          <td>${user.name}</td>
+          <td>${user.email}</td>
+          <td>${user.phone}</td>
+          <td><button class="approve-btn" data-uid="${user.uid}">Approve</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+      // Add event listeners for approve buttons
+      tbody.querySelectorAll('.approve-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const uid = this.getAttribute('data-uid');
+          // Update database
+          await get_data({ sql: `UPDATE user SET status = 'active' WHERE uid = ?`, params: [uid] });
+          // Change button to green 'Approved'
+          this.outerHTML = '<span class="approved-label">Approved</span>';
+        });
+      });
+    }
+  });
+
+  // Update table headers for filter icons
+  const theadRow = document.querySelector('#pendingUsersTable thead tr');
+  if (theadRow) {
+    const headers = ['User ID', 'Name', 'Email', 'Phone', 'Action'];
+    theadRow.innerHTML = headers.map(h => `<th>${h} <span class='filter-icon' title='Filter'>&#9776;</span></th>`).join('');
+  }
+
