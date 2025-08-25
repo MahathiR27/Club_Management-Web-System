@@ -153,33 +153,33 @@ CREATE TABLE approval (
 
 INSERT INTO user (uid, email, pass, name, phone) VALUES
 (24341269, 'md.mahathir.alam@g.bracu.ac.bd', '12345', 'Md. Mahathir Alam', '01854943188'),
-(24241289, 'mahinul.islam.mahin@g.bracu.ac.bd', 'mahin1234', 'Mahinul Islam', '01518918916'),
-(23301451, 'abdullah.al.noman@g.bracu.ac.bd', '1234', 'Abdullah Al Noman', '01782345678'),
-(23307890, 'sadia.afrin@g.bracu.ac.bd', '71930284', 'Sadia Afrin', '01912876543'),
-(23311234, 'tahsin.haque@g.bracu.ac.bd', '56472918', 'Tahsin Haque', '01693452781'),
-(24302345, 'farhan.kabir@g.bracu.ac.bd', '38194026', 'Farhan Kabir', '01578234961'),
-(24305678, 'nabila.rahman@g.bracu.ac.bd', '64278193', 'Nabila Rahman', '01309283746'),
-(24308912, 'arif.uzzaman@g.bracu.ac.bd', '82736451', 'Arif Uzzaman', '01873649250'),
-(25301234, 'maliha.khan@g.bracu.ac.bd', '93018472', 'Maliha Khan', '01756982341'),
-(25304567, 'rifat.chowdhury@g.bracu.ac.bd', '57281934', 'Rifat Chowdhury', '01934567821'),
-(25307891, 'mehnaz.sultana@g.bracu.ac.bd', '18463920', 'Mehnaz Sultana', '01401726394'),
-(25310123, 'tawsif.ahmed@g.bracu.ac.bd', '74619283', 'Tawsif Ahmed', '01682397456'),
-(25313456, 'tanvir.hasan@g.bracu.ac.bd', '29837165', 'Tanvir Hasan', '01890543217'),
-(25316789, 'reshmi.akter@g.bracu.ac.bd', '61528394', 'Reshmi Akter', '01769012345'),
-(25319012, 'raiyan.islam@g.bracu.ac.bd', '83920467', 'Raiyan Islam', '01501928374'),
-(25322334, 'nishat.tasnim@g.bracu.ac.bd', '52098371', 'Nishat Tasnim', '01307596824'),
+(24241289, 'mahinul.islam.mahin@g.bracu.ac.bd', '12345', 'Mahinul Islam', '01518918916'),
+(23301451, 'abdullah.al.noman@g.bracu.ac.bd','12345', 'Abdullah Al Noman', '01782345678'),
+(23307890, 'sadia.afrin@g.bracu.ac.bd', '12345', 'Sadia Afrin', '01912876543'),
+(23311234, 'tahsin.haque@g.bracu.ac.bd', '12345', 'Tahsin Haque', '01693452781'),
+(24302345, 'farhan.kabir@g.bracu.ac.bd', '12345', 'Farhan Kabir', '01578234961'),
+(24305678, 'nabila.rahman@g.bracu.ac.bd', '12345', 'Nabila Rahman', '01309283746'),
+(24308912, 'arif.uzzaman@g.bracu.ac.bd', '12345', 'Arif Uzzaman', '01873649250'),
+(25301234, 'maliha.khan@g.bracu.ac.bd', '12345', 'Maliha Khan', '01756982341'),
+(25304567, 'rifat.chowdhury@g.bracu.ac.bd', '12345', 'Rifat Chowdhury', '01934567821'),
+(25307891, 'mehnaz.sultana@g.bracu.ac.bd', '12345', 'Mehnaz Sultana', '01401726394'),
+(25310123, 'tawsif.ahmed@g.bracu.ac.bd', '12345', 'Tawsif Ahmed', '01682397456'),
+(25313456, 'tanvir.hasan@g.bracu.ac.bd', '12345', 'Tanvir Hasan', '01890543217'),
+(25316789, 'reshmi.akter@g.bracu.ac.bd', '12345', 'Reshmi Akter', '01769012345'),
+(25319012, 'raiyan.islam@g.bracu.ac.bd', '12345', 'Raiyan Islam', '01501928374'),
+(25322334, 'nishat.tasnim@g.bracu.ac.bd', '12345', 'Nishat Tasnim', '01307596824'),
 
 (623781, 'arman.hasin.shafin@bracu.ac.bd', '12345', 'Arman Hasin Shafin', '01754356288'), -- Advisors
-(623782, 'tasnim.rahman@bracu.ac.bd', '27485930', 'Tasnim Rahman', '01782345671'),
-(623783, 'sakib.karim@bracu.ac.bd', '65820391', 'Sakib Karim', '01923874652'),
-(623784, 'nayeem.hassan@bracu.ac.bd', '90127364', 'Nayeem Hassan', '01692837465'),
-(623785, 'mehnaz.akter@bracu.ac.bd', '38492015', 'Mehnaz Akter', '01589237461'),
+(623782, 'tasnim.rahman@bracu.ac.bd', '12345', 'Tasnim Rahman', '01782345671'),
+(623783, 'sakib.karim@bracu.ac.bd', '12345', 'Sakib Karim', '01923874652'),
+(623784, 'nayeem.hassan@bracu.ac.bd', '12345', 'Nayeem Hassan', '01692837465'),
+(623785, 'mehnaz.akter@bracu.ac.bd', '12345', 'Mehnaz Akter', '01589237461'),
 
 (538741, 'mas.rafi.islam@bracu.ac.bd', '12345', 'Mas Rafi Islam', '01521266159'),
 (538742, 'arunima.das1@bracu.ac.bd', '12345', 'Arunima Das', '01521766134'),
-(538743, 'shahriar.tanvir@bracu.ac.bd', '83910572', 'Shahriar Tanvir', '01763849205'),
-(538744, 'fahim.rezwan@bracu.ac.bd', '12578394', 'Fahim Rezwan', '01892735641'),
-(538745, 'arafat.hoque@bracu.ac.bd', '90736482', 'Arafat Hoque', '01938472659');
+(538743, 'shahriar.tanvir@bracu.ac.bd', '12345', 'Shahriar Tanvir', '01763849205'),
+(538744, 'fahim.rezwan@bracu.ac.bd', '12345', 'Fahim Rezwan', '01892735641'),
+(538745, 'arafat.hoque@bracu.ac.bd', '12345', 'Arafat Hoque', '01938472659');
 
 
 INSERT INTO student VALUES
@@ -210,7 +210,8 @@ INSERT INTO oca VALUES
 (538741),
 (538742),
 (538743),
-(538744);
+(538744),
+(538745);
 
 INSERT INTO club (cid, email, name, advisor_uid) VALUES
 ('ROBU', 'roboticsclub@bracu.ac.bd', 'Robotics Club', 623781),
@@ -232,7 +233,7 @@ INSERT INTO requisition (cid, date_time) VALUES
 INSERT INTO members (cid, student_uid, position, joining_sem) VALUES
 ('ROBU', 23301451, 'President', 'Summer 2023'),
 ('ROBU', 25316789, 'Vice President', 'Summer 2024'),
-('BUCUC', 23304562, 'President', 'Spring 2023'),
+('BUCUC', 24305678, 'President', 'Spring 2023'),
 ('BUCUC', 25313456, 'Treasurer', 'Spring 2024'),
 ('BUDC', 23307890, 'President', 'Fall 2023'),
 ('BUDC', 25310123, 'Member', 'Summer 2023'),
@@ -252,4 +253,4 @@ INSERT INTO approval (oca_uid, rid) VALUES
 (538741, 1),
 (538742, 2);
 
-UPDATE user SET status='active' WHERE uid IN (24341269, 24241289, 623781, 538741, 538742);
+UPDATE user SET status='active' WHERE uid IN (538741, 538742, 538743, 538744, 538745);
