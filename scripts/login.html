@@ -11,7 +11,7 @@
         <div class="login-form">
             <h2>Club Management System</h2>
             <h3>Login</h3>
-            <form id="loginForm" onsubmit="return handle_login()">
+            <form id="loginForm" onsubmit="event.preventDefault(); handle_login(event);">
                 <div class="input-group">
                     <label for="userid">User ID:</label>
                     <input type="text" id="userid" name="userid" placeholder="23301451" required>
@@ -24,6 +24,21 @@
             </form>
             <button type="button" class="register-btn" onclick="registerNow()">Register Now</button>
             <div id="message" class="message"></div>
+        </div>
+    </div>
+
+    <!-- Pending Status Window -->
+    <div id="pendingOverlay" class="pending-overlay">
+        <div class="pending-window">
+            <div class="pending-icon">⏳</div>
+            <div class="pending-title">
+                Account Status: Pending
+            </div>
+            <div class="pending-message">
+                <h4>Account Under Review</h4>
+                <p>You will be informed via Email as soon as you are authorised</p>
+            </div>
+            <button class="pending-btn" onclick="close_pending()">Got it!</button>
         </div>
     </div>
 

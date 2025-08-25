@@ -176,9 +176,10 @@ INSERT INTO user (uid, email, pass, name, phone) VALUES
 (623785, 'mehnaz.akter@bracu.ac.bd', '38492015', 'Mehnaz Akter', '01589237461'),
 
 (538741, 'mas.rafi.islam@bracu.ac.bd', '12345', 'Mas Rafi Islam', '01521266159'),
-(538742, 'shahriar.tanvir@bracu.ac.bd', '83910572', 'Shahriar Tanvir', '01763849205'),
-(538743, 'fahim.rezwan@bracu.ac.bd', '12578394', 'Fahim Rezwan', '01892735641'),
-(538744, 'arafat.hoque@bracu.ac.bd', '90736482', 'Arafat Hoque', '01938472659');
+(538742, 'arunima.das1@bracu.ac.bd', '12345', 'Arunima Das', '01521766134'),
+(538743, 'shahriar.tanvir@bracu.ac.bd', '83910572', 'Shahriar Tanvir', '01763849205'),
+(538744, 'fahim.rezwan@bracu.ac.bd', '12578394', 'Fahim Rezwan', '01892735641'),
+(538745, 'arafat.hoque@bracu.ac.bd', '90736482', 'Arafat Hoque', '01938472659');
 
 
 INSERT INTO student VALUES
@@ -252,4 +253,4 @@ INSERT INTO approval (oca_uid, rid) VALUES
 (538741, 1),
 (538742, 2);
 
-
+UPDATE user SET status='active' WHERE uid IN (24341269, 24241289, 623781, 538741, 538742);
