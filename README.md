@@ -2,7 +2,7 @@
 
 Dependencies: 
 ```
-npm install mysql
+npm install mysql2
 ```
 ```
 npm install express
