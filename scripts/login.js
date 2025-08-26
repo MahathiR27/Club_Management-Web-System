@@ -68,19 +68,23 @@ async function handle_login() {
 async function handle_register() {
   show_registration()
   clear_form()
-  //const email = prompt("Enter your email:");
+
   //await send_email({ receiver: email, subject: `OTP`,body:`123`});
 }
 
 async function sendOTP() {
+  // Button instantly disabled jate mail spam na hoye jay
+  document.querySelector('.get-otp-btn').disabled = true;
+  
   const email = document.getElementById('regEmail').value;
   
   if (!email || !email.endsWith("@g.bracu.ac.bd")) {
-    // Wrong email
+    // wrong email hoile button abar ferot aishe porbe
+    document.querySelector('.get-otp-btn').disabled = false;
     document.getElementById('emailErrorText').style.display = 'block';
     return;
   }
-  // Send OTP
+  // Send OTP ----------------------------------------------------------------
   await send_email({ receiver: email, subject: `OTP`,body:`replace`});
   
   // Hide error text if email is valid
@@ -145,25 +149,70 @@ function clear_form() {
 
 /////////////////////////// Register - 2 ////////////////////////////
 function register_2(){
-  // Get the verified email from register 1
-  const verifiedEmail = document.getElementById('regEmail').value;
-  
-  // Store the verified email for use in register 2
-  document.getElementById('reg2Email').value = verifiedEmail;
-  
-  // Show the register 2 popup
   show_register2();
   clear_register2_form();
+
+  // Register theke verified email ta niye ashbe
+  const email = document.getElementById('regEmail').value;
+  document.getElementById('reg2Email').value = email;
 }
 
-// Register 2 popup functions
+async function handle_final_registration() {
+  const name = document.getElementById('reg2Name').value;
+  const studentId = document.getElementById('reg2StudentId').value;
+  const phone = document.getElementById('reg2Phone').value;
+  const department = document.getElementById('reg2Department').value;
+  const admissionSem = document.getElementById('reg2AdmissionSem').value;
+  const password = document.getElementById('reg2Password').value;
+  const confirmPassword = document.getElementById('reg2ConfirmPassword').value;
+  const email = document.getElementById('reg2Email').value; // Get the email from hidden field
+
+  // Sbb kisu fill up korese naki
+  if (!name || !studentId || !phone || !department || !admissionSem || !password || !confirmPassword) {
+    document.getElementById('register2ErrorText').innerText = 'Please fill in all fields';
+    document.getElementById('register2ErrorText').style.display = 'block';
+    return;}
+
+  // ID check
+  if (studentId.length != 8) {
+    document.getElementById('register2ErrorText').innerText = 'Incorrect Student ID';
+    document.getElementById('register2ErrorText').style.display = 'block';
+    return;}
+  
+  // Confirm Password
+  if (password !== confirmPassword) {
+    document.getElementById('register2ErrorText').innerText = 'Passwords do not match';
+    document.getElementById('register2ErrorText').style.display = 'block';
+    return;}
+  
+  // Phone number validate
+  if (phone.length != 11) {
+    document.getElementById('register2ErrorText').innerText = 'Phone number must be 11 digits';
+    document.getElementById('register2ErrorText').style.display = 'block';
+    return;}
+  
+    // User table
+    await get_data({ sql: `INSERT INTO user (uid, email, pass, name, phone) VALUES (?, ?, ?, ?, ?)`, 
+      params: [studentId, email, password, name, phone]});
+    // Student table
+    await get_data({ sql: `INSERT INTO student (uid, department, admission_sem) VALUES (?, ?, ?)`, 
+      params: [studentId, department, admissionSem]});
+
+  close_register2();
+  show_confirmation_popup();
+}
+
+// Register 2 
 function show_register2() {
-  document.getElementById('register2Overlay').classList.add('show');
-}
-
+  document.getElementById('register2Overlay').classList.add('show');}
 function close_register2() {
-  document.getElementById('register2Overlay').classList.remove('show');
-}
+  document.getElementById('register2Overlay').classList.remove('show');}
+
+// Successfully registered
+function show_confirmation_popup() {
+  document.getElementById('confirmationOverlay').classList.add('show');}
+function close_confirmation_popup() {
+  document.getElementById('confirmationOverlay').classList.remove('show');}
 
 // Clear register 2 form
 function clear_register2_form() { 
@@ -175,47 +224,4 @@ function clear_register2_form() {
   document.getElementById('reg2Password').value = '';
   document.getElementById('reg2ConfirmPassword').value = '';
   document.getElementById('register2ErrorText').style.display = 'none';
-}
-
-// Handle final registration submission
-async function handle_final_registration() {
-  const name = document.getElementById('reg2Name').value;
-  const studentId = document.getElementById('reg2StudentId').value;
-  const phone = document.getElementById('reg2Phone').value;
-  const department = document.getElementById('reg2Department').value;
-  const admissionSem = document.getElementById('reg2AdmissionSem').value;
-  const password = document.getElementById('reg2Password').value;
-  const confirmPassword = document.getElementById('reg2ConfirmPassword').value;
-  const email = document.getElementById('reg2Email').value;
-  
-  // Validation
-  if (!name || !studentId || !phone || !department || !admissionSem || !password || !confirmPassword) {
-    document.getElementById('register2ErrorText').innerText = 'Please fill in all fields';
-    document.getElementById('register2ErrorText').style.display = 'block';
-    return;
-  }
-  
-  if (password !== confirmPassword) {
-    document.getElementById('register2ErrorText').innerText = 'Passwords do not match';
-    document.getElementById('register2ErrorText').style.display = 'block';
-    return;
-  }
-  
-  if (phone.length !== 11) {
-    document.getElementById('register2ErrorText').innerText = 'Phone number must be 11 digits';
-    document.getElementById('register2ErrorText').style.display = 'block';
-    return;
-  }
-  
-  // TODO: Send registration data to server
-  // For now, just show success message
-  document.getElementById('register2ErrorText').innerText = 'Registration successful! Please wait for approval.';
-  document.getElementById('register2ErrorText').style.color = '#27ae60';
-  document.getElementById('register2ErrorText').style.display = 'block';
-  
-  // Close window after 2 seconds
-  setTimeout(() => {
-    close_register2();
-    document.getElementById('register2ErrorText').style.color = '#e74c3c';
-  }, 2000);
 }

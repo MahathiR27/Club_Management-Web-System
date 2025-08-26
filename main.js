@@ -10,11 +10,13 @@ app.use(express.json());
 app.use(express.static('.')); // Serves everything from current directory
 
 ///////////////////////// Database ////////////////////////
-// Direct database query endpoint
 app.post('/query', (req, res) => {
     const { sql, params } = req.body;
-    db.query(sql, params || [], (error, results) => { // checks for parameters na thakle empty list
-        res.json(results);
+    console.log('Executing SQL:', sql, 'with params:', params);
+
+    db.query(sql, params || [], (error, results) => { 
+      console.log('Query successful:', results);
+      res.json(results);
     });
 });
 ///////////////////////////////////////////////////////////
@@ -24,18 +26,18 @@ otp_storage = {}
 
 function otp_generator(email){
   if (email in otp_storage) {
-    return otp_storage.email;
+    return otp_storage[email];
   }
   else{
     const otp = Math.floor(Math.random() * 900000) + 100000;
-    otp_storage.email = otp;
+    otp_storage[email] = otp;
     return otp;
   }
 }
 
 function otp_verify(email, otp){
-  if (otp_storage.email == otp){
-    delete otp_storage.email;
+  if (otp_storage[email] == otp){
+    delete otp_storage[email];
     return true;
   }
   return false;
@@ -43,8 +45,8 @@ function otp_verify(email, otp){
 
 app.post('/otp', (req, res) => {
   const {email, otp} = req.body;
+    console.log(otp_storage, email, otp)
     if (otp_verify(email, otp)){
-      delete otp_storage.email
       res.json(true);
     }
     else {res.json(false);}
