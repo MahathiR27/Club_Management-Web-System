@@ -16,22 +16,19 @@ async function loadStudentDashboardData(userId) {
   await loadJoinedClubs(userId);
   // Load available clubs
   await loadAvailableClubs(userId);
-  // Load notifications
-  await loadNotifications(userId);
+  // Load announcements
+  await loadAnnouncements();
 }
 
 // Load clubs that the user has joined
-async function loadJoinedClubs(userId) {
-  console.log("Loading joined clubs for user:", userId);
+async function loadJoinedClubs(userId) { 
 
   const joinedClubs = await get_data({
-    sql: `SELECT c.*, m.joining_sem FROM club c 
+    sql: `SELECT c.*, m.* FROM club c 
           INNER JOIN members m ON c.cid = m.cid 
           WHERE m.student_uid = ?`,
     params: [userId],
   });
-
-  console.log("Joined clubs:", joinedClubs);
 
   const joinedClubsList = document.getElementById("joined-clubs-list");
   const emptyState = document.getElementById("joined-clubs-empty");
@@ -61,7 +58,7 @@ async function loadJoinedClubs(userId) {
             <p>Member since ${club.joining_sem}</p>
             <div class="club-stats">
               <span class="member-count">Active</span>
-              <span class="category">${club.category || "General"}</span>
+              <span class="category">${club.position || "General"}</span>
             </div>
           </div>
         </div>
@@ -73,17 +70,14 @@ async function loadJoinedClubs(userId) {
       )
       .join("");
 
-    console.log("Joined clubs HTML updated");
   } else {
     joinedClubsList.style.display = "none";
     emptyState.style.display = "block";
-    console.log("No joined clubs found, showing empty state");
   }
 }
 
 // Load clubs available to join
 async function loadAvailableClubs(userId) {
-  console.log("Loading available clubs for user:", userId);
 
   // Get clubs that user hasn't joined yet
   const availableClubs = await get_data({
@@ -94,15 +88,11 @@ async function loadAvailableClubs(userId) {
     params: [userId],
   });
 
-  console.log("Available clubs:", availableClubs);
-
   // Get user's applications status
   const applications = await get_data({
     sql: `SELECT cid, status FROM applied WHERE uid = ?`,
     params: [userId],
   });
-
-  console.log("User applications:", applications);
 
   // Create a map of applications for quick lookup
   const applicationMap = {};
@@ -140,8 +130,7 @@ async function loadAvailableClubs(userId) {
           <div class="club-details">
             <h4>${club.name}</h4>
             <p>${club.description || "Join this amazing club!"}</p>
-            <div class="club-stats">
-              <span class="category">${club.category || "General"}</span>
+            <div class="club-stats"> 
               ${
                 applicationStatus
                   ? `<span class="application-status ${applicationStatus}">${
@@ -159,43 +148,115 @@ async function loadAvailableClubs(userId) {
     })
     .join("");
 
-  console.log("Available clubs HTML updated");
 }
 
-// Load recent notifications
-async function loadNotifications(userId) {
-  // apajoto static notification deoa pore add korbo bakita
-  const notifications = [
-    {
-      icon: "📅",
-      title: "Welcome to Club Management System!",
-      message: "Explore clubs and join activities that interest you.",
-      time: "Just now",
-    },
-    {
-      icon: "🎉",
-      title: "System Updated",
-      message: "New features added to enhance your experience.",
-      time: "1 day ago",
-    },
-  ];
+// Load recent announcements dynamically from backend
+async function loadAnnouncements() {
+  const announcementsList = document.getElementById("announcements-list");
+  if (!announcementsList) return;
 
-  const notificationsList = document.getElementById("notifications-list");
-  notificationsList.innerHTML = notifications
-    .map(
-      (notification) => `
-    <div class="notification-item">
-      <div class="notification-icon">${notification.icon}</div>
-      <div class="notification-content">
-        <h4>${notification.title}</h4>
-        <p>${notification.message}</p>
-        <span class="notification-time">${notification.time}</span>
+  try {
+    // Pull only top 3 via POST /query
+    const rows = await get_data({
+      sql: `
+        SELECT a.aid, a.\`type\`, a.subject, a.body, a.date_time, u.name AS author
+        FROM \`announcement\` a
+        JOIN \`user\` u ON a.uid = u.uid
+        ORDER BY a.date_time DESC
+        LIMIT 3
+      `,
+      params: []
+    });
+
+    if (!rows || rows.length === 0) {
+      announcementsList.innerHTML = `
+        <div class="announcement-item">
+          <div class="announcement-content"><h4>No announcements yet</h4></div>
+        </div>`;
+    } else {
+      announcementsList.innerHTML = rows.map(renderAnnouncementItem).join("");
+    }
+
+    // Add/refresh the footer with the Show All button (using the existing .view-all-btn style)
+    // Avoid duplicates if the function runs again
+    const panel = announcementsList.closest(".announcement-panel") || announcementsList.parentElement;
+    let footer = panel.querySelector(".announcements-footer");
+    if (!footer) {
+      footer = document.createElement("div");
+      footer.className = "announcements-footer";
+      panel.appendChild(footer);
+    }
+    footer.innerHTML = `<button class="view-all-btn" id="showAllAnnouncementsBtn">Show all</button>`;
+    document.getElementById("showAllAnnouncementsBtn").addEventListener("click", openAnnouncementsModal);
+  } catch (err) {
+    console.error("Failed to load announcements:", err);
+  }
+}
+
+// Helper to render one announcement card (used by both list & modal)
+function renderAnnouncementItem(a) {
+  const when = new Date(a.date_time);
+  return `
+    <div class="announcement-item">
+      <div class="announcement-icon">📢</div>
+      <div class="announcement-content">
+        <h4>${a.subject}</h4>
+        <p>${a.body}</p>
+        <span class="announcement-time">${when.toLocaleString()} &nbsp;•&nbsp; ${a.author}</span>
       </div>
-    </div>
-  `
-    )
-    .join("");
+    </div>`;
 }
+
+// Modal: fetch all announcements and show in overlay
+async function openAnnouncementsModal() {
+  // Create overlay container once if missing
+  let overlay = document.getElementById("announcementsOverlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "announcementsOverlay";
+    overlay.className = "announcements-overlay";
+    overlay.innerHTML = `
+      <div class="announcements-modal" role="dialog" aria-modal="true" aria-label="All announcements">
+        <button class="announcements-close-btn" title="Close">&times;</button>
+        <h3>All Announcements</h3>
+        <div id="announcementsModalList" class="announcements-list-modal"></div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    // Close interactions
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) overlay.classList.remove("show");
+    });
+    overlay.querySelector(".announcements-close-btn")
+      .addEventListener("click", () => overlay.classList.remove("show"));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") overlay.classList.remove("show");
+    });
+  }
+  
+  // Load every announcement (you can add LIMIT 100 if needed)
+  try {
+    const rows = await get_data({
+      sql: `
+        SELECT a.aid, a.\`type\`, a.subject, a.body, a.date_time, u.name AS author
+        FROM \`announcement\` a
+        JOIN \`user\` u ON a.uid = u.uid
+        ORDER BY a.date_time DESC
+      `,
+      params: []
+    });
+
+    const container = document.getElementById("announcementsModalList");
+    container.innerHTML = rows && rows.length
+      ? rows.map(renderAnnouncementItem).join("")
+      : `<div class="announcement-item"><div class="announcement-content"><h4>No announcements found</h4></div></div>`;
+
+    document.getElementById("announcementsOverlay").classList.add("show");
+  } catch (err) {
+    console.error("Failed to load all announcements:", err);
+  }
+}
+
 
 // Apply to join a club
 async function applyToClub(clubId) {

@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS club_management;
+USE club_management;
+
 CREATE TABLE user (
   uid INT NOT NULL,
   email VARCHAR(150) NOT NULL UNIQUE,
@@ -221,7 +224,6 @@ INSERT INTO club (cid, email, name, advisor_uid) VALUES
 ('BUCC', 'computerclub@bracu.ac.bd', 'Computer Club', 623782),
 ('BUESC', 'esportsclub@bracu.ac.bd', 'Esports Club', 623783);
 
-
 INSERT INTO requisition (cid, date_time) VALUES
 ('ROBU', '2025-09-20 10:00:00'),
 ('BUCUC', '2025-09-21 14:30:00'),
@@ -236,19 +238,36 @@ INSERT INTO members (cid, student_uid, position, joining_sem) VALUES
 ('ROBU', 25316789, 'Vice President', 'Summer 2024'),
 ('BUCUC', 24305678, 'President', 'Spring 2023'),
 ('BUCUC', 25313456, 'Treasurer', 'Spring 2024'),
-('BUDC', 23307890, 'President', 'Fall 2023'),
+('BUDC', 24241289, 'President', 'Fall 2023'),
 ('BUDC', 25310123, 'Member', 'Summer 2023'),
 ('BUCC', 24302345, 'President', 'Summer 2024'),
 ('BUCC', 25301234, 'Member', 'Summer 2025'),
 ('BUESC', 23311234, 'President', 'Spring 2024'),
 ('BUESC', 25307891, 'Member', 'Spring 2023');
 
-
 INSERT INTO room (rid, room_assigned, room_type, date_requested, time_requested_from, time_requested_to) VALUES
 (1, 'R105', 'Class Room', '2025-09-20', '10:00:00', '12:00:00'),
 (2, 'R212', 'Conference Room', '2025-09-21', '14:30:00', '16:00:00'),
 (3, 'R307', 'Auditorium', '2025-09-22', '09:15:00', '11:15:00'),
 (4, 'R409', 'Theatre', '2025-09-22', '16:45:00', '18:30:00');
+
+INSERT INTO page (pid, cid) VALUES
+  (1, 'ROBU'),
+  (2, 'BUCUC'),
+  (3, 'BUDC'),
+  (4, 'BUCC'),
+  (5, 'BUESC')
+ON DUPLICATE KEY UPDATE cid = VALUES(cid);
+
+INSERT INTO announcement (`type`, subject, body, date_time, pid, uid) VALUES
+('notice', 'Welcome',      'Semester starts soon',   '2025-08-24 09:00:00', 1, 24341269),
+('event',  'Club Fair',    'UB3, 11am',              '2025-08-26 11:00:00', 1, 24341269),
+('update', 'Room Change',  'R212 -> R210',           '2025-08-27 10:30:00', 2, 623785),
+('event',  'Workshop',     'Git basics',             '2025-08-28 15:00:00', 4, 623782),
+('notice', 'Recruitment',  'Apply online',           '2025-08-29 12:00:00', 5, 24308912),
+('event',  'Debate',       'Tryouts Fri',            '2025-08-30 17:00:00', 3, 24241289),
+('update', 'Agenda',       'Check mail',             '2025-08-31 10:00:00', 1, 25316789),
+('notice', 'Budget',       'Submit forms',           '2025-09-01 09:30:00', 2, 538741);
 
 INSERT INTO approval (oca_uid, rid) VALUES
 (538741, 1),

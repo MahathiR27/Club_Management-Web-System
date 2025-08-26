@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Club Management - Dashboard</title>
-    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="stylesheet" href="dashboard.css" /> 
+    <link rel="icon" type="image/svg+xml"
+      href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path fill="%234fb8fa" d="M480-440q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-46q-54-53-125.5-83.5T480-360q-83 0-154.5 30.5T200-246v46Z"/></svg>'>
+
   </head>
   <body>
     <!-- Header -->
@@ -30,7 +33,7 @@
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 height="40px"
-                viewBox="http://www.w3.org/2000/svg"
+                viewBox="0 -960 960 960"
                 width="40px"
                 fill="#4fb8fa"
               >
@@ -51,7 +54,7 @@
             <svg
               xmlns="http://www.w3.org/2000/svg"
               height="16px"
-              viewBox="http://www.w3.org/2000/svg"
+              viewBox="0 -960 960 960"
               width="16px"
               fill="currentColor"
             >
@@ -77,41 +80,15 @@
 
       <!-- Student Dashboard Sections -->
       <div class="student-dashboard">
-        <!-- 1. Notification Panel -->
-        <div class="dashboard-section notification-panel">
+        <!-- Announcement panel will be set dynamically by JS -->
+        <div class="dashboard-section announcement-panel">
           <div class="section-header">
             <div class="section-icon">🔔</div>
-            <h3>Recent Notifications</h3>
+            <h3>Announcements</h3>
           </div>
-          <div class="notifications-list" id="notifications-list">
-            <div class="notification-item">
-              <div class="notification-icon">📅</div>
-              <div class="notification-content">
-                <h4>Club Meeting Tomorrow</h4>
-                <p>Programming Club meeting at 3:00 PM in Room 101</p>
-                <span class="notification-time">2 hours ago</span>
-              </div>
-            </div>
-            <div class="notification-item">
-              <div class="notification-icon">�</div>
-              <div class="notification-content">
-                <h4>Event Registration Open</h4>
-                <p>Annual Tech Fest registration is now open</p>
-                <span class="notification-time">1 day ago</span>
-              </div>
-            </div>
-            <div class="notification-item">
-              <div class="notification-icon">📢</div>
-              <div class="notification-content">
-                <h4>New Club Announcement</h4>
-                <p>Photography Club is looking for new members</p>
-                <span class="notification-time">3 days ago</span>
-              </div>
-            </div>
+          <div class="announcements-list" id="announcements-list">
+            <!-- Dynamic announcements will be rendered here by JS -->
           </div>
-          <button class="view-all-btn" onclick="viewAllNotifications()">
-            View All Notifications
-          </button>
         </div>
 
         <!-- 2. Joined Clubs List -->
