@@ -58,43 +58,48 @@ app.post('/otp', (req, res) => {
 //await send_email({ receiver: email, subject: `OTP`,body:`123`});
 
 // Transporter object
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // use false for STARTTLS; true for SSL on port 465
-  auth: {
-    user: config.gmail_address,
-    pass: config.gmail_app_pass,
-  }
-});
 
 app.post('/email', (req, res) => {
-  let { receiver, subject, body } = req.body;
-
-  if (subject.includes('OTP')){
-    const otp = otp_generator(receiver);
-    body = `Your OTP is: ${otp}`;
-  }
-
-  // Configure email er sender receiver
-  const mail_options = {
-    from: config.gmail_address,
-    to: receiver,
-    subject: subject,
-    text: body
-  };
-
-  // Send the email
-  transporter.sendMail(mail_options, function(error, info){
-    if (error) {
-      console.log(`Couldn't Send Email to ${receiver} \n ${error}`);
-      res.json({success: false});
-    } else {
-      console.log(`Email sent to: ${receiver}, Subject: ${subject}`);
-      res.json({success: true});
-    }
-  });
+res.json({success: true})
 });
+
+// const transporter = nodemailer.createTransport({
+//   host: 'smtp.gmail.com',
+//   port: 587,
+//   secure: false, // use false for STARTTLS; true for SSL on port 465
+//   auth: {
+//     user: config.gmail_address,
+//     pass: config.gmail_app_pass,
+//   }
+// });
+
+// app.post('/email', (req, res) => {
+//   let { receiver, subject, body } = req.body;
+
+//   if (subject.includes('OTP')){
+//     const otp = otp_generator(receiver);
+//     body = `Your OTP is: ${otp}`;
+//   }
+
+//   // Configure email er sender receiver
+//   const mail_options = {
+//     from: config.gmail_address,
+//     to: receiver,
+//     subject: subject,
+//     text: body
+//   };
+
+//   // Send the email
+//   transporter.sendMail(mail_options, function(error, info){
+//     if (error) {
+//       console.log(`Couldn't Send Email to ${receiver} \n ${error}`);
+//       res.json({success: false});
+//     } else {
+//       console.log(`Email sent to: ${receiver}, Subject: ${subject}`);
+//       res.json({success: true});
+//     }
+//   });
+// });
 ///////////////////////////////////////////////////////////
 
 ///////////////////////// Server /////////////////////////
