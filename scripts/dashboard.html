@@ -4,10 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Club Management - Dashboard</title>
-    <link rel="stylesheet" href="dashboard.css" /> 
-    <link rel="icon" type="image/svg+xml"
-      href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path fill="%234fb8fa" d="M480-440q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-46q-54-53-125.5-83.5T480-360q-83 0-154.5 30.5T200-246v46Z"/></svg>'>
-
+    <link rel="stylesheet" href="dashboard.css" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path fill="%234fb8fa" d="M480-440q58 0 99-41t41-99q0-58-41-99t-99-41q-58 0-99 41t-41 99q0 58 41 99t99 41ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-46q-54-53-125.5-83.5T480-360q-83 0-154.5 30.5T200-246v46Z"/></svg>'
+    />
   </head>
   <body>
     <!-- Header -->
@@ -70,56 +72,46 @@
 
     <!-- Main Dashboard -->
     <div class="dashboard-container">
-      <!-- Welcome Section -->
-      <div class="welcome-section">
-        <h2 id="welcome-message">Welcome!</h2>
-        <p>
-          Stay updated with your club activities and explore new opportunities.
-        </p>
+      <!-- Sidebar Navigation -->
+      <div class="sidebar" id="sidebar">
+        <div class="sidebar-content">
+          <!-- Navigation will be populated by JavaScript based on user role -->
+        </div>
       </div>
 
-      <!-- Student Dashboard Sections -->
-      <div class="student-dashboard">
-        <!-- Announcement panel will be set dynamically by JS -->
-        <div class="dashboard-section announcement-panel">
+      <!-- Main Content Area -->
+      <div class="main-content">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+          <h2 id="welcome-message">Welcome!</h2>
+        </div>
+
+        <!-- Announcements Section (hidden for OCA) -->
+        <div
+          class="dashboard-section announcement-panel"
+          id="announcement-section"
+        >
           <div class="section-header">
-            <div class="section-icon">🔔</div>
-            <h3>Announcements</h3>
+            <div class="section-title">
+              <div class="section-icon">🔔</div>
+              <h3>Recent Announcements</h3>
+            </div>
+            <button
+              class="view-all-btn"
+              id="view-all-announcements"
+              onclick="viewAllAnnouncements()"
+            >
+              View All
+            </button>
           </div>
           <div class="announcements-list" id="announcements-list">
             <!-- Dynamic announcements will be rendered here by JS -->
           </div>
         </div>
 
-        <!-- 2. Joined Clubs List -->
-        <div class="dashboard-section joined-clubs">
-          <div class="section-header">
-            <div class="section-icon">🏛️</div>
-            <h3>My Clubs</h3>
-          </div>
-          <div class="clubs-list" id="joined-clubs-list">
-            <!-- Joined clubs will be loaded dynamically by JavaScript -->
-          </div>
-          <div
-            class="empty-state"
-            id="joined-clubs-empty"
-            style="display: none"
-          >
-            <p>
-              You haven't joined any clubs yet. Explore available clubs below!
-            </p>
-          </div>
-        </div>
-
-        <!-- 3. Available Clubs to Join -->
-        <div class="dashboard-section available-clubs">
-          <div class="section-header">
-            <div class="section-icon">🔍</div>
-            <h3>Discover New Clubs</h3>
-          </div>
-          <div class="clubs-list" id="available-clubs-list">
-            <!-- Clubs will be loaded dynamically by JavaScript -->
-          </div>
+        <!-- Dynamic Content Area -->
+        <div class="dynamic-content" id="dynamic-content">
+          <!-- Content will be loaded based on sidebar navigation -->
         </div>
       </div>
     </div>

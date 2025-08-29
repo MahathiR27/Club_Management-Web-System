@@ -2,27 +2,145 @@
 
 // Setup dashboard for students
 async function setupStudentDashboard(userId) {
-  // Update welcome message
-  document.querySelector(".welcome-section p").textContent =
-    "Stay updated with your club activities and explore new opportunities.";
-
-  // Load student dashboard data
-  await loadStudentDashboardData(userId);
+  // Show home page by default (welcome + announcements)
+  showHomePage();
 }
 
-// Load dashboard data for student
-async function loadStudentDashboardData(userId) {
-  // Load joined clubs
+// Show My Clubs content
+async function showMyClubs(userId) {
+  const clickedBtn = event?.target || document.querySelector(".sidebar-btn");
+  setActiveButton(clickedBtn);
+
+  // Hide welcome message and announcements when navigating
+  document.querySelector(".welcome-section").style.display = "none";
+  document.getElementById("announcement-section").style.display = "none";
+
+  const dynamicContent = document.getElementById("dynamic-content");
+  dynamicContent.innerHTML = `
+    <div class="dashboard-section">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-icon">🏛️</div>
+          <h3>My Clubs</h3>
+        </div>
+      </div>
+      <div class="clubs-list" id="joined-clubs-list">
+        <!-- Joined clubs will be loaded dynamically -->
+      </div>
+      <div class="empty-state" id="joined-clubs-empty" style="display: none;">
+        <p>You haven't joined any clubs yet. Explore available clubs!</p>
+      </div>
+    </div>
+  `;
+
   await loadJoinedClubs(userId);
-  // Load available clubs
+}
+
+// Show Join Clubs content
+async function showJoinClubs(userId) {
+  const clickedBtn =
+    event?.target || document.querySelectorAll(".sidebar-btn")[1];
+  setActiveButton(clickedBtn);
+
+  // Hide welcome message and announcements when navigating
+  document.querySelector(".welcome-section").style.display = "none";
+  document.getElementById("announcement-section").style.display = "none";
+
+  const dynamicContent = document.getElementById("dynamic-content");
+  dynamicContent.innerHTML = `
+    <div class="dashboard-section">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-icon">🔍</div>
+          <h3>Join Clubs</h3>
+        </div>
+      </div>
+      <div class="clubs-list" id="available-clubs-list">
+        <!-- Available clubs will be loaded dynamically -->
+      </div>
+    </div>
+  `;
+
   await loadAvailableClubs(userId);
-  // Load announcements
-  await loadAnnouncements();
+}
+
+// Show Manage Clubs content (for presidents only)
+async function showManageClubs(userId) {
+  const clickedBtn = event?.target;
+  setActiveButton(clickedBtn);
+
+  // Hide welcome message and announcements when navigating
+  document.querySelector(".welcome-section").style.display = "none";
+  document.getElementById("announcement-section").style.display = "none";
+
+  const dynamicContent = document.getElementById("dynamic-content");
+  dynamicContent.innerHTML = `
+    <div class="dashboard-section">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-icon">⚙️</div>
+          <h3>Manage Clubs</h3>
+        </div>
+      </div>
+      <div class="manage-clubs-content" id="manage-clubs-content">
+        <!-- Manage clubs content will be loaded dynamically -->
+      </div>
+    </div>
+  `;
+
+  await loadManageClubsContent(userId);
+}
+
+// Load clubs that the user manages as president
+async function loadManageClubsContent(userId) {
+  try {
+    const managedClubs = await get_data({
+      sql: `SELECT c.*, m.position FROM club c 
+            INNER JOIN members m ON c.cid = m.cid 
+            WHERE m.student_uid = ? AND m.position = 'President'`,
+      params: [userId],
+    });
+
+    const content = document.getElementById("manage-clubs-content");
+
+    if (managedClubs.length > 0) {
+      content.innerHTML = managedClubs
+        .map(
+          (club) => `
+        <div class="club-card manage">
+          <div class="club-info">
+            <div class="club-icon">🏛️</div>
+            <div class="club-details">
+              <h4>${club.name}</h4>
+              <p>Role: ${club.position}</p>
+              <div class="club-stats">
+                <span class="member-count">President</span>
+              </div>
+            </div>
+          </div>
+          <div class="club-actions">
+            <button class="club-action-btn" onclick="manageClubMembers('${club.cid}')">Member List</button>
+            <button class="club-action-btn" onclick="manageClubActivities('${club.cid}')">Manage Activities</button>
+            <button class="club-action-btn" onclick="ClubMemberApproval('${club.cid}')">Member Apporval</button>
+            <button class="club-action-btn" onclick="manageClubRequisition('${club.cid}')">Requisition</button>
+          </div>
+        </div>
+      `
+        )
+        .join("");
+    } else {
+      content.innerHTML =
+        '<p class="no-content">You are not a president of any clubs.</p>';
+    }
+  } catch (error) {
+    console.error("Error loading managed clubs:", error);
+    document.getElementById("manage-clubs-content").innerHTML =
+      '<p class="error">Error loading managed clubs</p>';
+  }
 }
 
 // Load clubs that the user has joined
-async function loadJoinedClubs(userId) { 
-
+async function loadJoinedClubs(userId) {
   const joinedClubs = await get_data({
     sql: `SELECT c.*, m.* FROM club c 
           INNER JOIN members m ON c.cid = m.cid 
@@ -69,7 +187,6 @@ async function loadJoinedClubs(userId) {
     `
       )
       .join("");
-
   } else {
     joinedClubsList.style.display = "none";
     emptyState.style.display = "block";
@@ -78,7 +195,6 @@ async function loadJoinedClubs(userId) {
 
 // Load clubs available to join
 async function loadAvailableClubs(userId) {
-
   // Get clubs that user hasn't joined yet
   const availableClubs = await get_data({
     sql: `SELECT c.* FROM club c 
@@ -147,7 +263,6 @@ async function loadAvailableClubs(userId) {
     `;
     })
     .join("");
-
 }
 
 // Load recent announcements dynamically from backend
@@ -165,7 +280,7 @@ async function loadAnnouncements() {
         ORDER BY a.date_time DESC
         LIMIT 3
       `,
-      params: []
+      params: [],
     });
 
     if (!rows || rows.length === 0) {
@@ -179,7 +294,9 @@ async function loadAnnouncements() {
 
     // Add/refresh the footer with the Show All button (using the existing .view-all-btn style)
     // Avoid duplicates if the function runs again
-    const panel = announcementsList.closest(".announcement-panel") || announcementsList.parentElement;
+    const panel =
+      announcementsList.closest(".announcement-panel") ||
+      announcementsList.parentElement;
     let footer = panel.querySelector(".announcements-footer");
     if (!footer) {
       footer = document.createElement("div");
@@ -187,7 +304,9 @@ async function loadAnnouncements() {
       panel.appendChild(footer);
     }
     footer.innerHTML = `<button class="view-all-btn" id="showAllAnnouncementsBtn">Show all</button>`;
-    document.getElementById("showAllAnnouncementsBtn").addEventListener("click", openAnnouncementsModal);
+    document
+      .getElementById("showAllAnnouncementsBtn")
+      .addEventListener("click", openAnnouncementsModal);
   } catch (err) {
     console.error("Failed to load announcements:", err);
   }
@@ -202,7 +321,9 @@ function renderAnnouncementItem(a) {
       <div class="announcement-content">
         <h4>${a.subject}</h4>
         <p>${a.body}</p>
-        <span class="announcement-time">${when.toLocaleString()} &nbsp;•&nbsp; ${a.author}</span>
+        <span class="announcement-time">${when.toLocaleString()} &nbsp;•&nbsp; ${
+    a.author
+  }</span>
       </div>
     </div>`;
 }
@@ -227,13 +348,14 @@ async function openAnnouncementsModal() {
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) overlay.classList.remove("show");
     });
-    overlay.querySelector(".announcements-close-btn")
+    overlay
+      .querySelector(".announcements-close-btn")
       .addEventListener("click", () => overlay.classList.remove("show"));
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") overlay.classList.remove("show");
     });
   }
-  
+
   // Load every announcement (you can add LIMIT 100 if needed)
   try {
     const rows = await get_data({
@@ -243,20 +365,20 @@ async function openAnnouncementsModal() {
         JOIN \`user\` u ON a.uid = u.uid
         ORDER BY a.date_time DESC
       `,
-      params: []
+      params: [],
     });
 
     const container = document.getElementById("announcementsModalList");
-    container.innerHTML = rows && rows.length
-      ? rows.map(renderAnnouncementItem).join("")
-      : `<div class="announcement-item"><div class="announcement-content"><h4>No announcements found</h4></div></div>`;
+    container.innerHTML =
+      rows && rows.length
+        ? rows.map(renderAnnouncementItem).join("")
+        : `<div class="announcement-item"><div class="announcement-content"><h4>No announcements found</h4></div></div>`;
 
     document.getElementById("announcementsOverlay").classList.add("show");
   } catch (err) {
     console.error("Failed to load all announcements:", err);
   }
 }
-
 
 // Apply to join a club
 async function applyToClub(clubId) {
@@ -336,4 +458,14 @@ function viewClubDetails(clubId) {
 // View all notifications
 function viewAllNotifications() {
   alert("All notifications - Feature coming soon!");
+}
+
+// Manage club members (for presidents)
+function manageClubMembers(clubId) {
+  alert(`Manage members for club ${clubId} - Feature coming soon!`);
+}
+
+// Manage club activities (for presidents)
+function manageClubActivities(clubId) {
+  alert(`Manage activities for club ${clubId} - Feature coming soon!`);
 }
