@@ -328,9 +328,7 @@ async function loadPendingUsers() {
         });
         const user = user_data[0]; // Get the first user object
 
-        // Change button to green 'Approved'
-        this.outerHTML = '<span class="approved-label">Approved</span>';
-
+        // Send approval email
         await send_email({
           receiver: user.email,
           subject: `Account Activated`,
@@ -341,6 +339,9 @@ Your account has been ACTIVATED. You can now access the dashboard.
 Best regards,
 OCA`,
         });
+
+        // Refresh the account verification list to show updated status
+        await loadPendingVerifications();
       });
     });
   }
