@@ -382,72 +382,56 @@ async function openAnnouncementsModal() {
 
 // Apply to join a club
 async function applyToClub(clubId) {
-  console.log("applyToClub function called with clubId:", clubId);
-
   const currentUser = localStorage.getItem("currentUser");
   if (!currentUser) {
     alert("Please login first!");
     return;
   }
 
-  try {
-    // Check if user has already applied to this club
-    const existingApplication = await get_data({
-      sql: `SELECT status FROM applied WHERE uid = ? AND cid = ?`,
-      params: [currentUser, clubId],
-    });
-
-    if (existingApplication.length > 0) {
-      const status = existingApplication[0].status;
-      if (status === "applied" || status === "pending") {
-        alert(
-          "You have already applied to this club. Please wait for approval."
-        );
-        return;
-      } else if (status === "approved") {
-        alert(
-          "Your application has been approved. You are already a s of this club."
-        );
-        return;
-      } else if (status === "rejected") {
-        // Allow reapplication if previously rejected
-        await get_data({
-          sql: `UPDATE applied SET status = 'pending' WHERE uid = ? AND cid = ?`,
-          params: [currentUser, clubId],
-        });
-        alert("Your application has been resubmitted!");
-        await loadStudentDashboardData(currentUser);
-        return;
-      }
-    }
-
-    // Check if user is already a member of this club
-    const memberCheck = await get_data({
-      sql: `SELECT * FROM members WHERE student_uid = ? AND cid = ?`,
-      params: [currentUser, clubId],
-    });
-
-    if (memberCheck.length > 0) {
-      alert("You are already a member of this club!");
+  // Check if user has already applied to this club
+  const existingApplication = await get_data({
+    sql: `SELECT status FROM applied WHERE uid = ? AND cid = ?`,
+    params: [currentUser, clubId],
+  });
+  if (existingApplication.length > 0) {
+    const status = existingApplication[0].status;
+    if (status === "applied" || status === "pending") {
+      alert("You have already applied to this club. Please wait for approval.");
+      return;
+    } else if (status === "approved") {
+      alert(
+        "Your application has been approved. You are already a member of this club."
+      );
+      return;
+    } else if (status === "rejected") {
+      // Allow reapplication if previously rejected
+      await get_data({
+        sql: `UPDATE applied SET status = 'pending' WHERE uid = ? AND cid = ?`,
+        params: [currentUser, clubId],
+      });
+      alert("Your application has been resubmitted!");
+      // Refresh the current view to show updated status
+      await showJoinClubs(currentUser);
       return;
     }
-
-    // Insert new application
-    await get_data({
-      sql: `INSERT INTO applied (uid, cid, status) VALUES (?, ?, 'pending')`,
-      params: [currentUser, clubId],
-    });
-
-    alert("Application submitted successfully! Please wait for approval.");
-
-    // Reload the dashboard data to update UI
-    await loadStudentDashboardData(currentUser);
-  } catch (error) {
-    console.error("Error in applyToClub:", error);
-    alert(
-      "An error occurred while submitting your application. Please try again."
-    );
   }
+  // Check if user is already a member of this club
+  const memberCheck = await get_data({
+    sql: `SELECT * FROM members WHERE student_uid = ? AND cid = ?`,
+    params: [currentUser, clubId],
+  });
+  if (memberCheck.length > 0) {
+    alert("You are already a member of this club!");
+    return;
+  }
+  // Insert new application
+  await get_data({
+    sql: `INSERT INTO applied (uid, cid, status) VALUES (?, ?, 'pending')`,
+    params: [currentUser, clubId],
+  });
+  alert("Application submitted successfully! Please wait for approval.");
+  // Refresh the current view to show updated status
+  await showJoinClubs(currentUser);
 }
 
 // View club details
@@ -468,4 +452,135 @@ function manageClubMembers(clubId) {
 // Manage club activities (for presidents)
 function manageClubActivities(clubId) {
   alert(`Manage activities for club ${clubId} - Feature coming soon!`);
+}
+
+// Club member approval (for presidents)
+async function ClubMemberApproval(clubId) {
+  try {
+    // Get pending applications for this club
+    const pendingApplications = await get_data({
+      sql: `SELECT a.*, u.name, u.email, u.phone 
+            FROM applied a 
+            INNER JOIN user u ON a.uid = u.uid 
+            WHERE a.cid = ? AND a.status = 'pending'`,
+      params: [clubId],
+    });
+
+    // Create modal for member approval
+    const modalHTML = `
+      <div id="memberApprovalOverlay" class="announcements-overlay show">
+        <div class="announcements-modal">
+          <button class="announcements-close-btn" onclick="closeMemberApprovalModal()" title="Close">&times;</button>
+          <h3>Pending Member Applications</h3>
+          <div class="member-approval-list" id="member-approval-list">
+            ${
+              pendingApplications.length > 0
+                ? pendingApplications
+                    .map(
+                      (application) => `
+                <div class="verification-card">
+                  <div class="user-info">
+                    <h4>${application.name}</h4>
+                    <p><strong>ID:</strong> ${application.uid}</p>
+                    <p><strong>Email:</strong> ${application.email}</p>
+                    <p><strong>Phone:</strong> ${application.phone}</p>
+                    <p><strong>Applied:</strong> ${new Date(
+                      application.application_date
+                    ).toLocaleDateString()}</p>
+                  </div>
+                  <div class="verification-actions">
+                    <button class="approve-btn" onclick="approveMember('${
+                      application.uid
+                    }', '${clubId}')">Approve</button>
+                    <button class="reject-btn" onclick="rejectMember('${
+                      application.uid
+                    }', '${clubId}')">Reject</button>
+                  </div>
+                </div>
+              `
+                    )
+                    .join("")
+                : '<p class="no-content">No pending applications for this club.</p>'
+            }
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Add modal to body
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+    // Add event listener for closing
+    document
+      .getElementById("memberApprovalOverlay")
+      .addEventListener("click", function (e) {
+        if (e.target === this) {
+          closeMemberApprovalModal();
+        }
+      });
+  } catch (error) {
+    console.error("Error loading member applications:", error);
+    alert("Error loading member applications: " + error.message);
+  }
+}
+
+// Close member approval modal
+function closeMemberApprovalModal() {
+  const overlay = document.getElementById("memberApprovalOverlay");
+  if (overlay) {
+    overlay.remove();
+  }
+}
+
+// Approve member application
+async function approveMember(userId, clubId) {
+  try {
+    // Update application status to approved
+    await get_data({
+      sql: `UPDATE applied SET status = 'approved' WHERE uid = ? AND cid = ?`,
+      params: [userId, clubId],
+    });
+
+    // Add member to the club
+    await get_data({
+      sql: `INSERT INTO members (student_uid, cid, position, joining_sem) VALUES (?, ?, 'Member', 'Current')`,
+      params: [userId, clubId],
+    });
+
+    alert("Member approved successfully!");
+
+    // Refresh the modal content
+    closeMemberApprovalModal();
+    ClubMemberApproval(clubId);
+  } catch (error) {
+    console.error("Error approving member:", error);
+    alert("Error approving member: " + error.message);
+  }
+}
+
+// Reject member application
+async function rejectMember(userId, clubId) {
+  if (confirm("Are you sure you want to reject this application?")) {
+    try {
+      // Update application status to rejected
+      await get_data({
+        sql: `UPDATE applied SET status = 'rejected' WHERE uid = ? AND cid = ?`,
+        params: [userId, clubId],
+      });
+
+      alert("Application rejected successfully!");
+
+      // Refresh the modal content
+      closeMemberApprovalModal();
+      ClubMemberApproval(clubId);
+    } catch (error) {
+      console.error("Error rejecting application:", error);
+      alert("Error rejecting application: " + error.message);
+    }
+  }
+}
+
+// Manage club requisition (for presidents)
+function manageClubRequisition(clubId) {
+  alert(`Manage requisition for club ${clubId} - Feature coming soon!`);
 }

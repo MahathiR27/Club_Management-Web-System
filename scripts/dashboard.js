@@ -288,8 +288,87 @@ async function loadRecentAnnouncements() {
 
 // Function to view all announcements
 function viewAllAnnouncements() {
-  // This function can be expanded to show a modal or navigate to a full announcements page
-  alert("View all announcements feature - coming soon!");
+  loadAllAnnouncementsModal();
+}
+
+// Load all announcements in a modal
+async function loadAllAnnouncementsModal() {
+  try {
+    // Create modal HTML
+    const modalHTML = `
+      <div id="announcementsOverlay" class="announcements-overlay show">
+        <div class="announcements-modal">
+          <button class="announcements-close-btn" onclick="closeAnnouncementsModal()" title="Close">&times;</button>
+          <h3>All Announcements</h3>
+          <div class="announcements-list-modal" id="all-announcements-list">
+            <p>Loading announcements...</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Add modal to body
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+    // Load all announcements
+    const announcements = await get_data({
+      sql: `SELECT a.subject as title, a.body as content, a.date_time as date, u.name as author
+            FROM announcement a 
+            LEFT JOIN user u ON a.uid = u.uid
+            ORDER BY a.date_time DESC`,
+    });
+
+    const allAnnouncementsList = document.getElementById(
+      "all-announcements-list"
+    );
+
+    if (announcements.length > 0) {
+      allAnnouncementsList.innerHTML = announcements
+        .map(
+          (announcement) => `
+        <div class="announcement-item">
+          <div class="announcement-content">
+            <h4>${announcement.title}</h4>
+            <p>${announcement.content}</p>
+            <small>Posted by: ${announcement.author || "System"} on ${new Date(
+            announcement.date
+          ).toLocaleDateString()}</small>
+          </div>
+        </div>
+      `
+        )
+        .join("");
+    } else {
+      allAnnouncementsList.innerHTML =
+        '<p class="no-announcements">No announcements found</p>';
+    }
+
+    // Add event listeners for closing
+    document
+      .getElementById("announcementsOverlay")
+      .addEventListener("click", function (e) {
+        if (e.target === this) {
+          closeAnnouncementsModal();
+        }
+      });
+  } catch (error) {
+    console.error("Error loading all announcements:", error);
+    const allAnnouncementsList = document.getElementById(
+      "all-announcements-list"
+    );
+    if (allAnnouncementsList) {
+      allAnnouncementsList.innerHTML =
+        '<p class="error">Error loading announcements</p>';
+    }
+  }
+}
+
+// Close announcements modal
+function closeAnnouncementsModal() {
+  const overlay = document.getElementById("announcementsOverlay");
+  if (overlay) {
+    overlay.remove();
+  }
 }
 
 // Show home page - shows welcome message and announcements
@@ -300,10 +379,16 @@ function showHomePage() {
   // Show welcome message
   document.querySelector(".welcome-section").style.display = "block";
 
-  // Show announcements only if the section exists (not for OCA)
+  // Show announcements for students and advisors (check user role)
+  const userRole = document
+    .getElementById("userRole")
+    .textContent.toLowerCase();
   const announcementSection = document.getElementById("announcement-section");
-  if (announcementSection && announcementSection.style.display !== "none") {
+
+  if (announcementSection && userRole !== "oca") {
     announcementSection.style.display = "block";
+    // Reload announcements when returning to home
+    loadRecentAnnouncements();
   }
 
   // Clear dynamic content
