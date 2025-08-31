@@ -60,7 +60,7 @@ async function showAllClubs() {
   `;
 }
 
-// Show Club Approval content - only pending applications
+// Show Approvals tab with three buttons
 async function showClubApproval() {
   const clickedBtn = event?.target;
   setActiveButton(clickedBtn);
@@ -74,35 +74,163 @@ async function showClubApproval() {
       <div class="section-header">
         <div class="section-title">
           <div class="section-icon">📋</div>
-          <h3>Pending Club Applications</h3>
+          <h3>Approvals</h3>
         </div>
       </div>
-      <div id="pending-applications-list">
-        <!-- Pending applications will be loaded here -->
+      <div class="oca-content" style="display: flex; gap: 2rem;">
+        <button class="oca-btn" id="roomApprovalBtn">Room Approval</button>
+        <button class="oca-btn" id="billApprovalBtn">Bill Approval</button>
+        <button class="oca-btn" id="requisitionHistoryBtn">Requisition History</button>
       </div>
+      <div id="approval-tab-content" style="margin-top:2rem;"></div>
     </div>
   `;
 
-  await loadPendingClubApplications();
+  // Add event listeners for the buttons
+  document.getElementById("roomApprovalBtn").onclick = showRoomApprovalWindow;
+  document.getElementById("billApprovalBtn").onclick = function() {
+    document.getElementById("approval-tab-content").innerHTML = `<div class='dashboard-section'>New window opened</div>`;
+  };
+  document.getElementById("requisitionHistoryBtn").onclick = function() {
+    document.getElementById("approval-tab-content").innerHTML = `<div class='dashboard-section'>New window opened</div>`;
+  };
 }
 
-// Load pending club applications
-async function loadPendingClubApplications() {
-  try {
-    // This would be replaced with actual query to get pending club applications
-    // For now, showing a placeholder structure
-    const pendingList = document.getElementById("pending-applications-list");
-    pendingList.innerHTML = `
-      <div class="pending-applications">
-        <p class="no-content">No pending club applications at this time.</p>
-        <p class="note">This feature will connect to the database to show actual pending applications.</p>
-      </div>
-    `;
-  } catch (error) {
-    console.error("Error loading pending club applications:", error);
-    document.getElementById("pending-applications-list").innerHTML =
-      '<p class="error">Error loading applications</p>';
+// Room Approval Window
+async function showRoomApprovalWindow() {
+  const tabContent = document.getElementById("approval-tab-content");
+  tabContent.innerHTML = `<div class='dashboard-section room-approval-window' style='max-width:900px; min-width:350px; margin:auto; border-radius:16px; box-shadow:0 4px 24px rgba(79,184,250,0.12); padding:2.5rem 2rem; position:relative; height:70vh; overflow-y:auto;'>
+    <button id='closeRoomApprovalBtn' style='position:absolute;top:18px;right:22px;background:transparent;border:none;font-size:2rem;line-height:1;color:#9ca3af;cursor:pointer;z-index:2;' title='Close'>&times;</button>
+    <h3 style='margin-bottom:2rem;'>Room Approval</h3>
+    <div id='room-approval-table'></div>
+    <div id='assign-room-modal' style='display:none;'></div>
+  </div>`;
+  document.getElementById('closeRoomApprovalBtn').onclick = function() {
+    tabContent.innerHTML = "";
+  };
+  await loadRoomApprovalTable();
+}
+
+// Load Room Table
+async function loadRoomApprovalTable() {
+  const tableDiv = document.getElementById("room-approval-table");
+  // Get room info and club (cid) from requisition table
+  const rooms = await get_data({
+    sql: `SELECT room.*, requisition.cid FROM room JOIN requisition ON room.rid = requisition.rid ORDER BY room.rid ASC`
+  });
+  if (!rooms || rooms.length === 0) {
+    tableDiv.innerHTML = `<p style='text-align:center;color:#aaa;'>No room requests found.</p>`;
+    return;
   }
+  let cardsHtml = `<div class='pending-applications' style='display:flex;flex-direction:column;gap:1.5rem;'>`;
+  rooms.forEach(room => {
+    let dateOnly = room.date_requested;
+    if (typeof dateOnly === 'string' && dateOnly.includes('T')) {
+      dateOnly = dateOnly.split('T')[0];
+    }
+    cardsHtml += `
+      <div class='verification-card' style='display:flex;justify-content:space-between;align-items:flex-start;box-shadow:0 2px 8px rgba(0,0,0,0.05);padding:1.5rem;border-radius:12px;background:#fff;'>
+        <div class='user-info'>
+          <p><strong>RID:</strong> ${room.rid}</p>
+          <p><strong>Club:</strong> ${room.cid}</p>
+          <p><strong>Type:</strong> ${room.room_type}</p>
+          <p><strong>Date:</strong> ${dateOnly}</p>
+          <p><strong>Time:</strong> ${room.time_requested_from} - ${room.time_requested_to}</p>
+        </div>
+        <div class='verification-actions' style='display:flex;gap:0.5rem;align-items:center;'>
+          `;
+    if (room.room_assigned === "Pending") {
+      cardsHtml += `<button class='assign-room-btn' data-rid='${room.rid}' style='background:#4fb8fa;color:#fff;border:none;border-radius:6px;font-weight:500;box-shadow:none;padding:8px 18px;cursor:pointer;'>Assign</button>`;
+    } else {
+      cardsHtml += `<span style='color:#10b981;font-weight:600;'>Assigned: ${room.room_assigned}</span>`;
+    }
+    cardsHtml += `
+      </div>
+    </div>
+  `;
+  });
+  cardsHtml += `</div>`;
+  tableDiv.innerHTML = cardsHtml;
+
+  // Add event listeners for assign buttons
+  document.querySelectorAll(".assign-room-btn").forEach(btn => {
+    btn.onclick = function() {
+      const rid = this.getAttribute("data-rid");
+      showAssignRoomModal(rid);
+    };
+  });
+}
+
+// Show modal to assign room
+function showAssignRoomModal(rid) {
+  // Find the room info for the given rid
+  const room = Array.from(document.querySelectorAll('.verification-card'))
+    .map(card => {
+      const ridText = card.querySelector('p').textContent;
+      if (ridText.includes(rid)) {
+        return {
+          rid,
+          club: card.querySelector('p:nth-child(2)').textContent.split(': ')[1],
+          type: card.querySelector('p:nth-child(3)').textContent.split(': ')[1],
+          date: card.querySelector('p:nth-child(4)').textContent.split(': ')[1],
+          time: card.querySelector('p:nth-child(5)').textContent.split(': ')[1]
+        };
+      }
+      return null;
+    })
+    .filter(Boolean)[0];
+
+  const modalDiv = document.getElementById('assign-room-modal');
+  modalDiv.style.display = 'block';
+  modalDiv.innerHTML = `<div style='position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);z-index:9999;'>
+    <div style='background:#fff;padding:2rem 2.5rem;border-radius:16px;box-shadow:0 8px 32px rgba(79,184,250,0.15);min-width:320px;max-width:90vw;position:relative;display:flex;flex-direction:column;align-items:center;'>
+      <button id='closeAssignRoomModalBtn' style='position:absolute;top:12px;right:18px;background:transparent;border:none;font-size:2rem;line-height:1;color:#9ca3af;cursor:pointer;' title='Close'>&times;</button>
+      <h3 style='margin-bottom:1.5rem;'>Assign Room</h3>
+      <div style='margin-bottom:1.5rem;text-align:left;width:100%;'>
+        <p><strong>RID:</strong> ${room.rid}</p>
+        <p><strong>Club:</strong> ${room.club}</p>
+        <p><strong>Type:</strong> ${room.type}</p>
+        <p><strong>Date:</strong> ${room.date}</p>
+        <p><strong>Time:</strong> ${room.time}</p>
+      </div>
+      <div style='margin-bottom:1.5rem;'>
+        <input type='text' id='roomNumberInput' placeholder='Enter room number...' style='padding:0.5rem 1rem;border-radius:6px;border:1px solid #e0e0e0;width:220px;'>
+      </div>
+      <div style='display:flex;flex-direction:row;gap:1rem;width:100%;justify-content:center;'>
+        <button id='confirmAssignRoomBtn' style='background:#4fb8fa;color:#fff;border:none;border-radius:6px;font-weight:500;box-shadow:none;padding:8px 18px;cursor:pointer;'>Confirm</button>
+        <button id='cancelAssignRoomBtn' style='background:#ef4444;color:#fff;border:none;border-radius:6px;font-weight:500;padding:8px 18px;cursor:pointer;'>Cancel</button>
+      </div>
+    </div>
+  </div>`;
+  document.getElementById('closeAssignRoomModalBtn').onclick = function() {
+    modalDiv.style.display = 'none';
+    modalDiv.innerHTML = '';
+  };
+  document.getElementById('cancelAssignRoomBtn').onclick = function() {
+    modalDiv.style.display = 'none';
+    modalDiv.innerHTML = '';
+  };
+  document.getElementById('confirmAssignRoomBtn').onclick = async function() {
+    const roomNumber = document.getElementById('roomNumberInput').value.trim();
+    if (!roomNumber) {
+      alert('Please enter a room number.');
+      return;
+    }
+    // Update room_assigned in room table
+    await get_data({
+      sql: `UPDATE room SET room_assigned = ? WHERE rid = ?`,
+      params: [roomNumber, rid]
+    });
+    // Update status in requisition table
+    await get_data({
+      sql: `UPDATE requisition SET status = 'approved' WHERE rid = ?`,
+      params: [rid]
+    });
+    modalDiv.style.display = 'none';
+    modalDiv.innerHTML = '';
+    await loadRoomApprovalTable();
+    alert('Room assigned and status updated.');
+  };
 }
 
 // Show Announcements content
