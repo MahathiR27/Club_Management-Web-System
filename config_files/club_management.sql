@@ -94,14 +94,14 @@ CREATE TABLE requisition (
 CREATE TABLE applied (
   uid INT NOT NULL,
   cid VARCHAR(10) NOT NULL,
-  status VARCHAR(32) NOT NULL DEFAULT 'applied',
+  status VARCHAR(32) NOT NULL DEFAULT 'pending',
   PRIMARY KEY (uid, cid),
   CONSTRAINT fk_applied_user
     FOREIGN KEY (uid) REFERENCES user(uid)
     ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT fk_applied_club
     FOREIGN KEY (cid) REFERENCES club(cid)
-    ON UPDATE CASCADE
+    ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE members (
@@ -274,3 +274,4 @@ INSERT INTO approval (oca_uid, rid) VALUES
 (538742, 2);
 
 UPDATE user SET status='active' WHERE uid IN (538741, 538742, 538743, 538744, 538745, 23301451, 25316789);
+INSERT INTO applied (cid, uid) VALUES ('ROBU', 24341269);

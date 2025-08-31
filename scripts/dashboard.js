@@ -15,6 +15,7 @@ oca_access = ['oca']
 student_access = ['student']
 advisor_access = ['advisor']
 manage_club_access = ['oca','student','advisor']
+current_semester = 'Summer 2025'
 // =============================================================================================================================
 
 // ============================== Main Dashboard loader ========================================================================
@@ -61,9 +62,9 @@ async function setupDashboardByRole(userId) {
   // Setup sidebar and dashboard based on role
   setupSidebar(userRole, userId);
 
-  if (oca_access.include(userId)){await setupOCADashboard(userId);}
-  else if (student_access.include(userId)){await setupStudentDashboard(userId);}
-  else if (advisor_access.include(userId)){await setupAdvisorDashboard(userId);};
+  if (oca_access.includes(userId)){await setupOCADashboard(userId);}
+  else if (student_access.includes(userId)){await setupStudentDashboard(userId);}
+  else if (advisor_access.includes(userId)){await setupAdvisorDashboard(userId);};
 }
 
 // Load user profile information
@@ -305,7 +306,7 @@ function closeAllAnnouncements() {
 
 // Show home page - shows welcome message and announcements
 function showHomePage() {
-  const clickedBtn = document.querySelector(".sidebar-btn"); // Takes the 1st button available in the class
+  const clickedBtn = event?.target || document.querySelector(".sidebar-btn"); // Button pressed or Takes the 1st button available in the class
   setActiveButton(clickedBtn); // Basically always home button ke by default active kore dibe
 
   document.querySelector(".welcome-section").style.display = "block"; // Welcome er class load korbe

@@ -27,3 +27,5 @@ To-do:
    8. Manage Members
    9. Send Announcements
    10. OCA Delete Announcements
+   11. Club Table e add description, icon
+   12. Reset applications by dropping and creating the table again
