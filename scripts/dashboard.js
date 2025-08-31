@@ -1,5 +1,5 @@
-// Function to fetch data from table
-async function get_data(query) {
+// ============================== API Call Functions ===========================================================================
+async function get_data(query) { // Fetch database func
   const response = await fetch("/query", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -7,97 +7,83 @@ async function get_data(query) {
   });
   return await response.json();
 }
+// =============================================================================================================================
 
-// Load user information when page loads
+// ================================== Variables ================================================================================
+// Dashboard Access Roles
+oca_access = ['oca']
+student_access = ['student']
+advisor_access = ['advisor']
+manage_club_access = ['oca','student','advisor']
+// =============================================================================================================================
+
+// ============================== Main Dashboard loader ========================================================================
+// Main page load howar sathe sathe, Dashboard er innitially sob load kora
 window.addEventListener("DOMContentLoaded", async function () {
-  const currentUser = localStorage.getItem("currentUser");
-  if (currentUser) {
-    const userData = await get_data({
-      sql: `SELECT name FROM user WHERE uid = ?`,
-      params: [currentUser],
-    });
-    if (userData.length > 0) {
-      const username = userData[0].name;
-      document.getElementById(
-        "welcome-message"
-      ).textContent = `Welcome ${username}!`;
+  const currentUser = localStorage.getItem("currentUser"); // Login korar time e local storage e UID store korsilam
 
-      // Load user profile information for the dropdown menu
-      await loadUserProfile(currentUser);
-      // Check user role and setup dashboard
-      await setupDashboardByRole(currentUser);
-    } else {
-      document.getElementById("welcome-message").textContent = "Welcome!";
-    }
-  } else {
-    // user logged in na thakle login page e pathabe
+  if (currentUser) {
+    const userData = await get_data({sql: `SELECT name FROM user WHERE uid = ?`, params: [currentUser],});
+    const username = userData[0].name;
+
+    // Dashboard e sobar upore default "Welcome!" ke update kore
+    document.getElementById("welcome-message").textContent = `Welcome ${username}!`; 
+
+    // Top Right er user profile button load
+    await loadUserProfile(currentUser);
+
+    // Load all announcements
+    await loadRecentAnnouncements();
+
+    // UID theke or role ber kore then jayga moto dashboard e redirect
+    await setupDashboardByRole(currentUser); 
+  } 
+  
+  else { // localstorage e UID nai mane login kora nai, pathaye daw login page e
     window.location.href = "login.html";
   }
 });
 
-// check user role and setup dashboard
+// Database er 3 ta table theke user er role ber korbo
 async function setupDashboardByRole(userId) {
-  const roleCheck = await get_data({
-    sql: `
-        SELECT 'student' as role, uid FROM student WHERE uid = ?
-        UNION
-        SELECT 'advisor' as role, uid FROM advisor WHERE uid = ?  
-        UNION
-        SELECT 'oca' as role, uid FROM oca WHERE uid = ?
-      `,
-    params: [userId, userId, userId],
-  });
-
-  // if (roleCheck.length === 0) {
-  //   showRoleNotFoundError();
-  //   return;
-  // }
+  const roleCheck = await get_data({sql: `SELECT 'student' as role, uid FROM student WHERE uid = ?
+                                          UNION
+                                          SELECT 'advisor' as role, uid FROM advisor WHERE uid = ?  
+                                          UNION
+                                          SELECT 'oca' as role, uid FROM oca WHERE uid = ?`,
+                                    params: [userId, userId, userId],});
 
   const userRole = roleCheck[0].role;
 
-  // Update the user role in the profile dropdown
-  const roleDisplayMap = {
-    student: "Student",
-    advisor: "Advisor",
-    oca: "OCA",
-  };
-  document.getElementById("userRole").textContent = roleDisplayMap[userRole];
+  // Profile drop down e role dekhao
+  document.getElementById("userRole").textContent = userRole.toUpperCase();
 
   // Setup sidebar and dashboard based on role
   setupSidebar(userRole, userId);
 
-  // Load announcements for students and advisors (not OCA)
-  if (userRole !== "oca") {
-    await loadRecentAnnouncements();
-  } else {
-    // Hide announcement section for OCA
-    document.getElementById("announcement-section").style.display = "none";
-  }
-
-  switch (userRole) {
-    case "student":
-      await setupStudentDashboard(userId);
-      break;
-    case "advisor":
-      await setupAdvisorDashboard(userId);
-      break;
-    case "oca":
-      await setupOCADashboard(userId);
-      break;
-    default:
-      showRoleNotFoundError();
-  }
+  if (oca_access.include(userId)){await setupOCADashboard(userId);}
+  else if (student_access.include(userId)){await setupStudentDashboard(userId);}
+  else if (advisor_access.include(userId)){await advisor_access(userId);};
 }
 
+// Load user profile information
+async function loadUserProfile(userId) {
+    // Get basic user data
+    const userData = await get_data({sql: `SELECT name, uid, email FROM user WHERE uid = ?`, params: [userId]});
+
+      const user = userData[0];
+      document.getElementById("userName").textContent = user.name;
+      document.getElementById("userId").textContent = user.uid;
+      document.getElementById("userEmail").textContent = user.email;
+}
+// =============================================================================================================================
+
+// ============================= Buttons =======================================================================================
 function logout() {
-  if (confirm("Are you sure you want to logout?")) {
     localStorage.removeItem("currentUser");
-    alert("Logged out successfully!");
     window.location.href = "login.html";
-  }
 }
 
-// Toggle user dropdown menu
 function toggleUserMenu() {
   const dropdown = document.getElementById("userDropdown");
   dropdown.classList.toggle("show");
@@ -113,45 +99,37 @@ document.addEventListener("click", function (event) {
   }
 });
 
-// Load user profile information
-async function loadUserProfile(userId) {
-  try {
-    // Get basic user data
-    const userData = await get_data({
-      sql: `SELECT name, uid, email FROM user WHERE uid = ?`,
-      params: [userId],
-    });
-
-    if (userData.length > 0) {
-      const user = userData[0];
-      document.getElementById("userName").textContent = user.name;
-      document.getElementById("userId").textContent = user.uid;
-      document.getElementById("userEmail").textContent = user.email;
-      // Role will be set by setupDashboardByRole function
-    } else {
-      // Fallback if user data not found
-      document.getElementById("userName").textContent = "User";
-      document.getElementById("userRole").textContent = "Unknown";
-      document.getElementById("userId").textContent = userId;
-      document.getElementById("userEmail").textContent = "No email found";
-    }
-  } catch (error) {
-    console.error("Error loading user profile:", error);
-    // Fallback on error
-    document.getElementById("userName").textContent = "User";
-    document.getElementById("userRole").textContent = "Error";
-    document.getElementById("userId").textContent = userId;
-    document.getElementById("userEmail").textContent = "Error loading email";
-  }
-}
-
+// ============================= Side Bar =======================================================================================
 // Setup sidebar based on user role
 function setupSidebar(userRole, userId) {
   const sidebarContent = document.querySelector(".sidebar-content");
   let sidebarHTML = "";
 
-  switch (userRole) {
-    case "student":
+  if (oca_access.includes(userRole)){
+    sidebarHTML = `
+      <button class="sidebar-btn active" onclick="showHomePage()">
+        <span class="icon">🏠</span>
+        Home
+      </button>
+      <button class="sidebar-btn" onclick="showAllClubs()">
+        <span class="icon">🏢</span>
+        All Clubs
+      </button>
+      <button class="sidebar-btn" onclick="showClubApproval()">
+        <span class="icon">📋</span>
+        Club Approval
+      </button>
+      <button class="sidebar-btn" onclick="showAnnouncements()">
+        <span class="icon">📢</span>
+        Announcements
+      </button>
+      <button class="sidebar-btn" onclick="showAccountVerification()">
+        <span class="icon">👤</span>
+        Account Verification
+      </button>
+  `;}
+  
+  else if (student_access.includes(userRole)){
       sidebarHTML = `
         <button class="sidebar-btn active" onclick="showHomePage()">
           <span class="icon">🏠</span>
@@ -171,9 +149,9 @@ function setupSidebar(userRole, userId) {
             Manage Clubs
           </button>
         </div>
-      `;
-      break;
-    case "advisor":
+        `;}
+
+  else if (advisor_access.includes(userRole)){      
       sidebarHTML = `
         <button class="sidebar-btn active" onclick="showHomePage()">
           <span class="icon">🏠</span>
@@ -187,68 +165,41 @@ function setupSidebar(userRole, userId) {
           <span class="icon">✅</span>
           Approve Activities
         </button>
-      `;
-      break;
-    case "oca":
-      sidebarHTML = `
-        <button class="sidebar-btn active" onclick="showHomePage()">
-          <span class="icon">🏠</span>
-          Home
-        </button>
-        <button class="sidebar-btn" onclick="showAllClubs()">
-          <span class="icon">🏢</span>
-          All Clubs
-        </button>
-        <button class="sidebar-btn" onclick="showClubApproval()">
-          <span class="icon">📋</span>
-          Club Approval
-        </button>
-        <button class="sidebar-btn" onclick="showAnnouncements()">
-          <span class="icon">📢</span>
-          Announcements
-        </button>
-        <button class="sidebar-btn" onclick="showAccountVerification()">
-          <span class="icon">👤</span>
-          Account Verification
-        </button>
-      `;
-      break;
-  }
+      `;};
 
   sidebarContent.innerHTML = sidebarHTML;
 
-  // Check if student is a president to show manage clubs button
-  if (userRole === "student") {
-    checkIfPresident(userId);
-  }
+  show_manage_club(userRole,userId) // OCA, Advisor, Student(P and VP) ke dekhabe only
 }
 
 // Check if student is a president of any club
-async function checkIfPresident(userId) {
-  try {
-    const presidentCheck = await get_data({
-      sql: `SELECT cid FROM members WHERE student_uid = ? AND position = 'President'`,
-      params: [userId],
-    });
+async function show_manage_club(userRole,userId) {
+  if (userRole == "student"){ // Student hoile P and VP khali dkehte parbe
+    const student_check = await get_data({
+      sql: `SELECT cid FROM members WHERE student_uid = ? AND (position = 'President' or position = 'Vice President')`, 
+      params: [userId]});
 
-    if (presidentCheck.length > 0) {
+    if (student_check.length > 0) {
       document.getElementById("manage-clubs-btn").style.display = "block";
     }
-  } catch (error) {
-    console.error("Error checking president status:", error);
   }
+  else if (manage_club_access.includes(userRole)){ // OCA ar Advisor direct access
+    document.getElementById("manage-clubs-btn").style.display = "block";
+  };
 }
 
-// Function to handle sidebar button clicks
+// Sidebar Clicks
 function setActiveButton(clickedBtn) {
-  // Remove active class from all buttons
+  // Sob side button er jeita jeita diplay korte silo off kore 
   document.querySelectorAll(".sidebar-btn").forEach((btn) => {
     btn.classList.remove("active");
   });
-  // Add active class to clicked button
+  // Jeita click korsi oita only show korbe
   clickedBtn.classList.add("active");
 }
+//==============================================================================================================================
 
+// ============================= Announcement ==================================================================================
 // Load recent announcements (limit to 3)
 async function loadRecentAnnouncements() {
   try {

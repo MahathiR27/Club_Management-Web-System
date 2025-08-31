@@ -1,4 +1,5 @@
-CREATE DATABASE IF NOT EXISTS club_management;
+DROP DATABASE IF EXISTS club_management;
+CREATE DATABASE club_management;
 USE club_management;
 
 CREATE TABLE user (
@@ -129,11 +130,11 @@ CREATE TABLE bill (
 
 CREATE TABLE room (
   rid INT NOT NULL,
-  room_assigned VARCHAR(7),
   room_type VARCHAR(32),
   date_requested  DATE,
   time_requested_from  TIME,
   time_requested_to  TIME,
+  room_assigned VARCHAR(7) DEFAULT "Pending",
   PRIMARY KEY (rid),
   CONSTRAINT fk_room_req
     FOREIGN KEY (rid) REFERENCES requisition(rid)
@@ -232,12 +233,17 @@ INSERT INTO requisition (cid, date_time) VALUES
 ('BUCC', '2025-09-23 11:00:00'),
 ('ROBU', '2025-09-23 15:30:00');
 
+INSERT INTO room (rid, room_type, date_requested, time_requested_from, time_requested_to) VALUES
+(1, 'Class Room', '2025-09-20', '10:00:00', '12:00:00'),
+(2, 'Conference Room', '2025-09-21', '14:30:00', '16:00:00'),
+(3, 'Auditorium','2025-09-22', '09:15:00', '11:15:00'),
+(4, 'Theatre', '2025-09-22', '16:45:00', '18:30:00');
 
 INSERT INTO members (cid, student_uid, position, joining_sem) VALUES
 ('ROBU', 23301451, 'President', 'Summer 2023'),
 ('ROBU', 25316789, 'Vice President', 'Summer 2024'),
 ('BUCUC', 24305678, 'President', 'Spring 2023'),
-('BUCUC', 25313456, 'Treasurer', 'Spring 2024'),
+('BUCUC', 25313456, 'Member', 'Spring 2024'),
 ('BUDC', 24241289, 'President', 'Fall 2023'),
 ('BUDC', 25310123, 'Member', 'Summer 2023'),
 ('BUCC', 24302345, 'President', 'Summer 2024'),
@@ -245,32 +251,26 @@ INSERT INTO members (cid, student_uid, position, joining_sem) VALUES
 ('BUESC', 23311234, 'President', 'Spring 2024'),
 ('BUESC', 25307891, 'Member', 'Spring 2023');
 
-INSERT INTO room (rid, room_assigned, room_type, date_requested, time_requested_from, time_requested_to) VALUES
-(1, 'R105', 'Class Room', '2025-09-20', '10:00:00', '12:00:00'),
-(2, 'R212', 'Conference Room', '2025-09-21', '14:30:00', '16:00:00'),
-(3, 'R307', 'Auditorium', '2025-09-22', '09:15:00', '11:15:00'),
-(4, 'R409', 'Theatre', '2025-09-22', '16:45:00', '18:30:00');
-
 INSERT INTO page (pid, cid) VALUES
-  (1, 'ROBU'),
-  (2, 'BUCUC'),
-  (3, 'BUDC'),
-  (4, 'BUCC'),
-  (5, 'BUESC')
+(1, 'ROBU'),
+(2, 'BUCUC'),
+(3, 'BUDC'),
+(4, 'BUCC'),
+(5, 'BUESC')
 ON DUPLICATE KEY UPDATE cid = VALUES(cid);
 
 INSERT INTO announcement (`type`, subject, body, date_time, pid, uid) VALUES
-('notice', 'Welcome',      'Semester starts soon',   '2025-08-24 09:00:00', 1, 24341269),
-('event',  'Club Fair',    'UB3, 11am',              '2025-08-26 11:00:00', 1, 24341269),
-('update', 'Room Change',  'R212 -> R210',           '2025-08-27 10:30:00', 2, 623785),
-('event',  'Workshop',     'Git basics',             '2025-08-28 15:00:00', 4, 623782),
-('notice', 'Recruitment',  'Apply online',           '2025-08-29 12:00:00', 5, 24308912),
-('event',  'Debate',       'Tryouts Fri',            '2025-08-30 17:00:00', 3, 24241289),
-('update', 'Agenda',       'Check mail',             '2025-08-31 10:00:00', 1, 25316789),
-('notice', 'Budget',       'Submit forms',           '2025-09-01 09:30:00', 2, 538741);
+('notice', 'Welcome', 'Semester starts soon',   '2025-08-24 09:00:00', 1, 24341269),
+('event', 'Club Fair', 'UB3, 11am', '2025-08-26 11:00:00', 1, 24341269),
+('update', 'Room Change', 'R212 -> R210', '2025-08-27 10:30:00', 2, 623785),
+('event', 'Workshop', 'Git basics', '2025-08-28 15:00:00', 4, 623782),
+('notice', 'Recruitment', 'Apply online', '2025-08-29 12:00:00', 5, 24308912),
+('event', 'Debate', 'Tryouts Fri', '2025-08-30 17:00:00', 3, 24241289),
+('update', 'Agenda', 'Check mail', '2025-08-31 10:00:00', 1, 25316789),
+('notice', 'Budget', 'Submit forms', '2025-09-01 09:30:00', 2, 538741);
 
 INSERT INTO approval (oca_uid, rid) VALUES
 (538741, 1),
 (538742, 2);
 
-UPDATE user SET status='active' WHERE uid IN (538741, 538742, 538743, 538744, 538745);
+UPDATE user SET status='active' WHERE uid IN (538741, 538742, 538743, 538744, 538745, 23301451, 25316789);
