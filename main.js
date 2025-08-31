@@ -57,12 +57,15 @@ app.post('/otp', (req, res) => {
 //const email = prompt("Enter your email:");
 //await send_email({ receiver: email, subject: `OTP`,body:`123`});
 
-// Transporter object
-
+// Comment out to run mail test
+otp_generator['11111@g.bracu.ac.bd'] = 123456;
 app.post('/email', (req, res) => {
 res.json({success: true})
 });
 
+// Uncomment to send mail
+
+// Transporter object
 // const transporter = nodemailer.createTransport({
 //   host: 'smtp.gmail.com',
 //   port: 587,

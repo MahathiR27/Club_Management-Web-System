@@ -63,7 +63,7 @@ async function setupDashboardByRole(userId) {
 
   if (oca_access.include(userId)){await setupOCADashboard(userId);}
   else if (student_access.include(userId)){await setupStudentDashboard(userId);}
-  else if (advisor_access.include(userId)){await advisor_access(userId);};
+  else if (advisor_access.include(userId)){await setupAdvisorDashboard(userId);};
 }
 
 // Load user profile information
@@ -102,7 +102,6 @@ document.addEventListener("click", function (event) {
 // ============================= Side Bar =======================================================================================
 // Setup sidebar based on user role
 function setupSidebar(userRole, userId) {
-  const sidebarContent = document.querySelector(".sidebar-content");
   let sidebarHTML = "";
 
   if (oca_access.includes(userRole)){
@@ -167,6 +166,7 @@ function setupSidebar(userRole, userId) {
         </button>
       `;};
 
+  const sidebarContent = document.querySelector(".sidebar-content"); // class er vitore html insert korbe
   sidebarContent.innerHTML = sidebarHTML;
 
   show_manage_club(userRole,userId) // OCA, Advisor, Student(P and VP) ke dekhabe only
@@ -200,56 +200,40 @@ function setActiveButton(clickedBtn) {
 //==============================================================================================================================
 
 // ============================= Announcement ==================================================================================
-// Load recent announcements (limit to 3)
+// Load latest 3 announcements
 async function loadRecentAnnouncements() {
-  try {
-    const announcements = await get_data({
-      sql: `SELECT a.subject as title, a.body as content, a.date_time as date 
-            FROM announcement a 
-            ORDER BY a.date_time DESC LIMIT 3`,
-    });
+  const announcements = await get_data({
+    sql: `SELECT a.subject as subject, a.date_time as date, u.name as author 
+          FROM announcement a LEFT JOIN user u ON a.uid = u.uid
+          ORDER BY a.date_time DESC LIMIT 3`});
 
-    const announcementsList = document.getElementById("announcements-list");
-    if (announcements.length > 0) {
-      announcementsList.innerHTML = announcements
-        .map(
-          (announcement) => `
-        <div class="announcement-item">
-          <div class="announcement-content">
-            <h4>${announcement.title}</h4>
-            <p>${announcement.content}</p>
-            <small>Posted on: ${new Date(
-              announcement.date
-            ).toLocaleDateString()}</small>
-          </div>
+  if (announcements.length > 0) {
+    val = announcements.map((i) => // Map er karone, db theke jei data gula list er moddhe ashce, sob gula iterate hobe ar ei html template e boshbe  
+      `<div class="announcement-item">
+        <div class="announcement-content">
+          <h4>${i.subject}</h4>
+          <small>Posted by ${i.author} on ${new Date(i.date).toLocaleDateString()}</small> <!-- Time dekhte ektu jater korar jonne -->
         </div>
-      `
-        )
-        .join("");
-    } else {
-      announcementsList.innerHTML =
-        '<p class="no-announcements">No recent announcements</p>';
-    }
-  } catch (error) {
-    console.error("Error loading announcements:", error);
-    document.getElementById("announcements-list").innerHTML =
-      '<p class="error">Error loading announcements</p>';
+      </div>`);
+
+    val = val.join("") // As upore theke val ekta list hoye ashce, join kore puratake ekta tring banaisi html er
+
+  } else {
+    val = '<p class="no-announcements">No recent announcements</p>';
   }
+
+  const announcementsList = document.getElementById("announcements-list");
+  announcementsList.innerHTML = val // Announcement element er moddhe html insert korbe
 }
 
-// Function to view all announcements
-function viewAllAnnouncements() {
-  loadAllAnnouncementsModal();
-}
-
-// Load all announcements in a modal
-async function loadAllAnnouncementsModal() {
+// Sob announcement dekhar jnno
+async function viewAllAnnouncements() {
   try {
     // Create modal HTML
     const modalHTML = `
       <div id="announcementsOverlay" class="announcements-overlay show">
         <div class="announcements-modal">
-          <button class="announcements-close-btn" onclick="closeAnnouncementsModal()" title="Close">&times;</button>
+          <button class="announcements-close-btn" onclick="closeAllAnnouncements()" title="Close">&times;</button>
           <h3>All Announcements</h3>
           <div class="announcements-list-modal" id="all-announcements-list">
             <p>Loading announcements...</p>
@@ -263,15 +247,12 @@ async function loadAllAnnouncementsModal() {
 
     // Load all announcements
     const announcements = await get_data({
-      sql: `SELECT a.subject as title, a.body as content, a.date_time as date, u.name as author
-            FROM announcement a 
-            LEFT JOIN user u ON a.uid = u.uid
+      sql: `SELECT a.subject as title, a.body as content, a.date_time as date, u.name as author 
+            FROM announcement a LEFT JOIN user u ON a.uid = u.uid
             ORDER BY a.date_time DESC`,
     });
 
-    const allAnnouncementsList = document.getElementById(
-      "all-announcements-list"
-    );
+    const allAnnouncementsList = document.getElementById("all-announcements-list");
 
     if (announcements.length > 0) {
       allAnnouncementsList.innerHTML = announcements
@@ -299,7 +280,7 @@ async function loadAllAnnouncementsModal() {
       .getElementById("announcementsOverlay")
       .addEventListener("click", function (e) {
         if (e.target === this) {
-          closeAnnouncementsModal();
+          closeAllAnnouncements();
         }
       });
   } catch (error) {
@@ -315,7 +296,7 @@ async function loadAllAnnouncementsModal() {
 }
 
 // Close announcements modal
-function closeAnnouncementsModal() {
+function closeAllAnnouncements() {
   const overlay = document.getElementById("announcementsOverlay");
   if (overlay) {
     overlay.remove();
@@ -324,24 +305,15 @@ function closeAnnouncementsModal() {
 
 // Show home page - shows welcome message and announcements
 function showHomePage() {
-  const clickedBtn = event?.target || document.querySelector(".sidebar-btn");
-  setActiveButton(clickedBtn);
+  const clickedBtn = document.querySelector(".sidebar-btn"); // Takes the 1st button available in the class
+  setActiveButton(clickedBtn); // Basically always home button ke by default active kore dibe
 
-  // Show welcome message
-  document.querySelector(".welcome-section").style.display = "block";
+  document.querySelector(".welcome-section").style.display = "block"; // Welcome er class load korbe
 
-  // Show announcements for students and advisors (check user role)
-  const userRole = document
-    .getElementById("userRole")
-    .textContent.toLowerCase();
   const announcementSection = document.getElementById("announcement-section");
+  announcementSection.style.display = "block"; // Announcement er block visible korbe 
 
-  if (announcementSection && userRole !== "oca") {
-    announcementSection.style.display = "block";
-    // Reload announcements when returning to home
-    loadRecentAnnouncements();
-  }
+  loadRecentAnnouncements();
 
-  // Clear dynamic content
-  document.getElementById("dynamic-content").innerHTML = "";
+  document.getElementById("dynamic-content").innerHTML = ""; // Side bar diye onno dynamic panel ase sob remove kore dibe
 }
