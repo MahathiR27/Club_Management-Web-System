@@ -28,7 +28,10 @@ So far completed:
    8. OCA Bill Approval
    9. Send Announcements
 ```
-To-do:
-   10. OCA Delete Announcements
-   11. Club Table e add description, icon
-   12. Reset applications by dropping and creating the table again
+Email
+```
+   1. OTP
+   2. OCA Account Approval
+   3. Club Join Approval: approve_application()
+   4. Member Role update: confirm_edit_member()
+```
