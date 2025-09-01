@@ -455,8 +455,125 @@ function close_edit_member() {
 }
 
 // Manage club requisition (for presidents)
-function club_requisition(clubId) {
-  alert(`Manage requisition for club ${clubId} - Feature coming soon!`);
+async function club_requisition(clubId) {
+  const modalHTML = `
+    <div id="requisition_panel" class="announcements-overlay show">
+      <div class="announcements-modal" style="width: 400px; max-width: 90vw;">
+        <button class="announcements-close-btn" onclick="close_requisition()" title="Close">&times;</button>
+        <h3>New Requisition</h3>
+        <div class="requisition-content" id="requisition-content">
+          <label style="display: block; margin-bottom: 8px;">Requisition Type:</label>
+          <select id="requisition-type-dropdown" style="width: 100%; padding: 8px; margin-bottom: 20px;" onchange="handle_requisition_type()">
+            <option value="">Select Type</option>
+            <option value="room">Room</option>
+            <option value="bill">Bill</option>
+          </select>
+          <div id="bill-form" style="display: none;">
+            <label style="display: block; margin-bottom: 8px;">Event Name:</label>
+            <input type="text" id="event-name" style="width: 100%; padding: 8px; margin-bottom: 15px;" placeholder="Enter event name">
+            
+            <label style="display: block; margin-bottom: 8px;">Amount:</label>
+            <input type="number" id="amount" style="width: 100%; padding: 8px; margin-bottom: 15px;" placeholder="Enter amount" step="0.01">
+            
+            <label style="display: block; margin-bottom: 8px;">Upload Document:</label>
+            <input type="file" id="document" accept="application/pdf,.pdf" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+            
+            <div id="error-message" style="color: red; text-align: center; margin-bottom: 10px; display: none;"></div>
+          </div>
+          <p style="text-align: center; margin-top: 20px;">
+            <button class="approve-btn" onclick="submit_requisition('${clubId}')" id="submit-btn" style="display: none;">Submit</button>
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  document.getElementById("requisition_panel").addEventListener("click", function (e){
+      if (e.target === this) {close_requisition()}
+  });
+}
+
+function handle_requisition_type() {
+  const type = document.getElementById("requisition-type-dropdown").value;
+  const billForm = document.getElementById("bill-form");
+  const submitBtn = document.getElementById("submit-btn");
+  
+  if (type === "bill") {
+    billForm.style.display = "block";
+    submitBtn.style.display = "inline-block";
+  } else if (type === "room") {
+    billForm.style.display = "none";
+    submitBtn.style.display = "none";
+  } else {
+    billForm.style.display = "none";
+    submitBtn.style.display = "none";
+  }
+}
+
+async function submit_requisition(clubId) {
+  const eventName = document.getElementById("event-name").value;
+  const amount = document.getElementById("amount").value;
+  const documentFile = document.getElementById("document").files[0];
+  const errorMessage = document.getElementById("error-message");
+  
+  // Clear previous error
+  errorMessage.style.display = "none";
+  
+  if (!eventName || !amount || !documentFile) {
+    errorMessage.textContent = "Please fill all fields";
+    errorMessage.style.display = "block";
+    return;
+  }
+
+  // Upload PDF file
+  const formData = new FormData();
+  formData.append('pdf', documentFile);
+  
+  try {
+    const uploadResponse = await fetch('/upload-pdf', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const uploadResult = await uploadResponse.json();
+    
+    if (!uploadResult.success) {
+      errorMessage.textContent = "Failed to upload document";
+      errorMessage.style.display = "block";
+      return;
+    }
+
+    // Insert into requisition table
+    const requisition = await get_data({
+      sql: `INSERT INTO requisition (cid, date_time) VALUES (?, NOW())`,
+      params: [clubId]
+    });
+    
+    // Get the inserted requisition ID
+    const ridResult = await get_data({
+      sql: `SELECT LAST_INSERT_ID() as rid`,
+      params: []
+    });
+    
+    const rid = ridResult[0].rid;
+    
+    // Insert into bill table with file path
+    await get_data({
+      sql: `INSERT INTO bill (rid, event, amount, documents) VALUES (?, ?, ?, ?)`,
+      params: [rid, eventName, amount, uploadResult.path]
+    });
+    
+    close_requisition();
+  } catch (error) {
+    errorMessage.textContent = "Error submitting requisition";
+    errorMessage.style.display = "block";
+  }
+}
+
+function close_requisition() {
+  document.getElementById("requisition_panel").remove();
 }
 
 // Send club announcement (for club members)
