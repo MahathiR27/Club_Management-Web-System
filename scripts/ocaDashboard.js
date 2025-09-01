@@ -47,7 +47,7 @@ async function showAllClubs() {
           <button class="oca-btn" onclick="alert('Active clubs management coming soon!')">View Active Clubs</button>
         </div>
         <div class="oca-card">
-          <h4>📊 Club Statistics</h4>
+          <h4><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4f1"><path d="M280-280h80v-200h-80v200Zm320 0h80v-400h-80v400Zm-160 0h80v-120h-80v120Zm0-200h80v-80h-80v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Z"/></svg> Club Statistics</h4>
           <p>View comprehensive statistics about all clubs</p>
           <button class="oca-btn" onclick="alert('Club statistics coming soon!')">View Statistics</button>
         </div>
@@ -76,7 +76,7 @@ async function showClubApproval() {
     <div class="dashboard-section">
       <div class="section-header">
         <div class="section-title">
-          <div class="section-icon">📋</div>
+          <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4f1"><path d="m424-318 282-282-56-56-226 226-114-114-56 56 170 170ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h168q13-36 43.5-58t68.5-22q38 0 68.5 22t43.5 58h168q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm280-670q13 0 21.5-8.5T510-820q0-13-8.5-21.5T480-850q-13 0-21.5 8.5T450-820q0 13 8.5 21.5T480-790Z"/></svg></div>
           <h3>Approvals</h3>
         </div>
       </div>
@@ -250,23 +250,23 @@ async function showAnnouncements() {
     <div class="dashboard-section">
       <div class="section-header">
         <div class="section-title">
-          <div class="section-icon">📢</div>
+          <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4f1"><path d="M160-200v-80h80v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q80 20 130 84.5T720-560v280h80v80H160ZM480-80q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80Z"/></svg></div>
           <h3>Announcements</h3>
         </div>
       </div>
       <div class="oca-content" id="announcements-content">
         <div class="oca-card">
-          <h4>✍️ Create Announcement</h4>
+          <h4><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg> Create Announcement</h4>
           <p>Send system-wide announcements and notifications</p>
           <button class="oca-btn" onclick="alert('Create announcement coming soon!')">Create New</button>
         </div>
         <div class="oca-card">
-          <h4>📄 Manage Announcements</h4>
+          <h4><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="m640-120-12-60q-12-5-22.5-10.5T584-204l-58 18-40-68 46-40q-2-14-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T628-460l12-60h80l12 60q12 5 22.5 11t21.5 15l58-20 40 70-46 40q2 12 2 25t-2 25l46 40-40 68-58-18q-11 8-21.5 13.5T732-180l-12 60h-80ZM80-160v-112q0-33 17-62t47-44q51-26 115-44t141-18h14q6 0 12 2-29 72-24 143t48 135H80Zm600-80q33 0 56.5-23.5T760-320q0-33-23.5-56.5T680-400q-33 0-56.5 23.5T600-320q0 33 23.5 56.5T680-240ZM400-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Z"/></svg> Manage Announcements</h4>
           <p>View and manage existing announcements</p>
           <button class="oca-btn" onclick="alert('Manage announcements coming soon!')">Manage Existing</button>
         </div>
         <div class="oca-card">
-          <h4>📊 Announcement Analytics</h4>
+          <h4><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4f1"><path d="M280-280h80v-200h-80v200Zm320 0h80v-400h-80v400Zm-160 0h80v-120h-80v120Zm0-200h80v-80h-80v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Z"/></svg> Announcement Analytics</h4>
           <p>View announcement reach and engagement</p>
           <button class="oca-btn" onclick="alert('Announcement analytics coming soon!')">View Analytics</button>
         </div>
