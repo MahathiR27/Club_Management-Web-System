@@ -78,52 +78,66 @@ app.post('/otp', (req, res) => {
 //const email = prompt("Enter your email:");
 //await send_email({ receiver: email, subject: `OTP`,body:`123`});
 
+// // EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+// const user_data = await get_data({sql: `SELECT * FROM user WHERE uid = ?`,params: [uid]});
+// const user = user_data[0];
+// await send_email({
+// receiver: user.email,
+// subject: `Account Activated`,
+// body: `Dear ${user.name},
+
+// Your account has been ACTIVATED. You can now access the dashboard.
+
+// Best regards,
+// OCA`});
+// // EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
 // Comment out to run mail test
-otp_generator['11111@g.bracu.ac.bd'] = 123456;
-app.post('/email', (req, res) => {
-res.json({success: true})
-});
+// otp_generator['11111@g.bracu.ac.bd'] = 123456;
+// app.post('/email', (req, res) => {
+// res.json({success: true})
+// });
 
 // Uncomment to send mail
 
 // Transporter object
-// const transporter = nodemailer.createTransport({
-//   host: 'smtp.gmail.com',
-//   port: 587,
-//   secure: false, // use false for STARTTLS; true for SSL on port 465
-//   auth: {
-//     user: config.gmail_address,
-//     pass: config.gmail_app_pass,
-//   }
-// });
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // use false for STARTTLS; true for SSL on port 465
+  auth: {
+    user: config.gmail_address,
+    pass: config.gmail_app_pass,
+  }
+});
 
-// app.post('/email', (req, res) => {
-//   let { receiver, subject, body } = req.body;
+app.post('/email', (req, res) => {
+  let { receiver, subject, body } = req.body;
 
-//   if (subject.includes('OTP')){
-//     const otp = otp_generator(receiver);
-//     body = `Your OTP is: ${otp}`;
-//   }
+  if (subject.includes('OTP')){
+    const otp = otp_generator(receiver);
+    body = `Your OTP is: ${otp}`;
+  }
 
-//   // Configure email er sender receiver
-//   const mail_options = {
-//     from: config.gmail_address,
-//     to: receiver,
-//     subject: subject,
-//     text: body
-//   };
+  // Configure email er sender receiver
+  const mail_options = {
+    from: config.gmail_address,
+    to: receiver,
+    subject: subject,
+    text: body
+  };
 
-//   // Send the email
-//   transporter.sendMail(mail_options, function(error, info){
-//     if (error) {
-//       console.log(`Couldn't Send Email to ${receiver} \n ${error}`);
-//       res.json({success: false});
-//     } else {
-//       console.log(`Email sent to: ${receiver}, Subject: ${subject}`);
-//       res.json({success: true});
-//     }
-//   });
-// });
+  // Send the email
+  transporter.sendMail(mail_options, function(error, info){
+    if (error) {
+      console.log(`Couldn't Send Email to ${receiver} \n ${error}`);
+      res.json({success: false});
+    } else {
+      console.log(`Email sent to: ${receiver}, Subject: ${subject}`);
+      res.json({success: true});
+    }
+  });
+});
 ///////////////////////////////////////////////////////////
 
 ///////////////////////// Server /////////////////////////

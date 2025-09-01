@@ -354,13 +354,32 @@ async function edit_member(member_uid, club_id) {
 
 // Confirm edit member
 async function confirm_edit_member(member_uid, club_id) {
-  const new_position = document.getElementById("member-position-dropdown").value;
-  
+
+  const button_process = event.target;
+  button_process.disabled = true;
+  button_process.textContent = "Processing...";
+
+  const new_position = document.getElementById("member-position-dropdown").value;  
   // Update member position in database
   await get_data({
     sql: `UPDATE members SET position = ? WHERE student_uid = ? AND cid = ?`,
     params: [new_position, member_uid, club_id],
   });
+
+// EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+const user_data = await get_data({sql: `SELECT * FROM user WHERE uid = ?`,params: [member_uid]});
+const user = user_data[0];
+await send_email({
+receiver: user.email,
+subject: `${club_id}: Position Updated`,
+body: `Dear ${user.name},
+
+Your position has been updated to ${new_position}
+
+Best regards,
+${club_id} Presidential Panel`});
+// EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
 
   // Close the edit modal and refresh member list
   close_edit_member();
@@ -398,8 +417,10 @@ async function club_member_approval(clubId) {
   const modalHTML = `
     <div id="club_member_approval_panel" class="announcements-overlay show">
       <div class="announcements-modal">
-        <button class="announcements-close-btn" onclick="close_club_member_approval()" title="Close">&times;</button>
-        <h3>Pending Member Applications</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3 style="margin: 0;">Pending Member Applications</h3>
+          <button class="approve-btn" onclick="reset_applications('${clubId}')" style="background-color: #dc3545; border-color: #dc3545;">Reject All Applications</button>
+        </div>
         <div class="member-approval-list" id="member-approval-list" style="max-height: 900px; overflow-y: auto; padding-right: 10px;">
         </div>
       </div>
@@ -474,6 +495,26 @@ async function approve_application(userId, clubId) {
   // Refresh the panels
   close_club_member_approval();
   club_member_approval(clubId);
+// EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+const user_data = await get_data({sql: `SELECT * FROM user WHERE uid = ?`,params: [userId]});
+const user = user_data[0];
+await send_email({
+receiver: user.email,
+subject: `${clubId}: Welcome to the club!`,
+body: `Dear ${user.name},
+
+Congratulations, you have been selected.
+
+Best regards,
+${clubId} Presidential Panel`});
+// EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
+}
+
+async function reset_applications(clubId) {
+  await get_data({sql: `DELETE FROM applied WHERE cid = ?`,params: [clubId]});
+
+  close_club_member_approval();
 }
 //=============================================================================================================================
 
@@ -530,9 +571,7 @@ async function edit_member(member_uid, club_id) {
 
 // Confirm edit member
 async function confirm_edit_member(member_uid, club_id) {
-  const new_position = document.getElementById(
-    "member-position-dropdown"
-  ).value;
+  const new_position = document.getElementById("member-position-dropdown").value;
 
   // Update member position in database
   await get_data({
@@ -544,6 +583,20 @@ async function confirm_edit_member(member_uid, club_id) {
   close_edit_member();
   close_club_member_list();
   club_member_list(club_id);
+  
+// EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+const user_data = await get_data({sql: `SELECT * FROM user WHERE uid = ?`,params: [member_uid]});
+const user = user_data[0];
+await send_email({
+receiver: user.email,
+subject: `${club_id}: Position Updated`,
+body: `Dear ${user.name},
+
+Your position has been updated to ${new_position}
+
+Best regards,
+${club_id} Presidential Panel`});
+// EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 }
 
 // Close member approval modal
