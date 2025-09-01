@@ -57,8 +57,7 @@ async function loadJoinedClubs(userId) {
               <span class="category">${i.position || "General"}</span>
             </div>
           </div>
-        </div>
-        <button class="club-action-btn" onclick="viewClubDetails('${i.cid}')">View Details</button>
+        </div> 
       </div>`);
 
     val = val.join("");
@@ -137,7 +136,7 @@ async function loadAvailableClubs(userId) {
         <div class="club-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></div>
         <div class="club-details">
           <h4>${i.name}</h4>
-          <p>${i.description || "To-do 11"}</p>
+          <p>${i.description || "No description available"}</p>
         </div>
       </div>
       ${button_html}
@@ -157,11 +156,6 @@ async function apply_to_club(userId,clubId) {
     
   // auto refresh page
   await showJoinClubs(userId);
-}
-
-// View club details
-function viewClubDetails(clubId) {
-  alert(`Club details for ${clubId} - Feature coming soon!`);
 }
 //==============================================================================================================================
 
@@ -215,6 +209,7 @@ async function loadManageClubsContent(userId) {
           <button class="club-action-btn" onclick="club_member_list('${club.cid}')">Member List</button>
           <button class="club-action-btn" onclick="club_member_approval('${club.cid}')">Member Apporval</button>
           <button class="club-action-btn" onclick="club_requisition('${club.cid}')">Requisition</button>
+          <button class="club-action-btn" onclick="club_announcement('${club.cid}')">Send Announcement</button>
         </div>
       </div>
     `);
@@ -280,7 +275,7 @@ async function club_member_list(clubId) {
               <td style="border: 1px solid; padding: 8px; text-align: center;">
                 ${(i.position === 'President' || i.position === 'Vice President') 
                   ? '<button class="approve-btn" disabled style="background-color: #ccc; cursor: not-allowed;">Edit</button>'
-                  : `<button class="approve-btn" onclick="edit_member('${i.student_uid}')">Edit</button>`
+                  : `<button class="approve-btn" onclick="edit_member('${i.student_uid}', '${clubId}')">Edit</button>`
                 }
               </td>
             </tr>
@@ -389,11 +384,11 @@ async function approve_application(userId, clubId) {
 }
 
 // Edit member function
-async function edit_member(member_uid) {
-  // Get member details first
+async function edit_member(member_uid, club_id) {
+  // Get member details first with specific club ID
   const member_details = await get_data({
-    sql: `SELECT m.*, u.name FROM members m JOIN user u ON m.student_uid = u.uid WHERE m.student_uid = ?`,
-    params: [member_uid],
+    sql: `SELECT m.*, u.name FROM members m JOIN user u ON m.student_uid = u.uid WHERE m.student_uid = ? AND m.cid = ?`,
+    params: [member_uid, club_id],
   });
 
   const member = member_details[0];
@@ -412,7 +407,7 @@ async function edit_member(member_uid) {
             `).join('')}
           </select>
           <p style="text-align: center; margin-top: 20px;">
-            <button class="approve-btn" onclick="confirm_edit_member('${member_uid}', '${member.cid}')">Confirm</button>
+            <button class="approve-btn" onclick="confirm_edit_member('${member_uid}', '${club_id}')">Confirm</button>
           </p>
         </div>
       </div>
@@ -463,9 +458,98 @@ function close_edit_member() {
 function club_requisition(clubId) {
   alert(`Manage requisition for club ${clubId} - Feature coming soon!`);
 }
-//==============================================================================================================================
 
-// View all notifications
-function viewAllNotifications() {
-  alert("All notifications - Feature coming soon!");
+// Send club announcement (for club members)
+async function club_announcement(clubId) {
+  const currentUser = localStorage.getItem("currentUser");
+
+  // Get club page ID
+  const club_page = await get_data({
+    sql: `SELECT pid FROM page WHERE cid = ?`,
+    params: [clubId]
+  });
+
+  if (club_page.length === 0) {
+    alert("Club page not found!");
+    return;
+  }
+
+  const pageId = club_page[0].pid;
+
+  // Create announcement modal
+  const modalHTML = `
+    <div id="club_announcement_panel" class="announcements-overlay show">
+      <div class="announcements-modal" style="width: 600px; max-width: 90vw;">
+        <button class="announcements-close-btn" onclick="close_club_announcement()" title="Close">&times;</button>
+        <h3>Send Announcement - ${clubId}</h3>
+        <form id="announcement-form" style="padding: 20px;">
+          <div style="margin-bottom: 15px;">
+            <label for="ann-type" style="display: block; margin-bottom: 5px; font-weight: bold;">Type:</label>
+            <select id="ann-type" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+              <option value="notice">Notice</option>
+              <option value="event">Event</option>
+              <option value="update">Update</option>
+            </select>
+          </div>
+          <div style="margin-bottom: 15px;">
+            <label for="ann-subject" style="display: block; margin-bottom: 5px; font-weight: bold;">Subject:</label>
+            <input type="text" id="ann-subject" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Enter announcement subject" required>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label for="ann-body" style="display: block; margin-bottom: 5px; font-weight: bold;">Message:</label>
+            <textarea id="ann-body" rows="6" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;" placeholder="Enter announcement message" required></textarea>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" class="club-action-btn" onclick="close_club_announcement()" style="background-color: #ccc;">Cancel</button>
+            <button type="submit" class="club-action-btn" style="background-color: #6BB4F1;">Send Announcement</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  // Add modal to page
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  // Handle form submission
+  document.getElementById("announcement-form").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    
+    const type = document.getElementById("ann-type").value;
+    const subject = document.getElementById("ann-subject").value.trim();
+    const body = document.getElementById("ann-body").value.trim();
+
+    if (!subject || !body) {
+      alert("Please fill in all fields!");
+      return;
+    }
+    // Insert announcement into database
+    await get_data({
+      sql: `INSERT INTO announcement (type, subject, body, date_time, pid, uid) 
+            VALUES (?, ?, ?, NOW(), ?, ?)`,
+      params: [type, subject, body, pageId, currentUser]
+    });
+    close_club_announcement();
+    
+    // Refresh announcements if on home page
+    if (document.getElementById("announcements-list")) {
+      loadRecentAnnouncements();
+    }
+  });
+
+  // Add event listener for closing by clicking outside
+  document.getElementById("club_announcement_panel").addEventListener("click", function(e) {
+    if (e.target === this) {
+      close_club_announcement();
+    }
+  });
 }
+
+// Close club announcement modal
+function close_club_announcement() {
+  const modal = document.getElementById("club_announcement_panel");
+  if (modal) {
+    modal.remove();
+  }
+}
+//==============================================================================================================================

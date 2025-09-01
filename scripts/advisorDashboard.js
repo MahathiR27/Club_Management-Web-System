@@ -1,4 +1,4 @@
-// Advisor Dashboa          <div class="section-icon">🏛️</div>d Functions
+// Advisor Dashboard Functions
 
 // Setup advisor dashboard
 async function setupAdvisorDashboard(userId) {
