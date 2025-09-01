@@ -73,13 +73,12 @@ async function showRoomApprovalWindow() {
 
 // Load Room Table
 async function loadRoomApprovalTable() {
-  const tableDiv = document.getElementById("room-approval-table");
-  // Get room info and club (cid) from requisition table
+  const tableDiv = document.getElementById("room-approval-table");  // Only show requests where both room_assigned and status are 'pending'
   const rooms = await get_data({
-    sql: `SELECT room.*, requisition.cid FROM room JOIN requisition ON room.rid = requisition.rid ORDER BY room.rid ASC`,
+    sql: `SELECT room.*, requisition.cid, requisition.status FROM room JOIN requisition ON room.rid = requisition.rid WHERE LOWER(TRIM(room.room_assigned)) = 'pending' AND (requisition.status IS NULL OR LOWER(TRIM(requisition.status)) = 'pending') ORDER BY room.rid ASC`,
   });
   if (!rooms || rooms.length === 0) {
-    tableDiv.innerHTML = `<p style='text-align:center;color:#aaa;'>No room requests found.</p>`;
+    tableDiv.innerHTML = `<p style='text-align:center;color:#aaa;'>No pending room requests found.</p>`;
     return;
   }
   let cardsHtml = `<div class='pending-applications' style='display:flex;flex-direction:column;gap:1.5rem;'>`;
@@ -98,15 +97,9 @@ async function loadRoomApprovalTable() {
           <p><strong>Time:</strong> ${room.time_requested_from} - ${room.time_requested_to}</p>
         </div>
         <div class='verification-actions' style='display:flex;gap:0.5rem;align-items:center;'>`;
-    // Fix: Only show Assign button if room_assigned is exactly the string 'Pending' (case-insensitive, trimmed)
-    if (
-      typeof room.room_assigned === "string" &&
-      room.room_assigned.trim().toLowerCase() === "pending"
-    ) {
-      cardsHtml += `<button class='assign-room-btn' data-rid='${room.rid}' style='background:#4fb8fa;color:#fff;border:none;border-radius:6px;font-weight:500;box-shadow:none;padding:8px 18px;cursor:pointer;'>Assign</button>`;
-    } else {
-      cardsHtml += `<span style='color:#10b981;font-weight:600;'>Assigned: ${room.room_assigned}</span>`;
-    }
+    // Since we only fetch pending requests, always show both Assign and Reject buttons
+    cardsHtml += `<button class='assign-room-btn' data-rid='${room.rid}' style='background:#4fb8fa;color:#fff;border:none;border-radius:6px;font-weight:500;box-shadow:none;padding:8px 18px;cursor:pointer;'>Assign</button>`;
+    cardsHtml += `<button class='reject-room-btn' data-rid='${room.rid}' style='background:#ef4444;color:#fff;border:none;border-radius:6px;font-weight:500;padding:8px 18px;cursor:pointer;margin-left:8px;'>Reject</button>`;
     cardsHtml += `
       </div>
     </div>
@@ -120,6 +113,25 @@ async function loadRoomApprovalTable() {
     btn.onclick = function () {
       const rid = this.getAttribute("data-rid");
       showAssignRoomModal(rid);
+    };
+  });
+  
+  // Add event listeners for reject buttons
+  document.querySelectorAll(".reject-room-btn").forEach((btn) => {
+    btn.onclick = async function () {
+      const rid = this.getAttribute("data-rid");
+      if (confirm("Are you sure you want to reject this room request?")) {
+        await get_data({
+          sql: `UPDATE requisition SET status = 'rejected' WHERE rid = ?`,
+          params: [rid],
+        });
+        await get_data({
+          sql: `UPDATE room SET room_assigned = 'Rejected' WHERE rid = ?`,
+          params: [rid],
+        });
+        alert("Room request rejected.");
+        await loadRoomApprovalTable();
+      }
     };
   });
 }
@@ -547,8 +559,9 @@ async function showRequisitionHistory() {
 // Load Requisition History Table
 async function loadRequisitionHistoryTable() {
   const tableDiv = document.getElementById("requisition-history-table");
+  // Show both assigned and rejected requests
   const history = await get_data({
-    sql: `SELECT room.rid, requisition.cid, room.room_type, room.date_requested, room.time_requested_from, room.time_requested_to, room.room_assigned, requisition.status FROM room JOIN requisition ON room.rid = requisition.rid WHERE LOWER(TRIM(room.room_assigned)) != 'pending' ORDER BY room.rid DESC`,
+    sql: `SELECT room.rid, requisition.cid, room.room_type, room.date_requested, room.time_requested_from, room.time_requested_to, room.room_assigned, requisition.status FROM room JOIN requisition ON room.rid = requisition.rid WHERE LOWER(TRIM(room.room_assigned)) != 'pending' OR LOWER(TRIM(requisition.status)) = 'rejected' ORDER BY room.rid DESC`,
   });
   if (!history || history.length === 0) {
     tableDiv.innerHTML = `<p style='text-align:center;color:#aaa;'>No requisition history found.</p>`;
