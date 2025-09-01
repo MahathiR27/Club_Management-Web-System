@@ -1,11 +1,9 @@
+// =============================================================================================================================
+
 // ================================== Variables ================================================================================
-const club_positions = [
-  "Member",
-  "Apprentice",
-  "Executive",
-  "Secretary",
-  "Director",
-];
+
+const room_types = ['Classroom', 'Activity Room', 'Theatre', 'Auditorium'];
+
 // =============================================================================================================================
 
 // Setup dashboard for students
@@ -232,8 +230,9 @@ async function loadManageClubsContent(userId) {
   const managed_clubs_list = document.getElementById("manage-clubs-content");
   managed_clubs_list.innerHTML = val;
 }
+//============================================================================================================================
 
-// Manage club members (for presidents)
+//================================================= Member List ==============================================================
 async function club_member_list(clubId) {
   // Get all members for this club
   const club_members = await get_data({
@@ -314,8 +313,78 @@ async function club_member_list(clubId) {
       }
     });
 }
+async function edit_member(member_uid, club_id) {
+  // Get member details first with specific club ID
+  const member_details = await get_data({
+    sql: `SELECT m.*, u.name FROM members m JOIN user u ON m.student_uid = u.uid WHERE m.student_uid = ? AND m.cid = ?`,
+    params: [member_uid, club_id],
+  });
 
-// Club member approval (for presidents)
+  const member = member_details[0];
+
+  // Creating the modal to add to page html karon we donot have the dynamic content er jayga as before
+  const modalHTML = `
+    <div id="edit_member_panel" class="announcements-overlay show">
+      <div class="announcements-modal" style="width: 400px; max-width: 90vw;">
+        <button class="announcements-close-btn" onclick="close_edit_member()" title="Close">&times;</button>
+        <h3>Edit Member - ${member.name}</h3>
+        <div class="edit-member-content" id="edit-member-content">
+          <label style="display: block; margin-bottom: 8px;">Position:</label>
+          <select id="member-position-dropdown" style="width: 100%; padding: 8px; margin-bottom: 20px;">
+            ${club_positions.map(position => `
+              <option value="${position}" ${position == member.position ? 'selected' : ''}>${position}</option>
+            `).join('')}
+          </select>
+          <p style="text-align: center; margin-top: 20px;">
+            <button class="approve-btn" onclick="confirm_edit_member('${member_uid}', '${club_id}')">Confirm</button>
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Send to modal to html and make it visible
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  // Add event listener for closing
+  document.getElementById("edit_member_panel").addEventListener("click", function (e){
+      if (e.target === this) {close_edit_member()}
+  });
+}
+
+// Confirm edit member
+async function confirm_edit_member(member_uid, club_id) {
+  const new_position = document.getElementById("member-position-dropdown").value;
+  
+  // Update member position in database
+  await get_data({
+    sql: `UPDATE members SET position = ? WHERE student_uid = ? AND cid = ?`,
+    params: [new_position, member_uid, club_id],
+  });
+
+  // Close the edit modal and refresh member list
+  close_edit_member();
+  close_club_member_list();
+  club_member_list(club_id);
+}
+
+// Close member approval modal
+function close_club_member_approval() {
+  document.getElementById("club_member_approval_panel").remove()
+}
+
+// Close member list modal
+function close_club_member_list() {
+  document.getElementById("club_member_list_panel").remove()
+}
+
+// Close edit member modal
+function close_edit_member() {
+  document.getElementById("edit_member_panel").remove()
+}
+//================================================================================================================================
+
+//================================================= Member Approval ==============================================================
 async function club_member_approval(clubId) {
   // Get pending applications for this club
   const pending_applications = await get_data({
@@ -406,6 +475,8 @@ async function approve_application(userId, clubId) {
   close_club_member_approval();
   club_member_approval(clubId);
 }
+//=============================================================================================================================
+
 
 // Edit member function
 async function edit_member(member_uid, club_id) {
@@ -491,6 +562,9 @@ function close_edit_member() {
 }
 
 // Manage club requisition (for presidents)
+
+//================================================ Club Requisition ===========================================================
+
 async function club_requisition(clubId) {
   const modalHTML = `
     <div id="requisition_panel" class="announcements-overlay show">
@@ -516,6 +590,22 @@ async function club_requisition(clubId) {
             
             <div id="error-message" style="color: red; text-align: center; margin-bottom: 10px; display: none;"></div>
           </div>
+          <div id="room-form" style="display: none;">
+            <label style="display: block; margin-bottom: 8px;">Room Type:</label>
+            <select id="room-type" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+              <option value="">Select Room Type</option>
+              ${room_types.map(type => `<option value="${type}">${type}</option>`).join('')}
+            </select>
+            
+            <label style="display: block; margin-bottom: 8px;">Date Requested:</label>
+            <input type="date" id="date-requested" style="width: 100%; padding: 8px; margin-bottom: 15px;" min="${new Date().toISOString().split('T')[0]}">
+            
+            <label style="display: block; margin-bottom: 8px;">From Time:</label>
+            <input type="time" id="time-from" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+            
+            <label style="display: block; margin-bottom: 8px;">To Time:</label>
+            <input type="time" id="time-to" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+          </div>
           <p style="text-align: center; margin-top: 20px;">
             <button class="approve-btn" onclick="submit_requisition('${clubId}')" id="submit-btn" style="display: none;">Submit</button>
           </p>
@@ -535,86 +625,102 @@ async function club_requisition(clubId) {
     });
 }
 
-function handle_requisition_type() {
+function handle_requisition_type() { // Drop down wise roob or bill er form
   const type = document.getElementById("requisition-type-dropdown").value;
   const billForm = document.getElementById("bill-form");
+  const roomForm = document.getElementById("room-form");
   const submitBtn = document.getElementById("submit-btn");
 
   if (type === "bill") {
     billForm.style.display = "block";
+    roomForm.style.display = "none";
     submitBtn.style.display = "inline-block";
   } else if (type === "room") {
     billForm.style.display = "none";
-    submitBtn.style.display = "none";
+    roomForm.style.display = "block";
+    submitBtn.style.display = "inline-block";
   } else {
     billForm.style.display = "none";
+    roomForm.style.display = "none";
     submitBtn.style.display = "none";
   }
 }
 
 async function submit_requisition(clubId) {
-  const eventName = document.getElementById("event-name").value;
-  const amount = document.getElementById("amount").value;
-  const documentFile = document.getElementById("document").files[0];
-  const errorMessage = document.getElementById("error-message");
 
-  // Clear previous error
-  errorMessage.style.display = "none";
+  const type = document.getElementById("requisition-type-dropdown").value;
+  
+  if (type === "bill") {
+    // Bill form er info nibo
+    const evernt_name = document.getElementById("event-name").value;
+    const amount = document.getElementById("amount").value;
+    const document_file = document.getElementById("document").files[0];
+    
+    // HTTP REquest use kore file send kore
+    const formData = new FormData();
+    formData.append('pdf', document_file);
+    
+    const upload_response = await upload(formData)
 
-  if (!eventName || !amount || !documentFile) {
-    errorMessage.textContent = "Please fill all fields";
-    errorMessage.style.display = "block";
-    return;
-  }
-
-  // Upload PDF file
-  const formData = new FormData();
-  formData.append("pdf", documentFile);
-
-  try {
-    const uploadResponse = await fetch("/upload-pdf", {
-      method: "POST",
-      body: formData,
-    });
-
-    const uploadResult = await uploadResponse.json();
-
-    if (!uploadResult.success) {
-      errorMessage.textContent = "Failed to upload document";
-      errorMessage.style.display = "block";
-      return;
-    }
-
-    // Insert into requisition table
+    // Requisition ta table e insert
     const requisition = await get_data({
       sql: `INSERT INTO requisition (cid, date_time) VALUES (?, NOW())`,
       params: [clubId],
     });
 
-    // Get the inserted requisition ID
+    
+    // Jei rid te insert hoise oita nitese
     const ridResult = await get_data({
-      sql: `SELECT LAST_INSERT_ID() as rid`,
-      params: [],
+      sql: `SELECT MAX(rid) AS rid FROM requisition;`,
+      params: []
     });
 
     const rid = ridResult[0].rid;
 
-    // Insert into bill table with file path
+    
+    // Biller moddhe insert korbe
     await get_data({
       sql: `INSERT INTO bill (rid, event, amount, documents) VALUES (?, ?, ?, ?)`,
-      params: [rid, eventName, amount, uploadResult.path],
+      params: [rid, evernt_name, amount, upload_response.path]
     });
-
-    close_requisition();
-  } catch (error) {
-    errorMessage.textContent = "Error submitting requisition";
-    errorMessage.style.display = "block";
+    
+  } else if (type === "room") {
+    // Room form er info nibo
+    const room_type = document.getElementById("room-type").value;
+    const date_requested = document.getElementById("date-requested").value;
+    const time_from = document.getElementById("time-from").value;
+    const time_to = document.getElementById("time-to").value;
+    
+    // Requisition ta table e insert
+    const requisition = await get_data({
+      sql: `INSERT INTO requisition (cid, date_time) VALUES (?, NOW())`,
+      params: [clubId]
+    });
+    
+    // Jei rid te insert hoise oita nitese
+    const ridResult = await get_data({
+      sql: `SELECT MAX(rid) AS rid FROM requisition;`,
+      params: []
+    });
+    
+    const rid = ridResult[0].rid;
+    
+    // Room er moddhe insert korbe
+    await get_data({
+      sql: `INSERT INTO room (rid, room_type, date_requested, time_requested_from, time_requested_to) VALUES (?, ?, ?, ?, ?)`,
+      params: [rid, room_type, date_requested, time_from, time_to]
+    });
   }
+  
+  close_requisition();
 }
 
 function close_requisition() {
   document.getElementById("requisition_panel").remove();
 }
+//==============================================================================================================================
+
+//=========================================== Club Announcement =================================================================
 
 // Send club announcement (for club members)
 async function club_announcement(clubId) {
