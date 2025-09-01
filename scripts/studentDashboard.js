@@ -1,11 +1,5 @@
 // =============================================================================================================================
 
-// ================================== Variables ================================================================================
-
-const room_types = ['Classroom', 'Activity Room', 'Theatre', 'Auditorium'];
-
-// =============================================================================================================================
-
 // Setup dashboard for students
 async function setupStudentDashboard(userId) {
   // Show home page by default (welcome + announcements)
@@ -354,11 +348,6 @@ async function edit_member(member_uid, club_id) {
 
 // Confirm edit member
 async function confirm_edit_member(member_uid, club_id) {
-
-  const button_process = event.target;
-  button_process.disabled = true;
-  button_process.textContent = "Processing...";
-
   const new_position = document.getElementById("member-position-dropdown").value;  
   // Update member position in database
   await get_data({
@@ -518,7 +507,7 @@ async function reset_applications(clubId) {
 }
 //=============================================================================================================================
 
-
+//================================================= Member Approval ===========================================================
 // Edit member function
 async function edit_member(member_uid, club_id) {
   // Get member details first with specific club ID
@@ -613,8 +602,7 @@ function close_club_member_list() {
 function close_edit_member() {
   document.getElementById("edit_member_panel").remove();
 }
-
-// Manage club requisition (for presidents)
+//=============================================================================================================================
 
 //================================================ Club Requisition ===========================================================
 

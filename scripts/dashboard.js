@@ -22,12 +22,12 @@ async function upload(upload_pdf) {
 // Dashboard Access Roles
 oca_access = ["oca"];
 student_access = ["student"];
-advisor_access = ["advisor"];
-manage_club_access = ["oca", "student", "advisor"];
+manage_club_access = ["oca", "student"];
 current_semester = "Summer 2025";
 let currentUserRole = null;
 let currentUserId = null;
 const club_positions = ['Member', 'Apprentice','Executive', 'Secretary','Director'];
+const room_types = ['Classroom', 'Activity Room', 'Theatre', 'Auditorium'];
 // =============================================================================================================================
 
 // ============================== Main Dashboard loader ========================================================================
@@ -67,10 +67,8 @@ window.addEventListener("DOMContentLoaded", async function () {
 async function setupDashboardByRole(userId) {
   const roleCheck = await get_data({
     sql: `SELECT 'student' as role, uid FROM student WHERE uid = ?
-                                          UNION
-                                          SELECT 'advisor' as role, uid FROM advisor WHERE uid = ?  
-                                          UNION
-                                          SELECT 'oca' as role, uid FROM oca WHERE uid = ?`,
+          UNION
+          SELECT 'oca' as role, uid FROM oca WHERE uid = ?`,
     params: [userId, userId, userId],
   });
 
@@ -87,8 +85,6 @@ async function setupDashboardByRole(userId) {
     await setupOCADashboard(userId);
   } else if (student_access.includes(userRole)) {
     await setupStudentDashboard(userId);
-  } else if (advisor_access.includes(userRole)) {
-    await setupAdvisorDashboard(userId);
   }
 }
 
@@ -184,32 +180,12 @@ function setupSidebar(userRole, userId) {
           </button>
         </div>
         `;
-  } else if (advisor_access.includes(userRole)) {
-    sidebarHTML = `
-        <button class="sidebar-btn active" onclick="showHomePage()">
-          <span class="icon"><svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        height="24px" viewBox="0 -960 960 960" 
-        width="24px" 
-        fill="#6BB4F1">
-        <path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg></span>
-          Home
-        </button>
-        <button class="sidebar-btn" onclick="showManageClub('${userId}')">
-          <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></span>
-          Manage Club
-        </button>
-        <button class="sidebar-btn" onclick="showApproveActivities('${userId}')">
-          <span class="icon">✅</span>
-          Approve Activities
-        </button>
-      `;
   }
 
   const sidebarContent = document.querySelector(".sidebar-content"); // class er vitore html insert korbe
   sidebarContent.innerHTML = sidebarHTML;
 
-  show_manage_club(userRole, userId); // OCA, Advisor, Student(P and VP) ke dekhabe only
+  show_manage_club(userRole, userId); // OCA,Student(P and VP) ke dekhabe only
 }
 
 // Check if student is a president of any club
@@ -225,7 +201,7 @@ async function show_manage_club(userRole, userId) {
       document.getElementById("manage-clubs-btn").style.display = "block";
     }
   } else if (manage_club_access.includes(userRole)) {
-    // OCA ar Advisor direct access
+    // OCA direct access
     document.getElementById("manage-clubs-btn").style.display = "block";
   }
 }
@@ -269,18 +245,7 @@ async function loadRecentAnnouncements() {
             ORDER BY a.date_time DESC LIMIT 3`,
       params: [currentUser],
     });
-  } else if (userRole === "advisor") {
-    // Advisor can see announcements from OCA users and clubs they advise
-    announcements = await get_data({
-      sql: `SELECT DISTINCT a.subject as subject, a.date_time as date, u.name as author 
-            FROM announcement a 
-            LEFT JOIN user u ON a.uid = u.uid
-            LEFT JOIN club c ON a.cid = c.cid
-            LEFT JOIN oca o ON u.uid = o.uid
-            WHERE o.uid IS NOT NULL OR c.advisor_uid = ? OR a.cid IS NULL
-            ORDER BY a.date_time DESC LIMIT 3`,
-      params: [currentUser],
-    });
+  };
   }
 
   if (announcements.length > 0) {
@@ -348,18 +313,6 @@ async function viewAllAnnouncements() {
               LEFT JOIN oca o ON u.uid = o.uid
               LEFT JOIN members m ON a.cid = m.cid AND m.student_uid = ?
               WHERE o.uid IS NOT NULL OR m.student_uid IS NOT NULL OR a.cid IS NULL
-              ORDER BY a.date_time DESC`,
-        params: [currentUser],
-      });
-    } else if (userRole === "advisor") {
-      // Advisor can see announcements from OCA users and clubs they advise
-      announcements = await get_data({
-        sql: `SELECT DISTINCT a.subject as title, a.body as content, a.date_time as date, u.name as author 
-              FROM announcement a 
-              LEFT JOIN user u ON a.uid = u.uid
-              LEFT JOIN club c ON a.cid = c.cid
-              LEFT JOIN oca o ON u.uid = o.uid
-              WHERE o.uid IS NOT NULL OR c.advisor_uid = ?
               ORDER BY a.date_time DESC`,
         params: [currentUser],
       });
