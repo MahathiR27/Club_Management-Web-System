@@ -29,8 +29,6 @@ So far completed:
    9. Send Announcements
 ```
 To-do:
-   
-   
    10. OCA Delete Announcements
    11. Club Table e add description, icon
    12. Reset applications by dropping and creating the table again

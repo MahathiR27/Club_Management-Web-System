@@ -590,17 +590,6 @@ async function loadRequisitionHistoryTable() {
 async function create_system_announcement() {
   const currentUser = localStorage.getItem("currentUser");
 
-  const system_page = await get_data({
-    sql: `SELECT pid FROM page LIMIT 1`,
-  });
-
-  if (system_page.length === 0) {
-    alert("No pages available for announcements!");
-    return;
-  }
-
-  const pageId = system_page[0].pid;
-
   // Create announcement modal
   const modalHTML = `
     <div id="oca_announcement_panel" class="announcements-overlay show">
@@ -654,9 +643,9 @@ async function create_system_announcement() {
       try {
         // Insert announcement into database
         await get_data({
-          sql: `INSERT INTO announcement (type, subject, body, date_time, pid, uid) 
+          sql: `INSERT INTO announcement (type, subject, body, date_time, cid, uid) 
               VALUES (?, ?, ?, NOW(), ?, ?)`,
-          params: [type, subject, body, pageId, currentUser],
+          params: [type, subject, body, null, currentUser],
         });
 
         close_oca_announcement();
