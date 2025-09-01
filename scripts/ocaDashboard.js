@@ -73,9 +73,9 @@ async function showRoomApprovalWindow() {
 
 // Load Room Table
 async function loadRoomApprovalTable() {
-  const tableDiv = document.getElementById("room-approval-table");  // Only show requests where both room_assigned and status are 'pending'
+  const tableDiv = document.getElementById("room-approval-table");
   const rooms = await get_data({
-    sql: `SELECT room.*, requisition.cid, requisition.status FROM room JOIN requisition ON room.rid = requisition.rid WHERE LOWER(TRIM(room.room_assigned)) = 'pending' AND (requisition.status IS NULL OR LOWER(TRIM(requisition.status)) = 'pending') ORDER BY room.rid ASC`,
+    sql: `SELECT room.*, requisition.cid, requisition.status FROM room JOIN requisition ON room.rid = requisition.rid WHERE (LOWER(TRIM(room.room_assigned)) = 'pending' OR room.room_assigned IS NULL) AND (requisition.status IS NULL OR LOWER(TRIM(requisition.status)) = 'pending') ORDER BY room.rid ASC`,
   });
   if (!rooms || rooms.length === 0) {
     tableDiv.innerHTML = `<p style='text-align:center;color:#aaa;'>No pending room requests found.</p>`;
@@ -97,7 +97,6 @@ async function loadRoomApprovalTable() {
           <p><strong>Time:</strong> ${room.time_requested_from} - ${room.time_requested_to}</p>
         </div>
         <div class='verification-actions' style='display:flex;gap:0.5rem;align-items:center;'>`;
-    // Since we only fetch pending requests, always show both Assign and Reject buttons
     cardsHtml += `<button class='assign-room-btn' data-rid='${room.rid}' style='background:#4fb8fa;color:#fff;border:none;border-radius:6px;font-weight:500;box-shadow:none;padding:8px 18px;cursor:pointer;'>Assign</button>`;
     cardsHtml += `<button class='reject-room-btn' data-rid='${room.rid}' style='background:#ef4444;color:#fff;border:none;border-radius:6px;font-weight:500;padding:8px 18px;cursor:pointer;margin-left:8px;'>Reject</button>`;
     cardsHtml += `
@@ -115,23 +114,21 @@ async function loadRoomApprovalTable() {
       showAssignRoomModal(rid);
     };
   });
-  
+
   // Add event listeners for reject buttons
   document.querySelectorAll(".reject-room-btn").forEach((btn) => {
     btn.onclick = async function () {
       const rid = this.getAttribute("data-rid");
-      if (confirm("Are you sure you want to reject this room request?")) {
-        await get_data({
-          sql: `UPDATE requisition SET status = 'rejected' WHERE rid = ?`,
-          params: [rid],
-        });
-        await get_data({
-          sql: `UPDATE room SET room_assigned = 'Rejected' WHERE rid = ?`,
-          params: [rid],
-        });
-        alert("Room request rejected.");
-        await loadRoomApprovalTable();
-      }
+      await get_data({
+        sql: `UPDATE requisition SET status = 'rejected' WHERE rid = ?`,
+        params: [rid],
+      });
+      await loadRoomApprovalTable();
+      await get_data({
+        sql: `UPDATE room SET room_assigned = 'Rejected' WHERE rid = ?`,
+        params: [rid],
+      });
+      await loadRoomApprovalTable();
     };
   });
 }
@@ -197,24 +194,28 @@ function showAssignRoomModal(rid) {
   document.getElementById("confirmAssignRoomBtn").onclick = async function () {
     const roomNumber = document.getElementById("roomNumberInput").value.trim();
     if (!roomNumber) {
-      alert("Please enter a room number.");
       return;
     }
+
     // Update room_assigned in room table
     await get_data({
       sql: `UPDATE room SET room_assigned = ? WHERE rid = ?`,
       params: [roomNumber, rid],
     });
+
     // Update status in requisition table
     await get_data({
       sql: `UPDATE requisition SET status = 'approved' WHERE rid = ?`,
       params: [rid],
     });
+
+    // Close modal
     modalDiv.style.display = "none";
     modalDiv.innerHTML = "";
     restoreScroll();
+
+    // Refresh the table
     await loadRoomApprovalTable();
-    alert("Room assigned and status updated.");
   };
 }
 
@@ -285,21 +286,17 @@ async function loadBillApprovalTable() {
         sql: `UPDATE requisition SET status = 'approved' WHERE rid = ?`,
         params: [rid],
       });
-      alert("Bill approved!");
       await loadBillApprovalTable();
     };
   });
   document.querySelectorAll(".reject-bill-btn").forEach((btn) => {
     btn.onclick = async function () {
       const rid = this.getAttribute("data-rid");
-      if (confirm("Are you sure you want to reject this bill?")) {
-        await get_data({
-          sql: `UPDATE requisition SET status = 'rejected' WHERE rid = ?`,
-          params: [rid],
-        });
-        alert("Bill rejected!");
-        await loadBillApprovalTable();
-      }
+      await get_data({
+        sql: `UPDATE requisition SET status = 'rejected' WHERE rid = ?`,
+        params: [rid],
+      });
+      await loadBillApprovalTable();
     };
   });
 }
@@ -410,37 +407,20 @@ async function loadPendingVerifications() {
 
 // Approve user account
 async function approveUser(userId) {
-  try {
     await get_data({
       sql: `UPDATE user SET status = 'active' WHERE uid = ?`,
       params: [userId],
     });
     await loadPendingVerifications(); // Refresh the list
-  } catch (error) {
-    console.error("Error approving user:", error);
-    alert("Error approving user: " + error.message);
-  }
 }
 
 // Reject user account
 async function rejectUser(userId) {
-  if (
-    confirm(
-      "Are you sure you want to reject this user? This action cannot be undone."
-    )
-  ) {
-    try {
       await get_data({
         sql: `UPDATE user SET status = 'rejected' WHERE uid = ?`,
         params: [userId],
       });
-      alert("User rejected successfully!");
       await loadPendingVerifications(); // Refresh the list
-    } catch (error) {
-      console.error("Error rejecting user:", error);
-      alert("Error rejecting user: " + error.message);
-    }
-  }
 }
 
 // Show verification modal
@@ -559,9 +539,9 @@ async function showRequisitionHistory() {
 // Load Requisition History Table
 async function loadRequisitionHistoryTable() {
   const tableDiv = document.getElementById("requisition-history-table");
-  // Show both assigned and rejected requests
+  // Show all requisitions that are not pending
   const history = await get_data({
-    sql: `SELECT room.rid, requisition.cid, room.room_type, room.date_requested, room.time_requested_from, room.time_requested_to, room.room_assigned, requisition.status FROM room JOIN requisition ON room.rid = requisition.rid WHERE LOWER(TRIM(room.room_assigned)) != 'pending' OR LOWER(TRIM(requisition.status)) = 'rejected' ORDER BY room.rid DESC`,
+    sql: `SELECT rid, cid, date_time, status FROM requisition WHERE status != 'pending' ORDER BY rid DESC`,
   });
   if (!history || history.length === 0) {
     tableDiv.innerHTML = `<p style='text-align:center;color:#aaa;'>No requisition history found.</p>`;
@@ -571,28 +551,31 @@ async function loadRequisitionHistoryTable() {
     <thead>
       <tr style='background:#f3f4f6;'>
         <th style='padding:8px;border-bottom:1px solid #e5e7eb;'>RID</th>
-        <th style='padding:8px;border-bottom:1px solid #e5e7eb;'>Club</th>
-        <th style='padding:8px;border-bottom:1px solid #e5e7eb;'>Type</th>
-        <th style='padding:8px;border-bottom:1px solid #e5e7eb;'>Date</th>
-        <th style='padding:8px;border-bottom:1px solid #e5e7eb;'>Time</th>
-        <th style='padding:8px;border-bottom:1px solid #e5e7eb;'>Room Assigned</th>
+        <th style='padding:8px;border-bottom:1px solid #e5e7eb;'>Club ID</th>
+        <th style='padding:8px;border-bottom:1px solid #e5e7eb;'>Date Created</th>
         <th style='padding:8px;border-bottom:1px solid #e5e7eb;'>Status</th>
       </tr>
     </thead>
     <tbody>`;
   history.forEach((row) => {
-    let dateOnly = row.date_requested;
-    if (typeof dateOnly === "string" && dateOnly.includes("T")) {
-      dateOnly = dateOnly.split("T")[0];
+    let dateCreated = row.date_time;
+    if (typeof dateCreated === "string" && dateCreated.includes("T")) {
+      dateCreated = dateCreated.split("T")[0];
     }
+
+    // Status styling
+    let statusStyle = "";
+    if (row.status === "approved") {
+      statusStyle = "color: #10b981; font-weight: bold;";
+    } else if (row.status === "rejected") {
+      statusStyle = "color: #ef4444; font-weight: bold;";
+    }
+
     tableHtml += `<tr>
       <td style='padding:8px;border-bottom:1px solid #e5e7eb;'>${row.rid}</td>
       <td style='padding:8px;border-bottom:1px solid #e5e7eb;'>${row.cid}</td>
-      <td style='padding:8px;border-bottom:1px solid #e5e7eb;'>${row.room_type}</td>
-      <td style='padding:8px;border-bottom:1px solid #e5e7eb;'>${dateOnly}</td>
-      <td style='padding:8px;border-bottom:1px solid #e5e7eb;'>${row.time_requested_from} - ${row.time_requested_to}</td>
-      <td style='padding:8px;border-bottom:1px solid #e5e7eb;'>${row.room_assigned}</td>
-      <td style='padding:8px;border-bottom:1px solid #e5e7eb;'>${row.status}</td>
+      <td style='padding:8px;border-bottom:1px solid #e5e7eb;'>${dateCreated}</td>
+      <td style='padding:8px;border-bottom:1px solid #e5e7eb;${statusStyle}'>${row.status}</td>
     </tr>`;
   });
   tableHtml += `</tbody></table>`;
@@ -610,14 +593,6 @@ async function create_system_announcement() {
         <button class="announcements-close-btn" onclick="close_oca_announcement()" title="Close">&times;</button>
         <h3>Create System Announcement</h3>
         <form id="oca-announcement-form" style="padding: 20px;">
-          <div style="margin-bottom: 15px;">
-            <label for="oca-ann-type" style="display: block; margin-bottom: 5px; font-weight: bold;">Type:</label>
-            <select id="oca-ann-type" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-              <option value="notice">Notice</option>
-              <option value="event">Event</option>
-              <option value="update">Update</option>
-            </select>
-          </div>
           <div style="margin-bottom: 15px;">
             <label for="oca-ann-subject" style="display: block; margin-bottom: 5px; font-weight: bold;">Subject:</label>
             <input type="text" id="oca-ann-subject" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Enter announcement subject" required>
@@ -644,7 +619,6 @@ async function create_system_announcement() {
     .addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      const type = document.getElementById("oca-ann-type").value;
       const subject = document.getElementById("oca-ann-subject").value.trim();
       const body = document.getElementById("oca-ann-body").value.trim();
 
@@ -656,9 +630,9 @@ async function create_system_announcement() {
       try {
         // Insert announcement into database
         await get_data({
-          sql: `INSERT INTO announcement (type, subject, body, date_time, cid, uid) 
-              VALUES (?, ?, ?, NOW(), ?, ?)`,
-          params: [type, subject, body, null, currentUser],
+          sql: `INSERT INTO announcement (subject, body, date_time, cid, uid) 
+              VALUES (?, ?, NOW(), ?, ?)`,
+          params: [subject, body, null, currentUser],
         });
 
         close_oca_announcement();
@@ -727,7 +701,7 @@ async function showManageAnnouncementsModal() {
 // Load all announcements for management
 async function loadAllAnnouncements() {
   const announcements = await get_data({
-    sql: `SELECT a.aid, a.type, a.subject, a.body, a.date_time, a.cid, u.name as author_name
+    sql: `SELECT a.aid, a.subject, a.body, a.date_time, a.cid, u.name as author_name
           FROM announcement a 
           JOIN user u ON a.uid = u.uid
           ORDER BY a.date_time DESC`,
@@ -753,7 +727,6 @@ async function loadAllAnnouncements() {
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
           <div style="flex: 1;">
             <div style="display: flex; gap: 15px; margin-bottom: 8px;">
-              <span class="announcement-type" style="background: #6BB4F1; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; text-transform: uppercase;">${announcement.type}</span>
               <span style="color: #666; font-size: 12px;">${clubInfo}</span>
               <span style="color: #666; font-size: 12px;">${dateTime}</span>
             </div>

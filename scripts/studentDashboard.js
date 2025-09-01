@@ -2,7 +2,7 @@
 
 // ================================== Variables ================================================================================
 
-const room_types = ['Classroom', 'Activity Room', 'Theatre', 'Auditorium'];
+const room_types = ["Classroom", "Activity Room", "Theatre", "Auditorium"];
 
 // =============================================================================================================================
 
@@ -331,9 +331,15 @@ async function edit_member(member_uid, club_id) {
         <div class="edit-member-content" id="edit-member-content">
           <label style="display: block; margin-bottom: 8px;">Position:</label>
           <select id="member-position-dropdown" style="width: 100%; padding: 8px; margin-bottom: 20px;">
-            ${club_positions.map(position => `
-              <option value="${position}" ${position == member.position ? 'selected' : ''}>${position}</option>
-            `).join('')}
+            ${club_positions
+              .map(
+                (position) => `
+              <option value="${position}" ${
+                  position == member.position ? "selected" : ""
+                }>${position}</option>
+            `
+              )
+              .join("")}
           </select>
           <p style="text-align: center; margin-top: 20px;">
             <button class="approve-btn" onclick="confirm_edit_member('${member_uid}', '${club_id}')">Confirm</button>
@@ -347,15 +353,21 @@ async function edit_member(member_uid, club_id) {
   document.body.insertAdjacentHTML("beforeend", modalHTML);
 
   // Add event listener for closing
-  document.getElementById("edit_member_panel").addEventListener("click", function (e){
-      if (e.target === this) {close_edit_member()}
-  });
+  document
+    .getElementById("edit_member_panel")
+    .addEventListener("click", function (e) {
+      if (e.target === this) {
+        close_edit_member();
+      }
+    });
 }
 
 // Confirm edit member
 async function confirm_edit_member(member_uid, club_id) {
-  const new_position = document.getElementById("member-position-dropdown").value;
-  
+  const new_position = document.getElementById(
+    "member-position-dropdown"
+  ).value;
+
   // Update member position in database
   await get_data({
     sql: `UPDATE members SET position = ? WHERE student_uid = ? AND cid = ?`,
@@ -370,17 +382,17 @@ async function confirm_edit_member(member_uid, club_id) {
 
 // Close member approval modal
 function close_club_member_approval() {
-  document.getElementById("club_member_approval_panel").remove()
+  document.getElementById("club_member_approval_panel").remove();
 }
 
 // Close member list modal
 function close_club_member_list() {
-  document.getElementById("club_member_list_panel").remove()
+  document.getElementById("club_member_list_panel").remove();
 }
 
 // Close edit member modal
 function close_edit_member() {
-  document.getElementById("edit_member_panel").remove()
+  document.getElementById("edit_member_panel").remove();
 }
 //================================================================================================================================
 
@@ -476,7 +488,6 @@ async function approve_application(userId, clubId) {
   club_member_approval(clubId);
 }
 //=============================================================================================================================
-
 
 // Edit member function
 async function edit_member(member_uid, club_id) {
@@ -594,11 +605,15 @@ async function club_requisition(clubId) {
             <label style="display: block; margin-bottom: 8px;">Room Type:</label>
             <select id="room-type" style="width: 100%; padding: 8px; margin-bottom: 15px;">
               <option value="">Select Room Type</option>
-              ${room_types.map(type => `<option value="${type}">${type}</option>`).join('')}
+              ${room_types
+                .map((type) => `<option value="${type}">${type}</option>`)
+                .join("")}
             </select>
             
             <label style="display: block; margin-bottom: 8px;">Date Requested:</label>
-            <input type="date" id="date-requested" style="width: 100%; padding: 8px; margin-bottom: 15px;" min="${new Date().toISOString().split('T')[0]}">
+            <input type="date" id="date-requested" style="width: 100%; padding: 8px; margin-bottom: 15px;" min="${
+              new Date().toISOString().split("T")[0]
+            }">
             
             <label style="display: block; margin-bottom: 8px;">From Time:</label>
             <input type="time" id="time-from" style="width: 100%; padding: 8px; margin-bottom: 15px;">
@@ -625,7 +640,8 @@ async function club_requisition(clubId) {
     });
 }
 
-function handle_requisition_type() { // Drop down wise roob or bill er form
+function handle_requisition_type() {
+  // Drop down wise roob or bill er form
   const type = document.getElementById("requisition-type-dropdown").value;
   const billForm = document.getElementById("bill-form");
   const roomForm = document.getElementById("room-form");
@@ -647,20 +663,19 @@ function handle_requisition_type() { // Drop down wise roob or bill er form
 }
 
 async function submit_requisition(clubId) {
-
   const type = document.getElementById("requisition-type-dropdown").value;
-  
+
   if (type === "bill") {
     // Bill form er info nibo
     const evernt_name = document.getElementById("event-name").value;
     const amount = document.getElementById("amount").value;
     const document_file = document.getElementById("document").files[0];
-    
+
     // HTTP REquest use kore file send kore
     const formData = new FormData();
-    formData.append('pdf', document_file);
-    
-    const upload_response = await upload(formData)
+    formData.append("pdf", document_file);
+
+    const upload_response = await upload(formData);
 
     // Requisition ta table e insert
     const requisition = await get_data({
@@ -668,50 +683,47 @@ async function submit_requisition(clubId) {
       params: [clubId],
     });
 
-    
     // Jei rid te insert hoise oita nitese
     const ridResult = await get_data({
       sql: `SELECT MAX(rid) AS rid FROM requisition;`,
-      params: []
+      params: [],
     });
 
     const rid = ridResult[0].rid;
 
-    
     // Biller moddhe insert korbe
     await get_data({
       sql: `INSERT INTO bill (rid, event, amount, documents) VALUES (?, ?, ?, ?)`,
-      params: [rid, evernt_name, amount, upload_response.path]
+      params: [rid, evernt_name, amount, upload_response.path],
     });
-    
   } else if (type === "room") {
     // Room form er info nibo
     const room_type = document.getElementById("room-type").value;
     const date_requested = document.getElementById("date-requested").value;
     const time_from = document.getElementById("time-from").value;
     const time_to = document.getElementById("time-to").value;
-    
+
     // Requisition ta table e insert
     const requisition = await get_data({
       sql: `INSERT INTO requisition (cid, date_time) VALUES (?, NOW())`,
-      params: [clubId]
+      params: [clubId],
     });
-    
+
     // Jei rid te insert hoise oita nitese
     const ridResult = await get_data({
       sql: `SELECT MAX(rid) AS rid FROM requisition;`,
-      params: []
+      params: [],
     });
-    
+
     const rid = ridResult[0].rid;
-    
+
     // Room er moddhe insert korbe
     await get_data({
       sql: `INSERT INTO room (rid, room_type, date_requested, time_requested_from, time_requested_to) VALUES (?, ?, ?, ?, ?)`,
-      params: [rid, room_type, date_requested, time_from, time_to]
+      params: [rid, room_type, date_requested, time_from, time_to],
     });
   }
-  
+
   close_requisition();
 }
 
@@ -733,14 +745,6 @@ async function club_announcement(clubId) {
         <button class="announcements-close-btn" onclick="close_club_announcement()" title="Close">&times;</button>
         <h3>Send Announcement - ${clubId}</h3>
         <form id="announcement-form" style="padding: 20px;">
-          <div style="margin-bottom: 15px;">
-            <label for="ann-type" style="display: block; margin-bottom: 5px; font-weight: bold;">Type:</label>
-            <select id="ann-type" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-              <option value="notice">Notice</option>
-              <option value="event">Event</option>
-              <option value="update">Update</option>
-            </select>
-          </div>
           <div style="margin-bottom: 15px;">
             <label for="ann-subject" style="display: block; margin-bottom: 5px; font-weight: bold;">Subject:</label>
             <input type="text" id="ann-subject" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Enter announcement subject" required>
@@ -767,7 +771,6 @@ async function club_announcement(clubId) {
     .addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      const type = document.getElementById("ann-type").value;
       const subject = document.getElementById("ann-subject").value.trim();
       const body = document.getElementById("ann-body").value.trim();
 
@@ -777,9 +780,9 @@ async function club_announcement(clubId) {
       }
       // Insert announcement into database
       await get_data({
-        sql: `INSERT INTO announcement (type, subject, body, date_time, cid, uid) 
-            VALUES (?, ?, ?, NOW(), ?, ?)`,
-        params: [type, subject, body, clubId, currentUser],
+        sql: `INSERT INTO announcement (subject, body, date_time, cid, uid) 
+            VALUES (?, ?, NOW(), ?, ?)`,
+        params: [subject, body, clubId, currentUser],
       });
       close_club_announcement();
 

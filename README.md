@@ -27,8 +27,7 @@ So far completed:
    7. Manage Members
    8. OCA Bill Approval
    9. Send Announcements
-```
-To-do:
    10. OCA Delete Announcements
-   11. Club Table e add description, icon
-   12. Reset applications by dropping and creating the table again
+   11. Reset applications by dropping and creating the table again
+```
+
