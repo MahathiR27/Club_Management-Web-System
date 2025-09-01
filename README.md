@@ -21,10 +21,10 @@ So far completed:
    4. Notification Mails
    5. Student Account approval (OCA)
    6. OCA Room Approval
+   7. Manage Members
 ```
 To-do:
-   7. OCA Bill Approval
-   8. Manage Members
+   8. OCA Bill Approval
    9. Send Announcements
    10. OCA Delete Announcements
    11. Club Table e add description, icon
