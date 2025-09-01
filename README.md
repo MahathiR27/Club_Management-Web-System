@@ -31,3 +31,11 @@ So far completed:
    11. Reset applications by dropping and creating the table again
 ```
 
+```
+Email
+```
+   1. OTP
+   2. OCA Account Approval
+   3. Club Join Approval: approve_application()
+   4. Member Role update: confirm_edit_member()
+```

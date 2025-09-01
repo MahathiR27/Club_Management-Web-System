@@ -259,3 +259,5 @@ INSERT INTO approval (oca_uid, rid) VALUES
 
 UPDATE user SET status='active' WHERE uid IN (538741, 538742, 538743, 538744, 538745, 23301451, 25316789);
 INSERT INTO applied (cid, uid) VALUES ('ROBU', 24341269);
+INSERT INTO applied (cid, uid) VALUES ('ROBU', 24241289);
+
