@@ -1,5 +1,5 @@
 // ================================== Variables ================================================================================
-const club_positions = ['Member', 'Executive', 'General Secretary'];
+const club_positions = ['Member', 'Apprentice','Executive', 'Secretary','Director'];
 // =============================================================================================================================
 
 // Setup dashboard for students
@@ -24,7 +24,7 @@ async function showMyClubs(userId) {
     <div class="dashboard-section">
       <div class="section-header">
         <div class="section-title">
-          <div class="section-icon">🏛️</div>
+          <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></div>
           <h3>My Clubs</h3>
         </div>
       </div>
@@ -48,7 +48,7 @@ async function loadJoinedClubs(userId) {
     val = joinedClubs.map((i) => `
       <div class="club-card joined">
         <div class="club-info">
-          <div class="club-icon">🏛️</div>
+          <div class="club-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></div>
           <div class="club-details">
             <h4>${i.name}</h4>
             <p>Member since ${i.joining_sem}</p>
@@ -134,7 +134,7 @@ async function loadAvailableClubs(userId) {
     return `
     <div class="club-card available"> 
       <div class="club-info">
-        <div class="club-icon">🏛️</div>
+        <div class="club-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></div>
         <div class="club-details">
           <h4>${i.name}</h4>
           <p>${i.description || "To-do 11"}</p>
@@ -180,7 +180,7 @@ async function showManageClubs(userId) {
     <div class="dashboard-section">
       <div class="section-header">
         <div class="section-title">
-          <div class="section-icon">⚙️</div>
+          <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="m640-120-12-60q-12-5-22.5-10.5T584-204l-58 18-40-68 46-40q-2-14-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T628-460l12-60h80l12 60q12 5 22.5 11t21.5 15l58-20 40 70-46 40q2 12 2 25t-2 25l46 40-40 68-58-18q-11 8-21.5 13.5T732-180l-12 60h-80ZM80-160v-112q0-33 17-62t47-44q51-26 115-44t141-18h14q6 0 12 2-29 72-24 143t48 135H80Zm600-80q33 0 56.5-23.5T760-320q0-33-23.5-56.5T680-400q-33 0-56.5 23.5T600-320q0 33 23.5 56.5T680-240ZM400-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Z"/></svg></div>
           <h3>Manage Clubs</h3>
         </div>
       </div>
@@ -205,7 +205,7 @@ async function loadManageClubsContent(userId) {
     val = managed_clubs.map((club) => `
       <div class="club-card manage">
         <div class="club-info">
-          <div class="club-icon">🏛️</div>
+          <div class="club-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></div>
           <div class="club-details">
             <h4>${club.name}</h4>
             <p>Position: ${club.position}</p>
@@ -464,123 +464,6 @@ function club_requisition(clubId) {
   alert(`Manage requisition for club ${clubId} - Feature coming soon!`);
 }
 //==============================================================================================================================
-
-//==============================================================================================================================
-
-// // Load recent announcements dynamically from backend
-// async function loadAnnouncements() {
-//   const announcementsList = document.getElementById("announcements-list");
-//   if (!announcementsList) return;
-
-//   try {
-//     // Pull only top 3 via POST /query
-//     const rows = await get_data({
-//       sql: `
-//         SELECT a.aid, a.\`type\`, a.subject, a.body, a.date_time, u.name AS author
-//         FROM \`announcement\` a
-//         JOIN \`user\` u ON a.uid = u.uid
-//         ORDER BY a.date_time DESC
-//         LIMIT 3
-//       `,
-//       params: [],
-//     });
-
-//     if (!rows || rows.length === 0) {
-//       announcementsList.innerHTML = `
-//         <div class="announcement-item">
-//           <div class="announcement-content"><h4>No announcements yet</h4></div>
-//         </div>`;
-//     } else {
-//       announcementsList.innerHTML = rows.map(renderAnnouncementItem).join("");
-//     }
-
-//     // Add/refresh the footer with the Show All button (using the existing .view-all-btn style)
-//     // Avoid duplicates if the function runs again
-//     const panel =
-//       announcementsList.closest(".announcement-panel") ||
-//       announcementsList.parentElement;
-//     let footer = panel.querySelector(".announcements-footer");
-//     if (!footer) {
-//       footer = document.createElement("div");
-//       footer.className = "announcements-footer";
-//       panel.appendChild(footer);
-//     }
-//     footer.innerHTML = `<button class="view-all-btn" id="showAllAnnouncementsBtn">Show all</button>`;
-//     document
-//       .getElementById("showAllAnnouncementsBtn")
-//       .addEventListener("click", openAnnouncementsModal);
-//   } catch (err) {
-//     console.error("Failed to load announcements:", err);
-//   }
-// }
-
-// Helper to render one announcement card (used by both list & modal)
-// function renderAnnouncementItem(a) {
-//   const when = new Date(a.date_time);
-//   return `
-//     <div class="announcement-item">
-//       <div class="announcement-icon">📢</div>
-//       <div class="announcement-content">
-//         <h4>${a.subject}</h4>
-//         <p>${a.body}</p>
-//         <span class="announcement-time">${when.toLocaleString()} &nbsp;•&nbsp; ${
-//     a.author
-//   }</span>
-//       </div>
-//     </div>`;
-// }
-
-// // Modal: fetch all announcements and show in overlay
-// async function openAnnouncementsModal() {
-//   // Create overlay container once if missing
-//   let overlay = document.getElementById("announcementsOverlay");
-//   if (!overlay) {
-//     overlay = document.createElement("div");
-//     overlay.id = "announcementsOverlay";
-//     overlay.className = "announcements-overlay";
-//     overlay.innerHTML = `
-//       <div class="announcements-modal" role="dialog" aria-modal="true" aria-label="All announcements">
-//         <button class="announcements-close-btn" title="Close">&times;</button>
-//         <h3>All Announcements</h3>
-//         <div id="announcementsModalList" class="announcements-list-modal"></div>
-//       </div>`;
-//     document.body.appendChild(overlay);
-
-//     // Close interactions
-//     overlay.addEventListener("click", (e) => {
-//       if (e.target === overlay) overlay.classList.remove("show");
-//     });
-//     overlay
-//       .querySelector(".announcements-close-btn")
-//       .addEventListener("click", () => overlay.classList.remove("show"));
-//     document.addEventListener("keydown", (e) => {
-//       if (e.key === "Escape") overlay.classList.remove("show");
-//     });
-//   }
-
-//   // Load every announcement (you can add LIMIT 100 if needed)
-//   try {
-//     const rows = await get_data({
-//       sql: `
-//         SELECT a.aid, a.\`type\`, a.subject, a.body, a.date_time, u.name AS author
-//         FROM \`announcement\` a
-//         JOIN \`user\` u ON a.uid = u.uid
-//         ORDER BY a.date_time DESC
-//       `,
-//       params: [],
-//     });
-
-//     const container = document.getElementById("announcementsModalList");
-//     container.innerHTML =
-//       rows && rows.length
-//         ? rows.map(renderAnnouncementItem).join("")
-//         : `<div class="announcement-item"><div class="announcement-content"><h4>No announcements found</h4></div></div>`;
-
-//     document.getElementById("announcementsOverlay").classList.add("show");
-//   } catch (err) {
-//     console.error("Failed to load all announcements:", err);
-//   }
-// }
 
 // View all notifications
 function viewAllNotifications() {
