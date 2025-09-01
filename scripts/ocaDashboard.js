@@ -319,7 +319,7 @@ async function showAnnouncements() {
         <div class="oca-card">
           <h4><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="m640-120-12-60q-12-5-22.5-10.5T584-204l-58 18-40-68 46-40q-2-14-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T628-460l12-60h80l12 60q12 5 22.5 11t21.5 15l58-20 40 70-46 40q2 12 2 25t-2 25l46 40-40 68-58-18q-11 8-21.5 13.5T732-180l-12 60h-80ZM80-160v-112q0-33 17-62t47-44q51-26 115-44t141-18h14q6 0 12 2-29 72-24 143t48 135H80Zm600-80q33 0 56.5-23.5T760-320q0-33-23.5-56.5T680-400q-33 0-56.5 23.5T600-320q0 33 23.5 56.5T680-240ZM400-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Z"/></svg> Manage Announcements</h4>
           <p>View and manage existing announcements</p>
-          <button class="oca-btn" onclick="alert('Manage announcements coming soon!')">Manage Existing</button>
+          <button class="oca-btn" onclick="showManageAnnouncementsModal()">Manage Existing</button>
         </div>
       </div>
     </div>
@@ -673,6 +673,117 @@ async function create_system_announcement() {
 // Close OCA announcement modal
 function close_oca_announcement() {
   const modal = document.getElementById("oca_announcement_panel");
+  if (modal) {
+    modal.remove();
+  }
+}
+
+// Show manage announcements modal
+async function showManageAnnouncementsModal() {
+  // Create modal HTML
+  const modalHTML = `
+    <div id="manage_announcements_panel" class="announcements-overlay show">
+      <div class="announcements-modal" style="width: 800px; max-width: 95vw; max-height: 90vh; overflow-y: auto;">
+        <button class="announcements-close-btn" onclick="closeManageAnnouncementsModal()" title="Close">&times;</button>
+        <h3>Manage Announcements</h3>
+        <div id="announcements-list-container" style="padding: 20px;">
+          <div id="loading-announcements" style="text-align: center; padding: 20px;">
+            Loading announcements...
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Add modal to page
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  // Load announcements
+  await loadAllAnnouncements();
+
+  // Add event listener for closing by clicking outside
+  document
+    .getElementById("manage_announcements_panel")
+    .addEventListener("click", function (e) {
+      if (e.target === this) {
+        closeManageAnnouncementsModal();
+      }
+    });
+}
+
+// Load all announcements for management
+async function loadAllAnnouncements() {
+  const announcements = await get_data({
+    sql: `SELECT a.aid, a.type, a.subject, a.body, a.date_time, a.cid, u.name as author_name
+          FROM announcement a 
+          JOIN user u ON a.uid = u.uid
+          ORDER BY a.date_time DESC`,
+  });
+
+  const container = document.getElementById("announcements-list-container");
+
+  if (!announcements || announcements.length === 0) {
+    container.innerHTML = `<p style="text-align: center; color: #aaa;">No announcements found.</p>`;
+    return;
+  }
+
+  let announcementsHTML = `<div class="announcements-grid" style="display: flex; flex-direction: column; gap: 15px;">`;
+
+  announcements.forEach((announcement) => {
+    const dateTime = new Date(announcement.date_time).toLocaleString();
+    const clubInfo = announcement.cid
+      ? `Club: ${announcement.cid}`
+      : "System-wide";
+
+    announcementsHTML += `
+      <div class="announcement-card" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; background: #fff;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+          <div style="flex: 1;">
+            <div style="display: flex; gap: 15px; margin-bottom: 8px;">
+              <span class="announcement-type" style="background: #6BB4F1; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; text-transform: uppercase;">${announcement.type}</span>
+              <span style="color: #666; font-size: 12px;">${clubInfo}</span>
+              <span style="color: #666; font-size: 12px;">${dateTime}</span>
+            </div>
+            <h4 style="margin: 0 0 8px 0; color: #333;">${announcement.subject}</h4>
+            <p style="margin: 0 0 8px 0; color: #666; line-height: 1.4;">${announcement.body}</p>
+            <p style="margin: 0; font-size: 12px; color: #888;">By: ${announcement.author_name}</p>
+          </div>
+          <button class="delete-announcement-btn" data-aid="${announcement.aid}" style="background: #ef4444; color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; margin-left: 15px; font-size: 12px;">Delete</button>
+        </div>
+      </div>
+    `;
+  });
+
+  announcementsHTML += `</div>`;
+  container.innerHTML = announcementsHTML;
+
+  // Add event listeners for delete buttons
+  document.querySelectorAll(".delete-announcement-btn").forEach((btn) => {
+    btn.onclick = async function () {
+      const aid = this.getAttribute("data-aid");
+      await deleteAnnouncement(aid);
+    };
+  });
+}
+
+// Delete announcement function
+async function deleteAnnouncement(aid) {
+  await get_data({
+    sql: `DELETE FROM announcement WHERE aid = ?`,
+    params: [aid],
+  });
+  // Reload the announcements list
+  await loadAllAnnouncements();
+
+  // Refresh announcements on home page if visible
+  if (document.getElementById("announcements-list")) {
+    loadRecentAnnouncements();
+  }
+}
+
+// Close manage announcements modal
+function closeManageAnnouncementsModal() {
+  const modal = document.getElementById("manage_announcements_panel");
   if (modal) {
     modal.remove();
   }
