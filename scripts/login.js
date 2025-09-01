@@ -77,11 +77,18 @@ async function sendOTP() {
   document.querySelector('.get-otp-btn').disabled = true;
   
   const email = document.getElementById('regEmail').value;
-  
+
+  const email_exist_check = await get_data({ sql: `select * from user where email = ?`, params: [email]});
   if (!email || !email.endsWith("@g.bracu.ac.bd")) {
     // wrong email hoile button abar ferot aishe porbe
     document.querySelector('.get-otp-btn').disabled = false;
     document.getElementById('emailErrorText').style.display = 'block';
+    return;
+  }
+  else if( email_exist_check.length > 0){
+    // existing member hole can't register
+    document.querySelector('.get-otp-btn').disabled = false;
+    document.getElementById('ExistingMemberText').style.display = 'block';
     return;
   }
   // Send OTP ----------------------------------------------------------------

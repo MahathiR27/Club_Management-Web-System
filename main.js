@@ -2,12 +2,46 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const db = require('./database.js');
 const config = require('./config_files/config.json');
-const e = require('express');
+const multer = require('multer');
 
 const app = express();
 
 app.use(express.json());
 app.use(express.static('.')); // Serves everything from current directory
+
+///////////////////////// Upload /////////////////////////
+app.use('/uploads', express.static('uploads'));
+
+// simple disk storage for PDFs
+const pdf_storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, './uploads'),
+  filename: (req, file, cb) => {cb(null, `${Date.now()}_${file.originalname}`);},
+});
+const pdf_upload = multer({
+  storage: pdf_storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') return cb(null, true);
+    // cb(new Error('PDF files only'));
+  }
+});
+
+app.post('/upload-pdf', pdf_upload.single('pdf'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({
+      success: false,
+      message: 'No PDF file uploaded'
+    });
+  }
+  
+  const relPath = `uploads/${req.file.filename}`;
+  res.json({
+    success: true,
+    name: req.file.originalname,
+    path: relPath,
+    url: `/${relPath}`,
+  });
+});
+///////////////////////////////////////////////////////////
 
 ///////////////////////// Database ////////////////////////
 app.post('/query', (req, res) => {
@@ -57,12 +91,15 @@ app.post('/otp', (req, res) => {
 //const email = prompt("Enter your email:");
 //await send_email({ receiver: email, subject: `OTP`,body:`123`});
 
-// Transporter object
-
+// Comment out to run mail test
+otp_generator['11111@g.bracu.ac.bd'] = 123456;
 app.post('/email', (req, res) => {
 res.json({success: true})
 });
 
+// Uncomment to send mail
+
+// Transporter object
 // const transporter = nodemailer.createTransport({
 //   host: 'smtp.gmail.com',
 //   port: 587,

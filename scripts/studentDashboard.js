@@ -1,4 +1,6 @@
-// Student Dashboard Functions
+// ================================== Variables ================================================================================
+const club_positions = ['Member', 'Apprentice','Executive', 'Secretary','Director'];
+// =============================================================================================================================
 
 // Setup dashboard for students
 async function setupStudentDashboard(userId) {
@@ -6,12 +8,14 @@ async function setupStudentDashboard(userId) {
   showHomePage();
 }
 
+
+//=============================================== My Clubs =======================================================================
 // Show My Clubs content
 async function showMyClubs(userId) {
   const clickedBtn = event?.target || document.querySelector(".sidebar-btn");
-  setActiveButton(clickedBtn);
+  setActiveButton(clickedBtn); 
 
-  // Hide welcome message and announcements when navigating
+  // Hide welcome message and announcements
   document.querySelector(".welcome-section").style.display = "none";
   document.getElementById("announcement-section").style.display = "none";
 
@@ -20,29 +24,60 @@ async function showMyClubs(userId) {
     <div class="dashboard-section">
       <div class="section-header">
         <div class="section-title">
-          <div class="section-icon">🏛️</div>
+          <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></div>
           <h3>My Clubs</h3>
         </div>
       </div>
       <div class="clubs-list" id="joined-clubs-list">
-        <!-- Joined clubs will be loaded dynamically -->
+        <!-- Joined clubs -->
       </div>
-      <div class="empty-state" id="joined-clubs-empty" style="display: none;">
-        <p>You haven't joined any clubs yet. Explore available clubs!</p>
-      </div>
-    </div>
-  `;
+    </div>`;
 
   await loadJoinedClubs(userId);
 }
 
-// Show Join Clubs content
-async function showJoinClubs(userId) {
-  const clickedBtn =
-    event?.target || document.querySelectorAll(".sidebar-btn")[1];
-  setActiveButton(clickedBtn);
+// Kon Kon Club er member ber korbe
+async function loadJoinedClubs(userId) {
+  const joinedClubs = await get_data({
+    sql: `SELECT c.*, m.* FROM club c JOIN members m ON c.cid = m.cid 
+          WHERE m.student_uid = ?`,
+    params: [userId]});
 
-  // Hide welcome message and announcements when navigating
+  if (joinedClubs.length > 0) {
+    // Iterate through the clubs he has joined to make the list
+    val = joinedClubs.map((i) => `
+      <div class="club-card joined">
+        <div class="club-info">
+          <div class="club-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></div>
+          <div class="club-details">
+            <h4>${i.name}</h4>
+            <p>Member since ${i.joining_sem}</p>
+            <div class="club-stats">
+              <span class="member-count">Active</span>
+              <span class="category">${i.position || "General"}</span>
+            </div>
+          </div>
+        </div> 
+      </div>`);
+
+    val = val.join("");
+
+  } else {
+    val = `<p class="no-announcements">You have't joined any club yet</p>`;
+  }
+  const joinedClubsList = document.getElementById("joined-clubs-list");
+  joinedClubsList.style.display = "block"
+
+  joinedClubsList.innerHTML = val
+}
+//==================================================================================================================================
+
+//=============================================== Join Clubs =======================================================================
+async function showJoinClubs(userId) {
+  const clickedBtn = event?.target || document.querySelector(".sidebar-btn");
+  setActiveButton(clickedBtn); 
+
+  // Hide welcome message and announcements
   document.querySelector(".welcome-section").style.display = "none";
   document.getElementById("announcement-section").style.display = "none";
 
@@ -51,23 +86,84 @@ async function showJoinClubs(userId) {
     <div class="dashboard-section">
       <div class="section-header">
         <div class="section-title">
-          <div class="section-icon">🔍</div>
+          <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg></div>
           <h3>Join Clubs</h3>
         </div>
       </div>
       <div class="clubs-list" id="available-clubs-list">
-        <!-- Available clubs will be loaded dynamically -->
+        <!-- Available clubs-->
       </div>
-    </div>
-  `;
+    </div>`;
 
   await loadAvailableClubs(userId);
 }
 
+// Load clubs available to join
+async function loadAvailableClubs(userId) {
+  // Get clubs that user hasn't joined yet
+  const available_clubs = await get_data({
+    sql: `SELECT c.* FROM club c WHERE c.cid NOT IN (SELECT m.cid FROM members m WHERE m.student_uid = ?)`,
+    params: [userId]});
+
+  // Get user's applications status
+  const applications = await get_data({
+    sql: `SELECT cid, status FROM applied WHERE uid = ?`,
+    params: [userId]});
+
+  // Kon Kon Club e apply korse ar status ki store
+  const application_map = {};
+  applications.forEach((i) => {
+    application_map[i.cid] = i.status;
+  });
+
+  const available_clubs_list = document.getElementById("available-clubs-list");
+  
+  val = available_clubs.map((i) => {
+    const application_status = application_map[i.cid];
+    let button_html = "";
+
+    // Depending on application status button ar color set korar jonno
+    if (application_status == "pending") {
+      button_html = `<button class="applied-btn" disabled>Application Pending</button>`;
+  
+    } else {
+      button_html = `<button class="apply-club-btn" onclick="apply_to_club(${userId},'${i.cid}')">Apply Now</button>`;
+    }
+
+    return `
+    <div class="club-card available"> 
+      <div class="club-info">
+        <div class="club-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></div>
+        <div class="club-details">
+          <h4>${i.name}</h4>
+          <p>${i.description || "No description available"}</p>
+        </div>
+      </div>
+      ${button_html}
+    </div>`;
+  })
+
+  val = val.join("");
+  available_clubs_list.innerHTML = val
+  
+}
+
+// Apply to join a club
+async function apply_to_club(userId,clubId) {
+  await get_data({
+    sql: `INSERT INTO applied (uid, cid) VALUES (?, ?)`,
+    params: [userId, clubId],});
+    
+  // auto refresh page
+  await showJoinClubs(userId);
+}
+//==============================================================================================================================
+
+//============================================== Manage Clubs ==================================================================
 // Show Manage Clubs content (for presidents only)
 async function showManageClubs(userId) {
-  const clickedBtn = event?.target;
-  setActiveButton(clickedBtn);
+  const clickedBtn = event?.target || document.querySelector(".sidebar-btn");
+  setActiveButton(clickedBtn); 
 
   // Hide welcome message and announcements when navigating
   document.querySelector(".welcome-section").style.display = "none";
@@ -78,12 +174,12 @@ async function showManageClubs(userId) {
     <div class="dashboard-section">
       <div class="section-header">
         <div class="section-title">
-          <div class="section-icon">⚙️</div>
+          <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="m640-120-12-60q-12-5-22.5-10.5T584-204l-58 18-40-68 46-40q-2-14-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T628-460l12-60h80l12 60q12 5 22.5 11t21.5 15l58-20 40 70-46 40q2 12 2 25t-2 25l46 40-40 68-58-18q-11 8-21.5 13.5T732-180l-12 60h-80ZM80-160v-112q0-33 17-62t47-44q51-26 115-44t141-18h14q6 0 12 2-29 72-24 143t48 135H80Zm600-80q33 0 56.5-23.5T760-320q0-33-23.5-56.5T680-400q-33 0-56.5 23.5T600-320q0 33 23.5 56.5T680-240ZM400-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Z"/></svg></div>
           <h3>Manage Clubs</h3>
         </div>
       </div>
       <div class="manage-clubs-content" id="manage-clubs-content">
-        <!-- Manage clubs content will be loaded dynamically -->
+        <!-- Manage clubs -->
       </div>
     </div>
   `;
@@ -93,494 +189,484 @@ async function showManageClubs(userId) {
 
 // Load clubs that the user manages as president
 async function loadManageClubsContent(userId) {
-  try {
-    const managedClubs = await get_data({
-      sql: `SELECT c.*, m.position FROM club c 
-            INNER JOIN members m ON c.cid = m.cid 
-            WHERE m.student_uid = ? AND m.position = 'President'`,
-      params: [userId],
-    });
+  const managed_clubs = await get_data({
+    sql: `SELECT c.*, m.position FROM club c 
+          JOIN members m ON c.cid = m.cid 
+          WHERE m.student_uid = ? AND (m.position = 'President' or m.position = 'Vice President') `,
+    params: [userId]});
 
-    const content = document.getElementById("manage-clubs-content");
-
-    if (managedClubs.length > 0) {
-      content.innerHTML = managedClubs
-        .map(
-          (club) => `
-        <div class="club-card manage">
-          <div class="club-info">
-            <div class="club-icon">🏛️</div>
-            <div class="club-details">
-              <h4>${club.name}</h4>
-              <p>Role: ${club.position}</p>
-              <div class="club-stats">
-                <span class="member-count">President</span>
-              </div>
-            </div>
-          </div>
-          <div class="club-actions">
-            <button class="club-action-btn" onclick="manageClubMembers('${club.cid}')">Member List</button>
-            <button class="club-action-btn" onclick="manageClubActivities('${club.cid}')">Manage Activities</button>
-            <button class="club-action-btn" onclick="ClubMemberApproval('${club.cid}')">Member Apporval</button>
-            <button class="club-action-btn" onclick="manageClubRequisition('${club.cid}')">Requisition</button>
-          </div>
-        </div>
-      `
-        )
-        .join("");
-    } else {
-      content.innerHTML =
-        '<p class="no-content">You are not a president of any clubs.</p>';
-    }
-  } catch (error) {
-    console.error("Error loading managed clubs:", error);
-    document.getElementById("manage-clubs-content").innerHTML =
-      '<p class="error">Error loading managed clubs</p>';
-  }
-}
-
-// Load clubs that the user has joined
-async function loadJoinedClubs(userId) {
-  const joinedClubs = await get_data({
-    sql: `SELECT c.*, m.* FROM club c 
-          INNER JOIN members m ON c.cid = m.cid 
-          WHERE m.student_uid = ?`,
-    params: [userId],
-  });
-
-  const joinedClubsList = document.getElementById("joined-clubs-list");
-  const emptyState = document.getElementById("joined-clubs-empty");
-
-  if (!joinedClubsList) {
-    console.error("joined-clubs-list element not found!");
-    return;
-  }
-
-  if (!emptyState) {
-    console.error("joined-clubs-empty element not found!");
-    return;
-  }
-
-  if (joinedClubs.length > 0) {
-    joinedClubsList.style.display = "block";
-    emptyState.style.display = "none";
-
-    joinedClubsList.innerHTML = joinedClubs
-      .map(
-        (club) => `
-      <div class="club-card joined">
+  if (managed_clubs.length > 0) {
+    val = managed_clubs.map((club) => `
+      <div class="club-card manage">
         <div class="club-info">
-          <div class="club-icon">🏛️</div>
+          <div class="club-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></div>
           <div class="club-details">
             <h4>${club.name}</h4>
-            <p>Member since ${club.joining_sem}</p>
-            <div class="club-stats">
-              <span class="member-count">Active</span>
-              <span class="category">${club.position || "General"}</span>
-            </div>
+            <p>Position: ${club.position}</p>
           </div>
         </div>
-        <button class="club-action-btn" onclick="viewClubDetails('${
-          club.cid
-        }')">View Details</button>
+        <div class="club-actions">
+          <button class="club-action-btn" onclick="club_member_list('${club.cid}')">Member List</button>
+          <button class="club-action-btn" onclick="club_member_approval('${club.cid}')">Member Apporval</button>
+          <button class="club-action-btn" onclick="club_requisition('${club.cid}')">Requisition</button>
+          <button class="club-action-btn" onclick="club_announcement('${club.cid}')">Send Announcement</button>
+        </div>
       </div>
-    `
-      )
-      .join("");
+    `);
+    val = val.join("");
   } else {
-    joinedClubsList.style.display = "none";
-    emptyState.style.display = "block";
-  }
-}
-
-// Load clubs available to join
-async function loadAvailableClubs(userId) {
-  // Get clubs that user hasn't joined yet
-  const availableClubs = await get_data({
-    sql: `SELECT c.* FROM club c 
-          WHERE c.cid NOT IN (
-            SELECT m.cid FROM members m WHERE m.student_uid = ?
-          )`,
-    params: [userId],
-  });
-
-  // Get user's applications status
-  const applications = await get_data({
-    sql: `SELECT cid, status FROM applied WHERE uid = ?`,
-    params: [userId],
-  });
-
-  // Create a map of applications for quick lookup
-  const applicationMap = {};
-  applications.forEach((app) => {
-    applicationMap[app.cid] = app.status;
-  });
-
-  const availableClubsList = document.getElementById("available-clubs-list");
-
-  if (!availableClubsList) {
-    console.error("available-clubs-list element not found!");
-    return;
+    val = '<p class="no-content">You are not a president of any clubs.</p>';
   }
 
-  availableClubsList.innerHTML = availableClubs
-    .map((club) => {
-      const applicationStatus = applicationMap[club.cid];
-      let buttonHtml = "";
-      let statusClass = "";
-
-      if (applicationStatus === "pending" || applicationStatus === "applied") {
-        buttonHtml = `<button class="applied-btn" disabled>Application Pending</button>`;
-        statusClass = "applied";
-      } else if (applicationStatus === "rejected") {
-        buttonHtml = `<button class="reapply-btn" onclick="applyToClub('${club.cid}')">Reapply</button>`;
-        statusClass = "rejected";
-      } else {
-        buttonHtml = `<button class="apply-club-btn" onclick="applyToClub('${club.cid}')">Apply Now</button>`;
-      }
-
-      return `
-      <div class="club-card available ${statusClass}">
-        <div class="club-info">
-          <div class="club-icon">🏛️</div>
-          <div class="club-details">
-            <h4>${club.name}</h4>
-            <p>${club.description || "Join this amazing club!"}</p>
-            <div class="club-stats"> 
-              ${
-                applicationStatus
-                  ? `<span class="application-status ${applicationStatus}">${
-                      applicationStatus.charAt(0).toUpperCase() +
-                      applicationStatus.slice(1)
-                    }</span>`
-                  : ""
-              }
-            </div>
-          </div>
-        </div>
-        ${buttonHtml}
-      </div>
-    `;
-    })
-    .join("");
-}
-
-// Load recent announcements dynamically from backend
-async function loadAnnouncements() {
-  const announcementsList = document.getElementById("announcements-list");
-  if (!announcementsList) return;
-
-  try {
-    // Pull only top 3 via POST /query
-    const rows = await get_data({
-      sql: `
-        SELECT a.aid, a.\`type\`, a.subject, a.body, a.date_time, u.name AS author
-        FROM \`announcement\` a
-        JOIN \`user\` u ON a.uid = u.uid
-        ORDER BY a.date_time DESC
-        LIMIT 3
-      `,
-      params: [],
-    });
-
-    if (!rows || rows.length === 0) {
-      announcementsList.innerHTML = `
-        <div class="announcement-item">
-          <div class="announcement-content"><h4>No announcements yet</h4></div>
-        </div>`;
-    } else {
-      announcementsList.innerHTML = rows.map(renderAnnouncementItem).join("");
-    }
-
-    // Add/refresh the footer with the Show All button (using the existing .view-all-btn style)
-    // Avoid duplicates if the function runs again
-    const panel =
-      announcementsList.closest(".announcement-panel") ||
-      announcementsList.parentElement;
-    let footer = panel.querySelector(".announcements-footer");
-    if (!footer) {
-      footer = document.createElement("div");
-      footer.className = "announcements-footer";
-      panel.appendChild(footer);
-    }
-    footer.innerHTML = `<button class="view-all-btn" id="showAllAnnouncementsBtn">Show all</button>`;
-    document
-      .getElementById("showAllAnnouncementsBtn")
-      .addEventListener("click", openAnnouncementsModal);
-  } catch (err) {
-    console.error("Failed to load announcements:", err);
-  }
-}
-
-// Helper to render one announcement card (used by both list & modal)
-function renderAnnouncementItem(a) {
-  const when = new Date(a.date_time);
-  return `
-    <div class="announcement-item">
-      <div class="announcement-icon">📢</div>
-      <div class="announcement-content">
-        <h4>${a.subject}</h4>
-        <p>${a.body}</p>
-        <span class="announcement-time">${when.toLocaleString()} &nbsp;•&nbsp; ${
-    a.author
-  }</span>
-      </div>
-    </div>`;
-}
-
-// Modal: fetch all announcements and show in overlay
-async function openAnnouncementsModal() {
-  // Create overlay container once if missing
-  let overlay = document.getElementById("announcementsOverlay");
-  if (!overlay) {
-    overlay = document.createElement("div");
-    overlay.id = "announcementsOverlay";
-    overlay.className = "announcements-overlay";
-    overlay.innerHTML = `
-      <div class="announcements-modal" role="dialog" aria-modal="true" aria-label="All announcements">
-        <button class="announcements-close-btn" title="Close">&times;</button>
-        <h3>All Announcements</h3>
-        <div id="announcementsModalList" class="announcements-list-modal"></div>
-      </div>`;
-    document.body.appendChild(overlay);
-
-    // Close interactions
-    overlay.addEventListener("click", (e) => {
-      if (e.target === overlay) overlay.classList.remove("show");
-    });
-    overlay
-      .querySelector(".announcements-close-btn")
-      .addEventListener("click", () => overlay.classList.remove("show"));
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") overlay.classList.remove("show");
-    });
-  }
-
-  // Load every announcement (you can add LIMIT 100 if needed)
-  try {
-    const rows = await get_data({
-      sql: `
-        SELECT a.aid, a.\`type\`, a.subject, a.body, a.date_time, u.name AS author
-        FROM \`announcement\` a
-        JOIN \`user\` u ON a.uid = u.uid
-        ORDER BY a.date_time DESC
-      `,
-      params: [],
-    });
-
-    const container = document.getElementById("announcementsModalList");
-    container.innerHTML =
-      rows && rows.length
-        ? rows.map(renderAnnouncementItem).join("")
-        : `<div class="announcement-item"><div class="announcement-content"><h4>No announcements found</h4></div></div>`;
-
-    document.getElementById("announcementsOverlay").classList.add("show");
-  } catch (err) {
-    console.error("Failed to load all announcements:", err);
-  }
-}
-
-// Apply to join a club
-async function applyToClub(clubId) {
-  const currentUser = localStorage.getItem("currentUser");
-  if (!currentUser) {
-    alert("Please login first!");
-    return;
-  }
-
-  // Check if user has already applied to this club
-  const existingApplication = await get_data({
-    sql: `SELECT status FROM applied WHERE uid = ? AND cid = ?`,
-    params: [currentUser, clubId],
-  });
-  if (existingApplication.length > 0) {
-    const status = existingApplication[0].status;
-    if (status === "applied" || status === "pending") {
-      alert("You have already applied to this club. Please wait for approval.");
-      return;
-    } else if (status === "approved") {
-      alert(
-        "Your application has been approved. You are already a member of this club."
-      );
-      return;
-    } else if (status === "rejected") {
-      // Allow reapplication if previously rejected
-      await get_data({
-        sql: `UPDATE applied SET status = 'pending' WHERE uid = ? AND cid = ?`,
-        params: [currentUser, clubId],
-      });
-      alert("Your application has been resubmitted!");
-      // Refresh the current view to show updated status
-      await showJoinClubs(currentUser);
-      return;
-    }
-  }
-  // Check if user is already a member of this club
-  const memberCheck = await get_data({
-    sql: `SELECT * FROM members WHERE student_uid = ? AND cid = ?`,
-    params: [currentUser, clubId],
-  });
-  if (memberCheck.length > 0) {
-    alert("You are already a member of this club!");
-    return;
-  }
-  // Insert new application
-  await get_data({
-    sql: `INSERT INTO applied (uid, cid, status) VALUES (?, ?, 'pending')`,
-    params: [currentUser, clubId],
-  });
-  alert("Application submitted successfully! Please wait for approval.");
-  // Refresh the current view to show updated status
-  await showJoinClubs(currentUser);
-}
-
-// View club details
-function viewClubDetails(clubId) {
-  alert(`Club details for ${clubId} - Feature coming soon!`);
-}
-
-// View all notifications
-function viewAllNotifications() {
-  alert("All notifications - Feature coming soon!");
+  const managed_clubs_list = document.getElementById("manage-clubs-content");
+  managed_clubs_list.innerHTML = val
 }
 
 // Manage club members (for presidents)
-function manageClubMembers(clubId) {
-  alert(`Manage members for club ${clubId} - Feature coming soon!`);
-}
+async function club_member_list(clubId) {
+  // Get all members for this club
+  const club_members = await get_data({
+    sql: `SELECT m.*, u.name, u.email, u.phone, m.joining_sem
+          FROM members m JOIN user u ON m.student_uid = u.uid 
+          WHERE m.cid = ?
+          ORDER BY m.student_uid `,
+    params: [clubId],
+  });
 
-// Manage club activities (for presidents)
-function manageClubActivities(clubId) {
-  alert(`Manage activities for club ${clubId} - Feature coming soon!`);
+  // Creating the modal to add to page html karon we donot have the dynamic content er jayga as before
+  const modalHTML = `
+    <div id="club_member_list_panel" class="announcements-overlay show">
+      <div class="announcements-modal">
+        <button class="announcements-close-btn" onclick="close_club_member_list()" title="Close">&times;</button>
+        <h3>${clubId} Club Members</h3>
+        <div class="member-list" id="member-list" style="max-height: 900px; overflow-y: auto; padding-right: 10px;">
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Send to modal to html and make it visible
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  if (club_members.length > 0) {
+    // Iterate through the members to make the list
+    val = `
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="border: 1px solid; padding: 10px; text-align: left;">Name</th>
+            <th style="border: 1px solid; padding: 10px; text-align: left;">ID</th>
+            <th style="border: 1px solid; padding: 10px; text-align: left;">Email</th>
+            <th style="border: 1px solid; padding: 10px; text-align: left;">Phone</th>
+            <th style="border: 1px solid; padding: 10px; text-align: left;">Position</th>
+            <th style="border: 1px solid; padding: 10px; text-align: left;">Joining Semester</th>
+            <th style="border: 1px solid; padding: 10px; text-align: center;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${club_members.map((i) => `
+            <tr>
+              <td style="border: 1px solid; padding: 8px;">${i.name}</td>
+              <td style="border: 1px solid; padding: 8px;">${i.student_uid}</td>
+              <td style="border: 1px solid; padding: 8px;">${i.email}</td>
+              <td style="border: 1px solid; padding: 8px;">${i.phone}</td>
+              <td style="border: 1px solid; padding: 8px;">${i.position}</td>
+              <td style="border: 1px solid; padding: 8px;">${i.joining_sem}</td>
+              <td style="border: 1px solid; padding: 8px; text-align: center;">
+                ${(i.position === 'President' || i.position === 'Vice President') 
+                  ? '<button class="approve-btn" disabled style="background-color: #ccc; cursor: not-allowed;">Edit</button>'
+                  : `<button class="approve-btn" onclick="edit_member('${i.student_uid}', '${clubId}')">Edit</button>`
+                }
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>`;
+    
+  } else {
+    val = '<p class="no-content">No members found for this club.</p>';
+  }
+
+  const member_list = document.getElementById("member-list");
+  member_list.innerHTML = val
+
+  // Add event listener for closing
+  document.getElementById("club_member_list_panel").addEventListener("click", function (e){
+      if (e.target === this) {close_club_member_list()}
+  });
 }
 
 // Club member approval (for presidents)
-async function ClubMemberApproval(clubId) {
-  try {
-    // Get pending applications for this club
-    const pendingApplications = await get_data({
-      sql: `SELECT a.*, u.name, u.email, u.phone 
-            FROM applied a 
-            INNER JOIN user u ON a.uid = u.uid 
-            WHERE a.cid = ? AND a.status = 'pending'`,
-      params: [clubId],
-    });
+async function club_member_approval(clubId) {
+  // Get pending applications for this club
+  const pending_applications = await get_data({
+    sql: `SELECT a.*, u.name, u.email, u.phone 
+          FROM applied a JOIN user u ON a.uid = u.uid 
+          WHERE a.cid = ? AND a.status = 'pending'`,
+    params: [clubId],
+  });
 
-    // Create modal for member approval
-    const modalHTML = `
-      <div id="memberApprovalOverlay" class="announcements-overlay show">
-        <div class="announcements-modal">
-          <button class="announcements-close-btn" onclick="closeMemberApprovalModal()" title="Close">&times;</button>
-          <h3>Pending Member Applications</h3>
-          <div class="member-approval-list" id="member-approval-list">
-            ${
-              pendingApplications.length > 0
-                ? pendingApplications
-                    .map(
-                      (application) => `
-                <div class="verification-card">
-                  <div class="user-info">
-                    <h4>${application.name}</h4>
-                    <p><strong>ID:</strong> ${application.uid}</p>
-                    <p><strong>Email:</strong> ${application.email}</p>
-                    <p><strong>Phone:</strong> ${application.phone}</p>
-                    <p><strong>Applied:</strong> ${new Date(
-                      application.application_date
-                    ).toLocaleDateString()}</p>
-                  </div>
-                  <div class="verification-actions">
-                    <button class="approve-btn" onclick="approveMember('${
-                      application.uid
-                    }', '${clubId}')">Approve</button>
-                    <button class="reject-btn" onclick="rejectMember('${
-                      application.uid
-                    }', '${clubId}')">Reject</button>
-                  </div>
-                </div>
-              `
-                    )
-                    .join("")
-                : '<p class="no-content">No pending applications for this club.</p>'
-            }
-          </div>
+  // Creating the modal to add to page html karon we donot have the dynamic content er jayga as before
+  const modalHTML = `
+    <div id="club_member_approval_panel" class="announcements-overlay show">
+      <div class="announcements-modal">
+        <button class="announcements-close-btn" onclick="close_club_member_approval()" title="Close">&times;</button>
+        <h3>Pending Member Applications</h3>
+        <div class="member-approval-list" id="member-approval-list" style="max-height: 900px; overflow-y: auto; padding-right: 10px;">
         </div>
       </div>
-    `;
+    </div>
+  `;
 
-    // Add modal to body
-    document.body.insertAdjacentHTML("beforeend", modalHTML);
+  // Send to modal to html and make it visible
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
 
-    // Add event listener for closing
-    document
-      .getElementById("memberApprovalOverlay")
-      .addEventListener("click", function (e) {
-        if (e.target === this) {
-          closeMemberApprovalModal();
-        }
-      });
-  } catch (error) {
-    console.error("Error loading member applications:", error);
-    alert("Error loading member applications: " + error.message);
+
+  if (pending_applications.length > 0) {
+    // Iterate through the clubs he has joined to make the list
+    val = `
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="border: 1px solid; padding: 10px; text-align: left;">Name</th>
+            <th style="border: 1px solid; padding: 10px; text-align: left;">ID</th>
+            <th style="border: 1px solid; padding: 10px; text-align: left;">Email</th>
+            <th style="border: 1px solid; padding: 10px; text-align: left;">Phone</th>
+            <th style="border: 1px solid; padding: 10px; text-align: center;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${pending_applications.map((i) => `
+            <tr>
+              <td style="border: 1px solid; padding: 8px;">${i.name}</td>
+              <td style="border: 1px solid; padding: 8px;">${i.uid}</td>
+              <td style="border: 1px solid; padding: 8px;">${i.email}</td>
+              <td style="border: 1px solid; padding: 8px;">${i.phone}</td>
+              <td style="border: 1px solid; padding: 8px; text-align: center;">
+                <button class="approve-btn" onclick="approve_application('${i.uid}', '${clubId}')">Approve</button>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>`;
+    
+  } else {
+    val = '<p class="no-content">No pending applications for this club.</p>';
   }
+
+  const application_list = document.getElementById("member-approval-list");
+  application_list.innerHTML = val
+
+  // Add event listener for closing
+  document.getElementById("club_member_approval_panel").addEventListener("click", function (e){
+      if (e.target === this) {close_club_member_approval()}
+  });
+}
+
+
+// Approve member application
+async function approve_application(userId, clubId) {
+  // Update application status to approved
+  await get_data({
+    sql: `UPDATE applied SET status = 'approved' WHERE uid = ? AND cid = ?`,
+    params: [userId, clubId],
+  });
+
+  // Add member to the club
+  await get_data({
+    sql: `INSERT INTO members (student_uid, cid, position, joining_sem) VALUES (?, ?, ?, ?)`,
+    params: [userId, clubId, 'Member', current_semester],
+  });
+
+  // Refresh the panels
+  close_club_member_approval();
+  club_member_approval(clubId);
+}
+
+// Edit member function
+async function edit_member(member_uid, club_id) {
+  // Get member details first with specific club ID
+  const member_details = await get_data({
+    sql: `SELECT m.*, u.name FROM members m JOIN user u ON m.student_uid = u.uid WHERE m.student_uid = ? AND m.cid = ?`,
+    params: [member_uid, club_id],
+  });
+
+  const member = member_details[0];
+
+  // Creating the modal to add to page html karon we donot have the dynamic content er jayga as before
+  const modalHTML = `
+    <div id="edit_member_panel" class="announcements-overlay show">
+      <div class="announcements-modal" style="width: 400px; max-width: 90vw;">
+        <button class="announcements-close-btn" onclick="close_edit_member()" title="Close">&times;</button>
+        <h3>Edit Member - ${member.name}</h3>
+        <div class="edit-member-content" id="edit-member-content">
+          <label style="display: block; margin-bottom: 8px;">Position:</label>
+          <select id="member-position-dropdown" style="width: 100%; padding: 8px; margin-bottom: 20px;">
+            ${club_positions.map(position => `
+              <option value="${position}" ${position == member.position ? 'selected' : ''}>${position}</option>
+            `).join('')}
+          </select>
+          <p style="text-align: center; margin-top: 20px;">
+            <button class="approve-btn" onclick="confirm_edit_member('${member_uid}', '${club_id}')">Confirm</button>
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Send to modal to html and make it visible
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  // Add event listener for closing
+  document.getElementById("edit_member_panel").addEventListener("click", function (e){
+      if (e.target === this) {close_edit_member()}
+  });
+}
+
+// Confirm edit member
+async function confirm_edit_member(member_uid, club_id) {
+  const new_position = document.getElementById("member-position-dropdown").value;
+  
+  // Update member position in database
+  await get_data({
+    sql: `UPDATE members SET position = ? WHERE student_uid = ? AND cid = ?`,
+    params: [new_position, member_uid, club_id],
+  });
+
+  // Close the edit modal and refresh member list
+  close_edit_member();
+  close_club_member_list();
+  club_member_list(club_id);
 }
 
 // Close member approval modal
-function closeMemberApprovalModal() {
-  const overlay = document.getElementById("memberApprovalOverlay");
-  if (overlay) {
-    overlay.remove();
-  }
+function close_club_member_approval() {
+  document.getElementById("club_member_approval_panel").remove()
 }
 
-// Approve member application
-async function approveMember(userId, clubId) {
-  try {
-    // Update application status to approved
-    await get_data({
-      sql: `UPDATE applied SET status = 'approved' WHERE uid = ? AND cid = ?`,
-      params: [userId, clubId],
-    });
-
-    // Add member to the club
-    await get_data({
-      sql: `INSERT INTO members (student_uid, cid, position, joining_sem) VALUES (?, ?, 'Member', 'Current')`,
-      params: [userId, clubId],
-    });
-
-    alert("Member approved successfully!");
-
-    // Refresh the modal content
-    closeMemberApprovalModal();
-    ClubMemberApproval(clubId);
-  } catch (error) {
-    console.error("Error approving member:", error);
-    alert("Error approving member: " + error.message);
-  }
+// Close member list modal
+function close_club_member_list() {
+  document.getElementById("club_member_list_panel").remove()
 }
 
-// Reject member application
-async function rejectMember(userId, clubId) {
-  if (confirm("Are you sure you want to reject this application?")) {
-    try {
-      // Update application status to rejected
-      await get_data({
-        sql: `UPDATE applied SET status = 'rejected' WHERE uid = ? AND cid = ?`,
-        params: [userId, clubId],
-      });
-
-      alert("Application rejected successfully!");
-
-      // Refresh the modal content
-      closeMemberApprovalModal();
-      ClubMemberApproval(clubId);
-    } catch (error) {
-      console.error("Error rejecting application:", error);
-      alert("Error rejecting application: " + error.message);
-    }
-  }
+// Close edit member modal
+function close_edit_member() {
+  document.getElementById("edit_member_panel").remove()
 }
 
 // Manage club requisition (for presidents)
-function manageClubRequisition(clubId) {
-  alert(`Manage requisition for club ${clubId} - Feature coming soon!`);
+async function club_requisition(clubId) {
+  const modalHTML = `
+    <div id="requisition_panel" class="announcements-overlay show">
+      <div class="announcements-modal" style="width: 400px; max-width: 90vw;">
+        <button class="announcements-close-btn" onclick="close_requisition()" title="Close">&times;</button>
+        <h3>New Requisition</h3>
+        <div class="requisition-content" id="requisition-content">
+          <label style="display: block; margin-bottom: 8px;">Requisition Type:</label>
+          <select id="requisition-type-dropdown" style="width: 100%; padding: 8px; margin-bottom: 20px;" onchange="handle_requisition_type()">
+            <option value="">Select Type</option>
+            <option value="room">Room</option>
+            <option value="bill">Bill</option>
+          </select>
+          <div id="bill-form" style="display: none;">
+            <label style="display: block; margin-bottom: 8px;">Event Name:</label>
+            <input type="text" id="event-name" style="width: 100%; padding: 8px; margin-bottom: 15px;" placeholder="Enter event name">
+            
+            <label style="display: block; margin-bottom: 8px;">Amount:</label>
+            <input type="number" id="amount" style="width: 100%; padding: 8px; margin-bottom: 15px;" placeholder="Enter amount" step="0.01">
+            
+            <label style="display: block; margin-bottom: 8px;">Upload Document:</label>
+            <input type="file" id="document" accept="application/pdf,.pdf" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+            
+            <div id="error-message" style="color: red; text-align: center; margin-bottom: 10px; display: none;"></div>
+          </div>
+          <p style="text-align: center; margin-top: 20px;">
+            <button class="approve-btn" onclick="submit_requisition('${clubId}')" id="submit-btn" style="display: none;">Submit</button>
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  document.getElementById("requisition_panel").addEventListener("click", function (e){
+      if (e.target === this) {close_requisition()}
+  });
 }
+
+function handle_requisition_type() {
+  const type = document.getElementById("requisition-type-dropdown").value;
+  const billForm = document.getElementById("bill-form");
+  const submitBtn = document.getElementById("submit-btn");
+  
+  if (type === "bill") {
+    billForm.style.display = "block";
+    submitBtn.style.display = "inline-block";
+  } else if (type === "room") {
+    billForm.style.display = "none";
+    submitBtn.style.display = "none";
+  } else {
+    billForm.style.display = "none";
+    submitBtn.style.display = "none";
+  }
+}
+
+async function submit_requisition(clubId) {
+  const eventName = document.getElementById("event-name").value;
+  const amount = document.getElementById("amount").value;
+  const documentFile = document.getElementById("document").files[0];
+  const errorMessage = document.getElementById("error-message");
+  
+  // Clear previous error
+  errorMessage.style.display = "none";
+  
+  if (!eventName || !amount || !documentFile) {
+    errorMessage.textContent = "Please fill all fields";
+    errorMessage.style.display = "block";
+    return;
+  }
+
+  // Upload PDF file
+  const formData = new FormData();
+  formData.append('pdf', documentFile);
+  
+  try {
+    const uploadResponse = await fetch('/upload-pdf', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const uploadResult = await uploadResponse.json();
+    
+    if (!uploadResult.success) {
+      errorMessage.textContent = "Failed to upload document";
+      errorMessage.style.display = "block";
+      return;
+    }
+
+    // Insert into requisition table
+    const requisition = await get_data({
+      sql: `INSERT INTO requisition (cid, date_time) VALUES (?, NOW())`,
+      params: [clubId]
+    });
+    
+    // Get the inserted requisition ID
+    const ridResult = await get_data({
+      sql: `SELECT LAST_INSERT_ID() as rid`,
+      params: []
+    });
+    
+    const rid = ridResult[0].rid;
+    
+    // Insert into bill table with file path
+    await get_data({
+      sql: `INSERT INTO bill (rid, event, amount, documents) VALUES (?, ?, ?, ?)`,
+      params: [rid, eventName, amount, uploadResult.path]
+    });
+    
+    close_requisition();
+  } catch (error) {
+    errorMessage.textContent = "Error submitting requisition";
+    errorMessage.style.display = "block";
+  }
+}
+
+function close_requisition() {
+  document.getElementById("requisition_panel").remove();
+}
+
+// Send club announcement (for club members)
+async function club_announcement(clubId) {
+  const currentUser = localStorage.getItem("currentUser");
+
+  // Get club page ID
+  const club_page = await get_data({
+    sql: `SELECT pid FROM page WHERE cid = ?`,
+    params: [clubId]
+  });
+
+  if (club_page.length === 0) {
+    alert("Club page not found!");
+    return;
+  }
+
+  const pageId = club_page[0].pid;
+
+  // Create announcement modal
+  const modalHTML = `
+    <div id="club_announcement_panel" class="announcements-overlay show">
+      <div class="announcements-modal" style="width: 600px; max-width: 90vw;">
+        <button class="announcements-close-btn" onclick="close_club_announcement()" title="Close">&times;</button>
+        <h3>Send Announcement - ${clubId}</h3>
+        <form id="announcement-form" style="padding: 20px;">
+          <div style="margin-bottom: 15px;">
+            <label for="ann-type" style="display: block; margin-bottom: 5px; font-weight: bold;">Type:</label>
+            <select id="ann-type" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+              <option value="notice">Notice</option>
+              <option value="event">Event</option>
+              <option value="update">Update</option>
+            </select>
+          </div>
+          <div style="margin-bottom: 15px;">
+            <label for="ann-subject" style="display: block; margin-bottom: 5px; font-weight: bold;">Subject:</label>
+            <input type="text" id="ann-subject" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Enter announcement subject" required>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label for="ann-body" style="display: block; margin-bottom: 5px; font-weight: bold;">Message:</label>
+            <textarea id="ann-body" rows="6" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;" placeholder="Enter announcement message" required></textarea>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" class="club-action-btn" onclick="close_club_announcement()" style="background-color: #ccc;">Cancel</button>
+            <button type="submit" class="club-action-btn" style="background-color: #6BB4F1;">Send Announcement</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  // Add modal to page
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  // Handle form submission
+  document.getElementById("announcement-form").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    
+    const type = document.getElementById("ann-type").value;
+    const subject = document.getElementById("ann-subject").value.trim();
+    const body = document.getElementById("ann-body").value.trim();
+
+    if (!subject || !body) {
+      alert("Please fill in all fields!");
+      return;
+    }
+    // Insert announcement into database
+    await get_data({
+      sql: `INSERT INTO announcement (type, subject, body, date_time, pid, uid) 
+            VALUES (?, ?, ?, NOW(), ?, ?)`,
+      params: [type, subject, body, pageId, currentUser]
+    });
+    close_club_announcement();
+    
+    // Refresh announcements if on home page
+    if (document.getElementById("announcements-list")) {
+      loadRecentAnnouncements();
+    }
+  });
+
+  // Add event listener for closing by clicking outside
+  document.getElementById("club_announcement_panel").addEventListener("click", function(e) {
+    if (e.target === this) {
+      close_club_announcement();
+    }
+  });
+}
+
+// Close club announcement modal
+function close_club_announcement() {
+  const modal = document.getElementById("club_announcement_panel");
+  if (modal) {
+    modal.remove();
+  }
+}
+//==============================================================================================================================
