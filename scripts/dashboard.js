@@ -246,7 +246,7 @@ async function loadRecentAnnouncements() {
       params: [currentUser],
     });
   };
-  }
+  
 
   if (announcements.length > 0) {
     val = announcements.map(
