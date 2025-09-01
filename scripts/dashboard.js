@@ -7,6 +7,14 @@ async function get_data(query) { // Fetch database func
   });
   return await response.json();
 }
+
+async function upload(upload_pdf) {
+  const response = await fetch('/upload_pdf', {
+    method: 'POST',
+    body: upload_pdf
+  });
+  return await response.json();
+}
 // =============================================================================================================================
 
 // ================================== Variables ================================================================================
@@ -16,10 +24,9 @@ student_access = ["student"];
 advisor_access = ["advisor"];
 manage_club_access = ["oca", "student", "advisor"];
 current_semester = "Summer 2025";
-
-// Global variables to store user data
 let currentUserRole = null;
 let currentUserId = null;
+const club_positions = ['Member', 'Apprentice','Executive', 'Secretary','Director'];
 // =============================================================================================================================
 
 // ============================== Main Dashboard loader ========================================================================
