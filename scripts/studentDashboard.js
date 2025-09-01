@@ -1,5 +1,11 @@
 // ================================== Variables ================================================================================
-const club_positions = ['Member', 'Apprentice','Executive', 'Secretary','Director'];
+const club_positions = [
+  "Member",
+  "Apprentice",
+  "Executive",
+  "Secretary",
+  "Director",
+];
 // =============================================================================================================================
 
 // Setup dashboard for students
@@ -8,12 +14,11 @@ async function setupStudentDashboard(userId) {
   showHomePage();
 }
 
-
 //=============================================== My Clubs =======================================================================
 // Show My Clubs content
 async function showMyClubs(userId) {
   const clickedBtn = event?.target || document.querySelector(".sidebar-btn");
-  setActiveButton(clickedBtn); 
+  setActiveButton(clickedBtn);
 
   // Hide welcome message and announcements
   document.querySelector(".welcome-section").style.display = "none";
@@ -41,11 +46,13 @@ async function loadJoinedClubs(userId) {
   const joinedClubs = await get_data({
     sql: `SELECT c.*, m.* FROM club c JOIN members m ON c.cid = m.cid 
           WHERE m.student_uid = ?`,
-    params: [userId]});
+    params: [userId],
+  });
 
   if (joinedClubs.length > 0) {
     // Iterate through the clubs he has joined to make the list
-    val = joinedClubs.map((i) => `
+    val = joinedClubs.map(
+      (i) => `
       <div class="club-card joined">
         <div class="club-info">
           <div class="club-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></div>
@@ -58,24 +65,24 @@ async function loadJoinedClubs(userId) {
             </div>
           </div>
         </div> 
-      </div>`);
+      </div>`
+    );
 
     val = val.join("");
-
   } else {
     val = `<p class="no-announcements">You have't joined any club yet</p>`;
   }
   const joinedClubsList = document.getElementById("joined-clubs-list");
-  joinedClubsList.style.display = "block"
+  joinedClubsList.style.display = "block";
 
-  joinedClubsList.innerHTML = val
+  joinedClubsList.innerHTML = val;
 }
 //==================================================================================================================================
 
 //=============================================== Join Clubs =======================================================================
 async function showJoinClubs(userId) {
   const clickedBtn = event?.target || document.querySelector(".sidebar-btn");
-  setActiveButton(clickedBtn); 
+  setActiveButton(clickedBtn);
 
   // Hide welcome message and announcements
   document.querySelector(".welcome-section").style.display = "none";
@@ -103,12 +110,14 @@ async function loadAvailableClubs(userId) {
   // Get clubs that user hasn't joined yet
   const available_clubs = await get_data({
     sql: `SELECT c.* FROM club c WHERE c.cid NOT IN (SELECT m.cid FROM members m WHERE m.student_uid = ?)`,
-    params: [userId]});
+    params: [userId],
+  });
 
   // Get user's applications status
   const applications = await get_data({
     sql: `SELECT cid, status FROM applied WHERE uid = ?`,
-    params: [userId]});
+    params: [userId],
+  });
 
   // Kon Kon Club e apply korse ar status ki store
   const application_map = {};
@@ -117,7 +126,7 @@ async function loadAvailableClubs(userId) {
   });
 
   const available_clubs_list = document.getElementById("available-clubs-list");
-  
+
   val = available_clubs.map((i) => {
     const application_status = application_map[i.cid];
     let button_html = "";
@@ -125,7 +134,6 @@ async function loadAvailableClubs(userId) {
     // Depending on application status button ar color set korar jonno
     if (application_status == "pending") {
       button_html = `<button class="applied-btn" disabled>Application Pending</button>`;
-  
     } else {
       button_html = `<button class="apply-club-btn" onclick="apply_to_club(${userId},'${i.cid}')">Apply Now</button>`;
     }
@@ -141,19 +149,19 @@ async function loadAvailableClubs(userId) {
       </div>
       ${button_html}
     </div>`;
-  })
+  });
 
   val = val.join("");
-  available_clubs_list.innerHTML = val
-  
+  available_clubs_list.innerHTML = val;
 }
 
 // Apply to join a club
-async function apply_to_club(userId,clubId) {
+async function apply_to_club(userId, clubId) {
   await get_data({
     sql: `INSERT INTO applied (uid, cid) VALUES (?, ?)`,
-    params: [userId, clubId],});
-    
+    params: [userId, clubId],
+  });
+
   // auto refresh page
   await showJoinClubs(userId);
 }
@@ -163,7 +171,7 @@ async function apply_to_club(userId,clubId) {
 // Show Manage Clubs content (for presidents only)
 async function showManageClubs(userId) {
   const clickedBtn = event?.target || document.querySelector(".sidebar-btn");
-  setActiveButton(clickedBtn); 
+  setActiveButton(clickedBtn);
 
   // Hide welcome message and announcements when navigating
   document.querySelector(".welcome-section").style.display = "none";
@@ -193,10 +201,12 @@ async function loadManageClubsContent(userId) {
     sql: `SELECT c.*, m.position FROM club c 
           JOIN members m ON c.cid = m.cid 
           WHERE m.student_uid = ? AND (m.position = 'President' or m.position = 'Vice President') `,
-    params: [userId]});
+    params: [userId],
+  });
 
   if (managed_clubs.length > 0) {
-    val = managed_clubs.map((club) => `
+    val = managed_clubs.map(
+      (club) => `
       <div class="club-card manage">
         <div class="club-info">
           <div class="club-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></div>
@@ -212,14 +222,15 @@ async function loadManageClubsContent(userId) {
           <button class="club-action-btn" onclick="club_announcement('${club.cid}')">Send Announcement</button>
         </div>
       </div>
-    `);
+    `
+    );
     val = val.join("");
   } else {
     val = '<p class="no-content">You are not a president of any clubs.</p>';
   }
 
   const managed_clubs_list = document.getElementById("manage-clubs-content");
-  managed_clubs_list.innerHTML = val
+  managed_clubs_list.innerHTML = val;
 }
 
 // Manage club members (for presidents)
@@ -264,7 +275,9 @@ async function club_member_list(clubId) {
           </tr>
         </thead>
         <tbody>
-          ${club_members.map((i) => `
+          ${club_members
+            .map(
+              (i) => `
             <tr>
               <td style="border: 1px solid; padding: 8px;">${i.name}</td>
               <td style="border: 1px solid; padding: 8px;">${i.student_uid}</td>
@@ -273,27 +286,33 @@ async function club_member_list(clubId) {
               <td style="border: 1px solid; padding: 8px;">${i.position}</td>
               <td style="border: 1px solid; padding: 8px;">${i.joining_sem}</td>
               <td style="border: 1px solid; padding: 8px; text-align: center;">
-                ${(i.position === 'President' || i.position === 'Vice President') 
-                  ? '<button class="approve-btn" disabled style="background-color: #ccc; cursor: not-allowed;">Edit</button>'
-                  : `<button class="approve-btn" onclick="edit_member('${i.student_uid}', '${clubId}')">Edit</button>`
+                ${
+                  i.position === "President" || i.position === "Vice President"
+                    ? '<button class="approve-btn" disabled style="background-color: #ccc; cursor: not-allowed;">Edit</button>'
+                    : `<button class="approve-btn" onclick="edit_member('${i.student_uid}', '${clubId}')">Edit</button>`
                 }
               </td>
             </tr>
-          `).join("")}
+          `
+            )
+            .join("")}
         </tbody>
       </table>`;
-    
   } else {
     val = '<p class="no-content">No members found for this club.</p>';
   }
 
   const member_list = document.getElementById("member-list");
-  member_list.innerHTML = val
+  member_list.innerHTML = val;
 
   // Add event listener for closing
-  document.getElementById("club_member_list_panel").addEventListener("click", function (e){
-      if (e.target === this) {close_club_member_list()}
-  });
+  document
+    .getElementById("club_member_list_panel")
+    .addEventListener("click", function (e) {
+      if (e.target === this) {
+        close_club_member_list();
+      }
+    });
 }
 
 // Club member approval (for presidents)
@@ -321,7 +340,6 @@ async function club_member_approval(clubId) {
   // Send to modal to html and make it visible
   document.body.insertAdjacentHTML("beforeend", modalHTML);
 
-
   if (pending_applications.length > 0) {
     // Iterate through the clubs he has joined to make the list
     val = `
@@ -336,7 +354,9 @@ async function club_member_approval(clubId) {
           </tr>
         </thead>
         <tbody>
-          ${pending_applications.map((i) => `
+          ${pending_applications
+            .map(
+              (i) => `
             <tr>
               <td style="border: 1px solid; padding: 8px;">${i.name}</td>
               <td style="border: 1px solid; padding: 8px;">${i.uid}</td>
@@ -346,23 +366,27 @@ async function club_member_approval(clubId) {
                 <button class="approve-btn" onclick="approve_application('${i.uid}', '${clubId}')">Approve</button>
               </td>
             </tr>
-          `).join("")}
+          `
+            )
+            .join("")}
         </tbody>
       </table>`;
-    
   } else {
     val = '<p class="no-content">No pending applications for this club.</p>';
   }
 
   const application_list = document.getElementById("member-approval-list");
-  application_list.innerHTML = val
+  application_list.innerHTML = val;
 
   // Add event listener for closing
-  document.getElementById("club_member_approval_panel").addEventListener("click", function (e){
-      if (e.target === this) {close_club_member_approval()}
-  });
+  document
+    .getElementById("club_member_approval_panel")
+    .addEventListener("click", function (e) {
+      if (e.target === this) {
+        close_club_member_approval();
+      }
+    });
 }
-
 
 // Approve member application
 async function approve_application(userId, clubId) {
@@ -375,7 +399,7 @@ async function approve_application(userId, clubId) {
   // Add member to the club
   await get_data({
     sql: `INSERT INTO members (student_uid, cid, position, joining_sem) VALUES (?, ?, ?, ?)`,
-    params: [userId, clubId, 'Member', current_semester],
+    params: [userId, clubId, "Member", current_semester],
   });
 
   // Refresh the panels
@@ -402,9 +426,15 @@ async function edit_member(member_uid, club_id) {
         <div class="edit-member-content" id="edit-member-content">
           <label style="display: block; margin-bottom: 8px;">Position:</label>
           <select id="member-position-dropdown" style="width: 100%; padding: 8px; margin-bottom: 20px;">
-            ${club_positions.map(position => `
-              <option value="${position}" ${position == member.position ? 'selected' : ''}>${position}</option>
-            `).join('')}
+            ${club_positions
+              .map(
+                (position) => `
+              <option value="${position}" ${
+                  position == member.position ? "selected" : ""
+                }>${position}</option>
+            `
+              )
+              .join("")}
           </select>
           <p style="text-align: center; margin-top: 20px;">
             <button class="approve-btn" onclick="confirm_edit_member('${member_uid}', '${club_id}')">Confirm</button>
@@ -418,15 +448,21 @@ async function edit_member(member_uid, club_id) {
   document.body.insertAdjacentHTML("beforeend", modalHTML);
 
   // Add event listener for closing
-  document.getElementById("edit_member_panel").addEventListener("click", function (e){
-      if (e.target === this) {close_edit_member()}
-  });
+  document
+    .getElementById("edit_member_panel")
+    .addEventListener("click", function (e) {
+      if (e.target === this) {
+        close_edit_member();
+      }
+    });
 }
 
 // Confirm edit member
 async function confirm_edit_member(member_uid, club_id) {
-  const new_position = document.getElementById("member-position-dropdown").value;
-  
+  const new_position = document.getElementById(
+    "member-position-dropdown"
+  ).value;
+
   // Update member position in database
   await get_data({
     sql: `UPDATE members SET position = ? WHERE student_uid = ? AND cid = ?`,
@@ -441,17 +477,17 @@ async function confirm_edit_member(member_uid, club_id) {
 
 // Close member approval modal
 function close_club_member_approval() {
-  document.getElementById("club_member_approval_panel").remove()
+  document.getElementById("club_member_approval_panel").remove();
 }
 
 // Close member list modal
 function close_club_member_list() {
-  document.getElementById("club_member_list_panel").remove()
+  document.getElementById("club_member_list_panel").remove();
 }
 
 // Close edit member modal
 function close_edit_member() {
-  document.getElementById("edit_member_panel").remove()
+  document.getElementById("edit_member_panel").remove();
 }
 
 // Manage club requisition (for presidents)
@@ -490,16 +526,20 @@ async function club_requisition(clubId) {
 
   document.body.insertAdjacentHTML("beforeend", modalHTML);
 
-  document.getElementById("requisition_panel").addEventListener("click", function (e){
-      if (e.target === this) {close_requisition()}
-  });
+  document
+    .getElementById("requisition_panel")
+    .addEventListener("click", function (e) {
+      if (e.target === this) {
+        close_requisition();
+      }
+    });
 }
 
 function handle_requisition_type() {
   const type = document.getElementById("requisition-type-dropdown").value;
   const billForm = document.getElementById("bill-form");
   const submitBtn = document.getElementById("submit-btn");
-  
+
   if (type === "bill") {
     billForm.style.display = "block";
     submitBtn.style.display = "inline-block";
@@ -517,10 +557,10 @@ async function submit_requisition(clubId) {
   const amount = document.getElementById("amount").value;
   const documentFile = document.getElementById("document").files[0];
   const errorMessage = document.getElementById("error-message");
-  
+
   // Clear previous error
   errorMessage.style.display = "none";
-  
+
   if (!eventName || !amount || !documentFile) {
     errorMessage.textContent = "Please fill all fields";
     errorMessage.style.display = "block";
@@ -529,16 +569,16 @@ async function submit_requisition(clubId) {
 
   // Upload PDF file
   const formData = new FormData();
-  formData.append('pdf', documentFile);
-  
+  formData.append("pdf", documentFile);
+
   try {
-    const uploadResponse = await fetch('/upload-pdf', {
-      method: 'POST',
-      body: formData
+    const uploadResponse = await fetch("/upload-pdf", {
+      method: "POST",
+      body: formData,
     });
-    
+
     const uploadResult = await uploadResponse.json();
-    
+
     if (!uploadResult.success) {
       errorMessage.textContent = "Failed to upload document";
       errorMessage.style.display = "block";
@@ -548,23 +588,23 @@ async function submit_requisition(clubId) {
     // Insert into requisition table
     const requisition = await get_data({
       sql: `INSERT INTO requisition (cid, date_time) VALUES (?, NOW())`,
-      params: [clubId]
+      params: [clubId],
     });
-    
+
     // Get the inserted requisition ID
     const ridResult = await get_data({
       sql: `SELECT LAST_INSERT_ID() as rid`,
-      params: []
+      params: [],
     });
-    
+
     const rid = ridResult[0].rid;
-    
+
     // Insert into bill table with file path
     await get_data({
       sql: `INSERT INTO bill (rid, event, amount, documents) VALUES (?, ?, ?, ?)`,
-      params: [rid, eventName, amount, uploadResult.path]
+      params: [rid, eventName, amount, uploadResult.path],
     });
-    
+
     close_requisition();
   } catch (error) {
     errorMessage.textContent = "Error submitting requisition";
@@ -579,15 +619,6 @@ function close_requisition() {
 // Send club announcement (for club members)
 async function club_announcement(clubId) {
   const currentUser = localStorage.getItem("currentUser");
-
-  // Get club page ID
-  const club_page = await get_data({
-    sql: `SELECT pid FROM page WHERE cid = ?`,
-    params: [clubId]
-  });
-
-
-  const pageId = club_page[0].pid;
 
   // Create announcement modal
   const modalHTML = `
@@ -625,37 +656,40 @@ async function club_announcement(clubId) {
   document.body.insertAdjacentHTML("beforeend", modalHTML);
 
   // Handle form submission
-  document.getElementById("announcement-form").addEventListener("submit", async function(e) {
-    e.preventDefault();
-    
-    const type = document.getElementById("ann-type").value;
-    const subject = document.getElementById("ann-subject").value.trim();
-    const body = document.getElementById("ann-body").value.trim();
+  document
+    .getElementById("announcement-form")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    if (!subject || !body) {
-      alert("Please fill in all fields!");
-      return;
-    }
-    // Insert announcement into database
-    await get_data({
-      sql: `INSERT INTO announcement (type, subject, body, date_time, pid, uid) 
+      const type = document.getElementById("ann-type").value;
+      const subject = document.getElementById("ann-subject").value.trim();
+      const body = document.getElementById("ann-body").value.trim();
+
+      if (!subject || !body) {
+        alert("Please fill in all fields!");
+        return;
+      }
+      // Insert announcement into database
+      await get_data({
+        sql: `INSERT INTO announcement (type, subject, body, date_time, cid, uid) 
             VALUES (?, ?, ?, NOW(), ?, ?)`,
-      params: [type, subject, body, pageId, currentUser]
+        params: [type, subject, body, clubId, currentUser],
+      });
+      close_club_announcement();
+
+      if (document.getElementById("announcements-list")) {
+        loadRecentAnnouncements();
+      }
     });
-    close_club_announcement();
-    
-    
-    if (document.getElementById("announcements-list")) {
-      loadRecentAnnouncements();
-    }
-  });
 
   // Add event listener for closing by clicking outside
-  document.getElementById("club_announcement_panel").addEventListener("click", function(e) {
-    if (e.target === this) {
-      close_club_announcement();
-    }
-  });
+  document
+    .getElementById("club_announcement_panel")
+    .addEventListener("click", function (e) {
+      if (e.target === this) {
+        close_club_announcement();
+      }
+    });
 }
 
 // Close club announcement modal

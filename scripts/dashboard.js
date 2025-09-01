@@ -1,5 +1,6 @@
 // ============================== API Call Functions ===========================================================================
-async function get_data(query) { // Fetch database func
+async function get_data(query) {
+  // Fetch database func
   const response = await fetch("/query", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -149,9 +150,8 @@ function setupSidebar(userRole, userId) {
         <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4f1"><path d="m438-338 226-226-57-57-169 169-84-84-57 57 141 141Zm42 258q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Z"/></svg></span>
         Account Verification
       </button>
-  `;} 
-  
-  else if (student_access.includes(userRole)){
+  `;
+  } else if (student_access.includes(userRole)) {
     sidebarHTML = `
         <button class="sidebar-btn active" onclick="showHomePage()">
           <span class="icon"><svg 
@@ -176,9 +176,8 @@ function setupSidebar(userRole, userId) {
             Manage Clubs
           </button>
         </div>
-        `;}
-
-  else if (advisor_access.includes(userRole)){
+        `;
+  } else if (advisor_access.includes(userRole)) {
     sidebarHTML = `
         <button class="sidebar-btn active" onclick="showHomePage()">
           <span class="icon"><svg 
@@ -254,14 +253,12 @@ async function loadRecentAnnouncements() {
   } else if (userRole === "student") {
     // Student can see announcements from OCA users and clubs they are members of
     announcements = await get_data({
-      sql: `SELECT DISTINCT a.subject as subject, a.date_time as date, u.name as author 
+      sql: `SELECT DISTINCT a.subject, a.date_time as date, u.name as author 
             FROM announcement a 
             LEFT JOIN user u ON a.uid = u.uid
-            LEFT JOIN page p ON a.pid = p.pid
-            LEFT JOIN club c ON p.cid = c.cid
             LEFT JOIN oca o ON u.uid = o.uid
-            LEFT JOIN members m ON c.cid = m.cid AND m.student_uid = ?
-            WHERE o.uid IS NOT NULL OR m.student_uid IS NOT NULL
+            LEFT JOIN members m ON a.cid = m.cid AND m.student_uid = ?
+            WHERE o.uid IS NOT NULL OR m.student_uid IS NOT NULL OR a.cid IS NULL
             ORDER BY a.date_time DESC LIMIT 3`,
       params: [currentUser],
     });
@@ -271,10 +268,9 @@ async function loadRecentAnnouncements() {
       sql: `SELECT DISTINCT a.subject as subject, a.date_time as date, u.name as author 
             FROM announcement a 
             LEFT JOIN user u ON a.uid = u.uid
-            LEFT JOIN page p ON a.pid = p.pid
-            LEFT JOIN club c ON p.cid = c.cid
+            LEFT JOIN club c ON a.cid = c.cid
             LEFT JOIN oca o ON u.uid = o.uid
-            WHERE o.uid IS NOT NULL OR c.advisor_uid = ?
+            WHERE o.uid IS NOT NULL OR c.advisor_uid = ? OR a.cid IS NULL
             ORDER BY a.date_time DESC LIMIT 3`,
       params: [currentUser],
     });
@@ -342,11 +338,9 @@ async function viewAllAnnouncements() {
         sql: `SELECT DISTINCT a.subject as title, a.body as content, a.date_time as date, u.name as author 
               FROM announcement a 
               LEFT JOIN user u ON a.uid = u.uid
-              LEFT JOIN page p ON a.pid = p.pid
-              LEFT JOIN club c ON p.cid = c.cid
               LEFT JOIN oca o ON u.uid = o.uid
-              LEFT JOIN members m ON c.cid = m.cid AND m.student_uid = ?
-              WHERE o.uid IS NOT NULL OR m.student_uid IS NOT NULL
+              LEFT JOIN members m ON a.cid = m.cid AND m.student_uid = ?
+              WHERE o.uid IS NOT NULL OR m.student_uid IS NOT NULL OR a.cid IS NULL
               ORDER BY a.date_time DESC`,
         params: [currentUser],
       });
@@ -356,8 +350,7 @@ async function viewAllAnnouncements() {
         sql: `SELECT DISTINCT a.subject as title, a.body as content, a.date_time as date, u.name as author 
               FROM announcement a 
               LEFT JOIN user u ON a.uid = u.uid
-              LEFT JOIN page p ON a.pid = p.pid
-              LEFT JOIN club c ON p.cid = c.cid
+              LEFT JOIN club c ON a.cid = c.cid
               LEFT JOIN oca o ON u.uid = o.uid
               WHERE o.uid IS NOT NULL OR c.advisor_uid = ?
               ORDER BY a.date_time DESC`,

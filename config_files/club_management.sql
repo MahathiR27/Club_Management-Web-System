@@ -55,26 +55,17 @@ CREATE TABLE club (
     ON UPDATE CASCADE
 );
 
-CREATE TABLE page (
-  pid INT NOT NULL AUTO_INCREMENT,
-  cid VARCHAR(10) NOT NULL,
-  PRIMARY KEY (pid),
-  CONSTRAINT fk_page_club
-    FOREIGN KEY (cid) REFERENCES club(cid)
-    ON UPDATE CASCADE ON DELETE CASCADE
-);
-
 CREATE TABLE announcement (
   aid INT NOT NULL AUTO_INCREMENT,
   type VARCHAR(10) NOT NULL,
   subject VARCHAR(255) NOT NULL,
   body TEXT NOT NULL,
   date_time DATETIME NOT NULL,
-  pid INT NOT NULL,
+  cid VARCHAR(10) NULL, 
   uid INT NOT NULL,
   PRIMARY KEY (aid),
-  CONSTRAINT fk_ann_page
-    FOREIGN KEY (pid) REFERENCES page(pid)
+  CONSTRAINT fk_ann_club
+    FOREIGN KEY (cid) REFERENCES club(cid)
     ON UPDATE CASCADE,
   CONSTRAINT fk_ann_user
     FOREIGN KEY (uid) REFERENCES user(uid)
@@ -253,23 +244,15 @@ INSERT INTO members (cid, student_uid, position, joining_sem) VALUES
 ('BUESC', 23311234, 'President', 'Spring 2024'),
 ('BUESC', 25307891, 'Member', 'Spring 2023');
 
-INSERT INTO page (pid, cid) VALUES
-(1, 'ROBU'),
-(2, 'BUCUC'),
-(3, 'BUDC'),
-(4, 'BUCC'),
-(5, 'BUESC')
-ON DUPLICATE KEY UPDATE cid = VALUES(cid);
-
-INSERT INTO announcement (`type`, subject, body, date_time, pid, uid) VALUES
-('notice', 'Welcome', 'Semester starts soon',   '2025-08-24 09:00:00', 1, 24341269),
-('event', 'Club Fair', 'UB3, 11am', '2025-08-26 11:00:00', 1, 24341269),
-('update', 'Room Change', 'R212 -> R210', '2025-08-27 10:30:00', 2, 623785),
-('event', 'Workshop', 'Git basics', '2025-08-28 15:00:00', 4, 623782),
-('notice', 'Recruitment', 'Apply online', '2025-08-29 12:00:00', 5, 24308912),
-('event', 'Debate', 'Tryouts Fri', '2025-08-30 17:00:00', 3, 24241289),
-('update', 'Agenda', 'Check mail', '2025-08-31 10:00:00', 1, 25316789),
-('notice', 'Budget', 'Submit forms', '2025-09-01 09:30:00', 2, 538741);
+INSERT INTO announcement (`type`, subject, body, date_time, cid, uid) VALUES
+('notice', 'Welcome', 'Semester starts soon',   '2025-08-24 09:00:00', 'ROBU', 24341269),
+('event', 'Club Fair', 'UB3, 11am', '2025-08-26 11:00:00', 'ROBU', 24341269),
+('update', 'Room Change', 'R212 -> R210', '2025-08-27 10:30:00', 'BUCUC', 623785),
+('event', 'Workshop', 'Git basics', '2025-08-28 15:00:00', 'BUCC', 623782),
+('notice', 'Recruitment', 'Apply online', '2025-08-29 12:00:00', 'BUESC', 24308912),
+('event', 'Debate', 'Tryouts Fri', '2025-08-30 17:00:00', 'BUDC', 24241289),
+('update', 'Agenda', 'Check mail', '2025-08-31 10:00:00', 'ROBU', 25316789),
+('notice', 'Budget', 'Submit forms', '2025-09-01 09:30:00', NULL, 538741);
 
 INSERT INTO approval (oca_uid, rid) VALUES
 (538741, 1),
