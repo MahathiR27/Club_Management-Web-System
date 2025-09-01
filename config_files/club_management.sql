@@ -120,8 +120,9 @@ CREATE TABLE members (
 
 CREATE TABLE bill (
   rid INT NOT NULL,
+  event VARCHAR(100) NOT NULL,
   amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
-  documents MEDIUMBLOB NOT NULL,
+  documents VARCHAR(255) NOT NULL,
   PRIMARY KEY (rid),
   CONSTRAINT fk_bill_req
     FOREIGN KEY (rid) REFERENCES requisition(rid)
@@ -241,7 +242,7 @@ INSERT INTO room (rid, room_type, date_requested, time_requested_from, time_requ
 
 INSERT INTO members (cid, student_uid, position, joining_sem) VALUES
 ('ROBU', 23301451, 'President', 'Summer 2023'),
-('ROBU', 25316789, 'Vice President', 'Summer 2024'),
+('ROBU', 25316789, 'Secretary', 'Summer 2024'),
 ('BUCUC', 24305678, 'President', 'Spring 2023'),
 ('BUCUC', 25313456, 'Member', 'Spring 2024'),
 ('BUDC', 24241289, 'President', 'Fall 2023'),
