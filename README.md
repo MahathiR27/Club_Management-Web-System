@@ -10,6 +10,9 @@ npm install express
 ```
 npm install nodemailer
 ```
+```
+npm install multer
+```
 # Features
 
 So far completed:
@@ -22,10 +25,12 @@ So far completed:
    5. Student Account approval (OCA)
    6. OCA Room Approval
    7. Manage Members
-```
-To-do:
    8. OCA Bill Approval
    9. Send Announcements
+```
+To-do:
+   
+   
    10. OCA Delete Announcements
    11. Club Table e add description, icon
    12. Reset applications by dropping and creating the table again
