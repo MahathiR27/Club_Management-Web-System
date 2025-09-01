@@ -57,7 +57,6 @@ CREATE TABLE club (
 
 CREATE TABLE announcement (
   aid INT NOT NULL AUTO_INCREMENT,
-  type VARCHAR(10) NOT NULL,
   subject VARCHAR(255) NOT NULL,
   body TEXT NOT NULL,
   date_time DATETIME NOT NULL,
@@ -244,15 +243,15 @@ INSERT INTO members (cid, student_uid, position, joining_sem) VALUES
 ('BUESC', 23311234, 'President', 'Spring 2024'),
 ('BUESC', 25307891, 'Member', 'Spring 2023');
 
-INSERT INTO announcement (`type`, subject, body, date_time, cid, uid) VALUES
-('notice', 'Welcome', 'Semester starts soon',   '2025-08-24 09:00:00', 'ROBU', 24341269),
-('event', 'Club Fair', 'UB3, 11am', '2025-08-26 11:00:00', 'ROBU', 24341269),
-('update', 'Room Change', 'R212 -> R210', '2025-08-27 10:30:00', 'BUCUC', 623785),
-('event', 'Workshop', 'Git basics', '2025-08-28 15:00:00', 'BUCC', 623782),
-('notice', 'Recruitment', 'Apply online', '2025-08-29 12:00:00', 'BUESC', 24308912),
-('event', 'Debate', 'Tryouts Fri', '2025-08-30 17:00:00', 'BUDC', 24241289),
-('update', 'Agenda', 'Check mail', '2025-08-31 10:00:00', 'ROBU', 25316789),
-('notice', 'Budget', 'Submit forms', '2025-09-01 09:30:00', NULL, 538741);
+INSERT INTO announcement (subject, body, date_time, cid, uid) VALUES
+('Welcome', 'Semester starts soon',   '2025-08-24 09:00:00', 'ROBU', 24341269),
+('Club Fair', 'UB3, 11am', '2025-08-26 11:00:00', 'ROBU', 24341269),
+('Room Change', 'R212 -> R210', '2025-08-27 10:30:00', 'BUCUC', 623785),
+('Workshop', 'Git basics', '2025-08-28 15:00:00', 'BUCC', 623782),
+('Recruitment', 'Apply online', '2025-08-29 12:00:00', 'BUESC', 24308912),
+('Debate', 'Tryouts Fri', '2025-08-30 17:00:00', 'BUDC', 24241289),
+('Agenda', 'Check mail', '2025-08-31 10:00:00', 'ROBU', 25316789),
+('Budget', 'Submit forms', '2025-09-01 09:30:00', NULL, 538741);
 
 INSERT INTO approval (oca_uid, rid) VALUES
 (538741, 1),
