@@ -31,7 +31,6 @@ async function showClubApproval() {
   document.querySelector(".welcome-section").style.display = "none";
   document.getElementById("announcement-section").style.display = "none";
 
-
   const dynamicContent = document.getElementById("dynamic-content");
   dynamicContent.innerHTML = `
     <div class="dashboard-section">
@@ -53,7 +52,8 @@ async function showClubApproval() {
   // Add event listeners for the buttons
   document.getElementById("roomApprovalBtn").onclick = showRoomApprovalWindow;
   document.getElementById("billApprovalBtn").onclick = showBillApprovalWindow;
-  document.getElementById("requisitionHistoryBtn").onclick = showRequisitionHistory;
+  document.getElementById("requisitionHistoryBtn").onclick =
+    showRequisitionHistory;
 }
 
 // Room Approval Window
@@ -65,7 +65,7 @@ async function showRoomApprovalWindow() {
     <div id='room-approval-table'></div>
     <div id='assign-room-modal' style='display:none;'></div>
   </div>`;
-  document.getElementById('closeRoomApprovalBtn').onclick = function() {
+  document.getElementById("closeRoomApprovalBtn").onclick = function () {
     tabContent.innerHTML = "";
   };
   await loadRoomApprovalTable();
@@ -76,17 +76,17 @@ async function loadRoomApprovalTable() {
   const tableDiv = document.getElementById("room-approval-table");
   // Get room info and club (cid) from requisition table
   const rooms = await get_data({
-    sql: `SELECT room.*, requisition.cid FROM room JOIN requisition ON room.rid = requisition.rid ORDER BY room.rid ASC`
+    sql: `SELECT room.*, requisition.cid FROM room JOIN requisition ON room.rid = requisition.rid ORDER BY room.rid ASC`,
   });
   if (!rooms || rooms.length === 0) {
     tableDiv.innerHTML = `<p style='text-align:center;color:#aaa;'>No room requests found.</p>`;
     return;
   }
   let cardsHtml = `<div class='pending-applications' style='display:flex;flex-direction:column;gap:1.5rem;'>`;
-  rooms.forEach(room => {
+  rooms.forEach((room) => {
     let dateOnly = room.date_requested;
-    if (typeof dateOnly === 'string' && dateOnly.includes('T')) {
-      dateOnly = dateOnly.split('T')[0];
+    if (typeof dateOnly === "string" && dateOnly.includes("T")) {
+      dateOnly = dateOnly.split("T")[0];
     }
     cardsHtml += `
       <div class='verification-card' style='display:flex;justify-content:space-between;align-items:flex-start;box-shadow:0 2px 8px rgba(0,0,0,0.05);padding:1.5rem;border-radius:12px;background:#fff;'>
@@ -99,7 +99,10 @@ async function loadRoomApprovalTable() {
         </div>
         <div class='verification-actions' style='display:flex;gap:0.5rem;align-items:center;'>`;
     // Fix: Only show Assign button if room_assigned is exactly the string 'Pending' (case-insensitive, trimmed)
-    if (typeof room.room_assigned === "string" && room.room_assigned.trim().toLowerCase() === "pending") {
+    if (
+      typeof room.room_assigned === "string" &&
+      room.room_assigned.trim().toLowerCase() === "pending"
+    ) {
       cardsHtml += `<button class='assign-room-btn' data-rid='${room.rid}' style='background:#4fb8fa;color:#fff;border:none;border-radius:6px;font-weight:500;box-shadow:none;padding:8px 18px;cursor:pointer;'>Assign</button>`;
     } else {
       cardsHtml += `<span style='color:#10b981;font-weight:600;'>Assigned: ${room.room_assigned}</span>`;
@@ -113,8 +116,8 @@ async function loadRoomApprovalTable() {
   tableDiv.innerHTML = cardsHtml;
 
   // Add event listeners for assign buttons
-  document.querySelectorAll(".assign-room-btn").forEach(btn => {
-    btn.onclick = function() {
+  document.querySelectorAll(".assign-room-btn").forEach((btn) => {
+    btn.onclick = function () {
       const rid = this.getAttribute("data-rid");
       showAssignRoomModal(rid);
     };
@@ -124,27 +127,27 @@ async function loadRoomApprovalTable() {
 // Show modal to assign room
 function showAssignRoomModal(rid) {
   // Find the room info for the given rid
-  const room = Array.from(document.querySelectorAll('.verification-card'))
-    .map(card => {
-      const ridText = card.querySelector('p').textContent;
+  const room = Array.from(document.querySelectorAll(".verification-card"))
+    .map((card) => {
+      const ridText = card.querySelector("p").textContent;
       if (ridText.includes(rid)) {
         return {
           rid,
-          club: card.querySelector('p:nth-child(2)').textContent.split(': ')[1],
-          type: card.querySelector('p:nth-child(3)').textContent.split(': ')[1],
-          date: card.querySelector('p:nth-child(4)').textContent.split(': ')[1],
-          time: card.querySelector('p:nth-child(5)').textContent.split(': ')[1]
+          club: card.querySelector("p:nth-child(2)").textContent.split(": ")[1],
+          type: card.querySelector("p:nth-child(3)").textContent.split(": ")[1],
+          date: card.querySelector("p:nth-child(4)").textContent.split(": ")[1],
+          time: card.querySelector("p:nth-child(5)").textContent.split(": ")[1],
         };
       }
       return null;
     })
     .filter(Boolean)[0];
 
-  const modalDiv = document.getElementById('assign-room-modal');
-  window.scrollTo({ top: 0, behavior: 'auto' }); // Ensure modal is fully visible
-  modalDiv.style.display = 'block';
-  const approvalWindow = document.querySelector('.room-approval-window');
-  if (approvalWindow) approvalWindow.style.overflow = 'hidden';
+  const modalDiv = document.getElementById("assign-room-modal");
+  window.scrollTo({ top: 0, behavior: "auto" }); // Ensure modal is fully visible
+  modalDiv.style.display = "block";
+  const approvalWindow = document.querySelector(".room-approval-window");
+  if (approvalWindow) approvalWindow.style.overflow = "hidden";
   if (approvalWindow) approvalWindow.scrollTop = 0; // Ensure approval window is scrolled to top
   modalDiv.innerHTML = `<div style='position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);z-index:9999;'>
     <div style='background:#fff;padding:2rem 2.5rem;border-radius:16px;box-shadow:0 8px 32px rgba(79,184,250,0.15);min-width:320px;max-width:90vw;position:relative;display:flex;flex-direction:column;align-items:center;'>
@@ -167,39 +170,39 @@ function showAssignRoomModal(rid) {
     </div>
   </div>`;
   function restoreScroll() {
-    if (approvalWindow) approvalWindow.style.overflow = 'auto';
+    if (approvalWindow) approvalWindow.style.overflow = "auto";
   }
-  document.getElementById('closeAssignRoomModalBtn').onclick = function() {
-    modalDiv.style.display = 'none';
-    modalDiv.innerHTML = '';
+  document.getElementById("closeAssignRoomModalBtn").onclick = function () {
+    modalDiv.style.display = "none";
+    modalDiv.innerHTML = "";
     restoreScroll();
   };
-  document.getElementById('cancelAssignRoomBtn').onclick = function() {
-    modalDiv.style.display = 'none';
-    modalDiv.innerHTML = '';
+  document.getElementById("cancelAssignRoomBtn").onclick = function () {
+    modalDiv.style.display = "none";
+    modalDiv.innerHTML = "";
     restoreScroll();
   };
-  document.getElementById('confirmAssignRoomBtn').onclick = async function() {
-    const roomNumber = document.getElementById('roomNumberInput').value.trim();
+  document.getElementById("confirmAssignRoomBtn").onclick = async function () {
+    const roomNumber = document.getElementById("roomNumberInput").value.trim();
     if (!roomNumber) {
-      alert('Please enter a room number.');
+      alert("Please enter a room number.");
       return;
     }
     // Update room_assigned in room table
     await get_data({
       sql: `UPDATE room SET room_assigned = ? WHERE rid = ?`,
-      params: [roomNumber, rid]
+      params: [roomNumber, rid],
     });
     // Update status in requisition table
     await get_data({
       sql: `UPDATE requisition SET status = 'approved' WHERE rid = ?`,
-      params: [rid]
+      params: [rid],
     });
-    modalDiv.style.display = 'none';
-    modalDiv.innerHTML = '';
+    modalDiv.style.display = "none";
+    modalDiv.innerHTML = "";
     restoreScroll();
     await loadRoomApprovalTable();
-    alert('Room assigned and status updated.');
+    alert("Room assigned and status updated.");
   };
 }
 
@@ -211,7 +214,7 @@ async function showBillApprovalWindow() {
     <h3 style='margin-bottom:2rem;'>Bill Approval</h3>
     <div id='bill-approval-table'></div>
   </div>`;
-  document.getElementById('closeBillApprovalBtn').onclick = function() {
+  document.getElementById("closeBillApprovalBtn").onclick = function () {
     tabContent.innerHTML = "";
   };
   await loadBillApprovalTable();
@@ -222,7 +225,7 @@ async function loadBillApprovalTable() {
   const tableDiv = document.getElementById("bill-approval-table");
   // Only show bills where requisition.status is 'pending'
   const bills = await get_data({
-    sql: `SELECT bill.rid, bill.amount, requisition.cid, requisition.status FROM bill JOIN requisition ON bill.rid = requisition.rid WHERE LOWER(TRIM(requisition.status)) = 'pending' ORDER BY bill.rid ASC`
+    sql: `SELECT bill.rid, bill.amount, bill.documents, requisition.cid, requisition.status FROM bill JOIN requisition ON bill.rid = requisition.rid WHERE LOWER(TRIM(requisition.status)) = 'pending' ORDER BY bill.rid ASC`,
   });
   if (!bills || bills.length === 0) {
     tableDiv.innerHTML = `<p style='text-align:center;color:#aaa;'>No pending bills found.</p>`;
@@ -239,12 +242,12 @@ async function loadBillApprovalTable() {
       </tr>
     </thead>
     <tbody>`;
-  bills.forEach(bill => {
+  bills.forEach((bill) => {
     tableHtml += `<tr>
       <td style='padding:8px;border-bottom:1px solid #e5e7eb;'>${bill.rid}</td>
       <td style='padding:8px;border-bottom:1px solid #e5e7eb;'>${bill.cid}</td>
       <td style='padding:8px;border-bottom:1px solid #e5e7eb;'>${bill.amount}</td>
-      <td style='padding:8px;border-bottom:1px solid #e5e7eb;'><button class='download-bill-btn' data-rid='${bill.rid}' style='background:#4fb8fa;color:#fff;border:none;border-radius:6px;font-weight:500;box-shadow:none;padding:8px 18px;cursor:pointer;'>Download PDF</button></td>
+      <td style='padding:8px;border-bottom:1px solid #e5e7eb;'><button class='download-bill-btn' file_path='${bill.documents}' style='background:#4fb8fa;color:#fff;border:none;border-radius:6px;font-weight:500;box-shadow:none;padding:8px 18px;cursor:pointer;'>Download PDF</button></td>
       <td style='padding:8px;border-bottom:1px solid #e5e7eb;'>
         <button class='approve-bill-btn' data-rid='${bill.rid}' style='background:#10b981;color:#fff;border:none;border-radius:6px;font-weight:500;padding:6px 14px;cursor:pointer;margin-right:6px;'>Approve</button>
         <button class='reject-bill-btn' data-rid='${bill.rid}' style='background:#ef4444;color:#fff;border:none;border-radius:6px;font-weight:500;padding:6px 14px;cursor:pointer;'>Reject</button>
@@ -255,34 +258,34 @@ async function loadBillApprovalTable() {
   tableDiv.innerHTML = tableHtml;
 
   // Add event listeners for download buttons
-  document.querySelectorAll(".download-bill-btn").forEach(btn => {
-    btn.onclick = function() {
-      const rid = this.getAttribute("data-rid");
-      window.location.href = `/bill/pdf/${rid}`;
+  document.querySelectorAll(".download-bill-btn").forEach((btn) => {
+    btn.onclick = function () {
+      const path = this.getAttribute("file_path");
+      window.location.href = `/${path}`;
     };
   });
 
   // Add event listeners for approve/reject buttons
-  document.querySelectorAll(".approve-bill-btn").forEach(btn => {
-    btn.onclick = async function() {
+  document.querySelectorAll(".approve-bill-btn").forEach((btn) => {
+    btn.onclick = async function () {
       const rid = this.getAttribute("data-rid");
       await get_data({
         sql: `UPDATE requisition SET status = 'approved' WHERE rid = ?`,
-        params: [rid]
+        params: [rid],
       });
-      alert('Bill approved!');
+      alert("Bill approved!");
       await loadBillApprovalTable();
     };
   });
-  document.querySelectorAll(".reject-bill-btn").forEach(btn => {
-    btn.onclick = async function() {
+  document.querySelectorAll(".reject-bill-btn").forEach((btn) => {
+    btn.onclick = async function () {
       const rid = this.getAttribute("data-rid");
-      if (confirm('Are you sure you want to reject this bill?')) {
+      if (confirm("Are you sure you want to reject this bill?")) {
         await get_data({
           sql: `UPDATE requisition SET status = 'rejected' WHERE rid = ?`,
-          params: [rid]
+          params: [rid],
         });
-        alert('Bill rejected!');
+        alert("Bill rejected!");
         await loadBillApprovalTable();
       }
     };
@@ -527,7 +530,6 @@ OCA`,
   }
 }
 
-
 // Show Requisition History
 async function showRequisitionHistory() {
   const tabContent = document.getElementById("approval-tab-content");
@@ -536,7 +538,7 @@ async function showRequisitionHistory() {
     <h3 style='margin-bottom:2rem;'>Requisition History</h3>
     <div id='requisition-history-table'></div>
   </div>`;
-  document.getElementById('closeRequisitionHistoryBtn').onclick = function() {
+  document.getElementById("closeRequisitionHistoryBtn").onclick = function () {
     tabContent.innerHTML = "";
   };
   await loadRequisitionHistoryTable();
@@ -546,7 +548,7 @@ async function showRequisitionHistory() {
 async function loadRequisitionHistoryTable() {
   const tableDiv = document.getElementById("requisition-history-table");
   const history = await get_data({
-    sql: `SELECT room.rid, requisition.cid, room.room_type, room.date_requested, room.time_requested_from, room.time_requested_to, room.room_assigned, requisition.status FROM room JOIN requisition ON room.rid = requisition.rid WHERE LOWER(TRIM(room.room_assigned)) != 'pending' ORDER BY room.rid DESC`
+    sql: `SELECT room.rid, requisition.cid, room.room_type, room.date_requested, room.time_requested_from, room.time_requested_to, room.room_assigned, requisition.status FROM room JOIN requisition ON room.rid = requisition.rid WHERE LOWER(TRIM(room.room_assigned)) != 'pending' ORDER BY room.rid DESC`,
   });
   if (!history || history.length === 0) {
     tableDiv.innerHTML = `<p style='text-align:center;color:#aaa;'>No requisition history found.</p>`;
@@ -565,10 +567,10 @@ async function loadRequisitionHistoryTable() {
       </tr>
     </thead>
     <tbody>`;
-  history.forEach(row => {
+  history.forEach((row) => {
     let dateOnly = row.date_requested;
-    if (typeof dateOnly === 'string' && dateOnly.includes('T')) {
-      dateOnly = dateOnly.split('T')[0];
+    if (typeof dateOnly === "string" && dateOnly.includes("T")) {
+      dateOnly = dateOnly.split("T")[0];
     }
     tableHtml += `<tr>
       <td style='padding:8px;border-bottom:1px solid #e5e7eb;'>${row.rid}</td>
@@ -587,23 +589,9 @@ async function loadRequisitionHistoryTable() {
 // Create system-wide announcement (for OCA users)
 async function create_system_announcement() {
   const currentUser = localStorage.getItem("currentUser");
-  
-  // Check if user is OCA
-  const oca_check = await get_data({
-    sql: `SELECT * FROM oca WHERE uid = ?`,
-    params: [currentUser]
-  });
 
-  if (oca_check.length === 0) {
-    alert("Only OCA members can create system-wide announcements!");
-    return;
-  }
-
-  // For system announcements, we'll use a default page (you might want to create a system page)
-  // For now, we'll use the first available page or create announcements without page association
-  // Let's get the first page as a default system page
   const system_page = await get_data({
-    sql: `SELECT pid FROM page LIMIT 1`
+    sql: `SELECT pid FROM page LIMIT 1`,
   });
 
   if (system_page.length === 0) {
@@ -649,45 +637,48 @@ async function create_system_announcement() {
   document.body.insertAdjacentHTML("beforeend", modalHTML);
 
   // Handle form submission
-  document.getElementById("oca-announcement-form").addEventListener("submit", async function(e) {
-    e.preventDefault();
-    
-    const type = document.getElementById("oca-ann-type").value;
-    const subject = document.getElementById("oca-ann-subject").value.trim();
-    const body = document.getElementById("oca-ann-body").value.trim();
+  document
+    .getElementById("oca-announcement-form")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-    if (!subject || !body) {
-      alert("Please fill in all fields!");
-      return;
-    }
+      const type = document.getElementById("oca-ann-type").value;
+      const subject = document.getElementById("oca-ann-subject").value.trim();
+      const body = document.getElementById("oca-ann-body").value.trim();
 
-    try {
-      // Insert announcement into database
-      await get_data({
-        sql: `INSERT INTO announcement (type, subject, body, date_time, pid, uid) 
-              VALUES (?, ?, ?, NOW(), ?, ?)`,
-        params: [type, subject, body, pageId, currentUser]
-      });
-
-      close_oca_announcement();
-      
-      // Refresh announcements if on home page
-      if (document.getElementById("announcements-list")) {
-        loadRecentAnnouncements();
+      if (!subject || !body) {
+        alert("Please fill in all fields!");
+        return;
       }
-      
-    } catch (error) {
-      console.error("Error creating announcement:", error);
-      alert("Error creating announcement. Please try again.");
-    }
-  });
+
+      try {
+        // Insert announcement into database
+        await get_data({
+          sql: `INSERT INTO announcement (type, subject, body, date_time, pid, uid) 
+              VALUES (?, ?, ?, NOW(), ?, ?)`,
+          params: [type, subject, body, pageId, currentUser],
+        });
+
+        close_oca_announcement();
+
+        // Refresh announcements if on home page
+        if (document.getElementById("announcements-list")) {
+          loadRecentAnnouncements();
+        }
+      } catch (error) {
+        console.error("Error creating announcement:", error);
+        alert("Error creating announcement. Please try again.");
+      }
+    });
 
   // Add event listener for closing by clicking outside
-  document.getElementById("oca_announcement_panel").addEventListener("click", function(e) {
-    if (e.target === this) {
-      close_oca_announcement();
-    }
-  });
+  document
+    .getElementById("oca_announcement_panel")
+    .addEventListener("click", function (e) {
+      if (e.target === this) {
+        close_oca_announcement();
+      }
+    });
 }
 
 // Close OCA announcement modal
@@ -697,4 +688,3 @@ function close_oca_announcement() {
     modal.remove();
   }
 }
-

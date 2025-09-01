@@ -586,10 +586,6 @@ async function club_announcement(clubId) {
     params: [clubId]
   });
 
-  if (club_page.length === 0) {
-    alert("Club page not found!");
-    return;
-  }
 
   const pageId = club_page[0].pid;
 
@@ -648,7 +644,7 @@ async function club_announcement(clubId) {
     });
     close_club_announcement();
     
-    // Refresh announcements if on home page
+    
     if (document.getElementById("announcements-list")) {
       loadRecentAnnouncements();
     }
