@@ -46,6 +46,7 @@ CREATE TABLE club (
   cid VARCHAR(10) NOT NULL,
   email VARCHAR(255) NOT NULL,
   name VARCHAR(160) NOT NULL,
+  description TEXT NOT NULL,
   status VARCHAR(32) DEFAULT 'active',
   advisor_uid  INT,
   PRIMARY KEY (cid),
@@ -219,12 +220,12 @@ INSERT INTO oca VALUES
 (538744),
 (538745);
 
-INSERT INTO club (cid, email, name, advisor_uid) VALUES
-('ROBU', 'roboticsclub@bracu.ac.bd', 'Robotics Club', 623781),
-('BUCUC', 'culturalclub@bracu.ac.bd', 'Cultural Club', 623785),
-('BUDC', 'debateclub@bracu.ac.bd', 'Debate Club', 623784),
-('BUCC', 'computerclub@bracu.ac.bd', 'Computer Club', 623782),
-('BUESC', 'esportsclub@bracu.ac.bd', 'Esports Club', 623783);
+INSERT INTO club (cid, email, name, description, advisor_uid) VALUES
+('ROBU', 'roboticsclub@bracu.ac.bd', 'Robotics Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623781),
+('BUCUC', 'culturalclub@bracu.ac.bd', 'Cultural Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623785),
+('BUDC', 'debateclub@bracu.ac.bd', 'Debate Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623784),
+('BUCC', 'computerclub@bracu.ac.bd', 'Computer Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623782),
+('BUESC', 'esportsclub@bracu.ac.bd', 'Esports Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623783);
 
 INSERT INTO requisition (cid, date_time) VALUES
 ('ROBU', '2025-09-20 10:00:00'),

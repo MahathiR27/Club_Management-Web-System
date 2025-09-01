@@ -79,7 +79,6 @@ async function sendOTP() {
   const email = document.getElementById('regEmail').value;
 
   const email_exist_check = await get_data({ sql: `select * from user where email = ?`, params: [email]});
-  console.log(email_exist_check);
   if (!email || !email.endsWith("@g.bracu.ac.bd")) {
     // wrong email hoile button abar ferot aishe porbe
     document.querySelector('.get-otp-btn').disabled = false;

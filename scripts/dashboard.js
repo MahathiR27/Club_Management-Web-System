@@ -11,11 +11,15 @@ async function get_data(query) { // Fetch database func
 
 // ================================== Variables ================================================================================
 // Dashboard Access Roles
-oca_access = ['oca']
-student_access = ['student']
-advisor_access = ['advisor']
-manage_club_access = ['oca','student','advisor']
-current_semester = 'Summer 2025'
+oca_access = ["oca"];
+student_access = ["student"];
+advisor_access = ["advisor"];
+manage_club_access = ["oca", "student", "advisor"];
+current_semester = "Summer 2025";
+
+// Global variables to store user data
+let currentUserRole = null;
+let currentUserId = null;
 // =============================================================================================================================
 
 // ============================== Main Dashboard loader ========================================================================
@@ -24,11 +28,18 @@ window.addEventListener("DOMContentLoaded", async function () {
   const currentUser = localStorage.getItem("currentUser"); // Login korar time e local storage e UID store korsilam
 
   if (currentUser) {
-    const userData = await get_data({sql: `SELECT name FROM user WHERE uid = ?`, params: [currentUser],});
+    currentUserId = currentUser; // Store globally
+
+    const userData = await get_data({
+      sql: `SELECT name FROM user WHERE uid = ?`,
+      params: [currentUser],
+    });
     const username = userData[0].name;
 
     // Dashboard e sobar upore default "Welcome!" ke update kore
-    document.getElementById("welcome-message").textContent = `Welcome ${username}!`; 
+    document.getElementById(
+      "welcome-message"
+    ).textContent = `Welcome ${username}!`;
 
     // Top Right er user profile button load
     await loadUserProfile(currentUser);
@@ -37,24 +48,26 @@ window.addEventListener("DOMContentLoaded", async function () {
     await loadRecentAnnouncements();
 
     // UID theke or role ber kore then jayga moto dashboard e redirect
-    await setupDashboardByRole(currentUser); 
-  } 
-  
-  else { // localstorage e UID nai mane login kora nai, pathaye daw login page e
+    await setupDashboardByRole(currentUser);
+  } else {
+    // localstorage e UID nai mane login kora nai, pathaye daw login page e
     window.location.href = "login.html";
   }
 });
 
 // Database er 3 ta table theke user er role ber korbo
 async function setupDashboardByRole(userId) {
-  const roleCheck = await get_data({sql: `SELECT 'student' as role, uid FROM student WHERE uid = ?
+  const roleCheck = await get_data({
+    sql: `SELECT 'student' as role, uid FROM student WHERE uid = ?
                                           UNION
                                           SELECT 'advisor' as role, uid FROM advisor WHERE uid = ?  
                                           UNION
                                           SELECT 'oca' as role, uid FROM oca WHERE uid = ?`,
-                                    params: [userId, userId, userId],});
+    params: [userId, userId, userId],
+  });
 
   const userRole = roleCheck[0].role;
+  currentUserRole = userRole; // Store globally for reuse
 
   // Profile drop down e role dekhao
   document.getElementById("userRole").textContent = userRole.toUpperCase();
@@ -62,27 +75,34 @@ async function setupDashboardByRole(userId) {
   // Setup sidebar and dashboard based on role
   setupSidebar(userRole, userId);
 
-  if (oca_access.includes(userId)){await setupOCADashboard(userId);}
-  else if (student_access.includes(userId)){await setupStudentDashboard(userId);}
-  else if (advisor_access.includes(userId)){await setupAdvisorDashboard(userId);};
+  if (oca_access.includes(userRole)) {
+    await setupOCADashboard(userId);
+  } else if (student_access.includes(userRole)) {
+    await setupStudentDashboard(userId);
+  } else if (advisor_access.includes(userRole)) {
+    await setupAdvisorDashboard(userId);
+  }
 }
 
 // Load user profile information
 async function loadUserProfile(userId) {
-    // Get basic user data
-    const userData = await get_data({sql: `SELECT name, uid, email FROM user WHERE uid = ?`, params: [userId]});
+  // Get basic user data
+  const userData = await get_data({
+    sql: `SELECT name, uid, email FROM user WHERE uid = ?`,
+    params: [userId],
+  });
 
-      const user = userData[0];
-      document.getElementById("userName").textContent = user.name;
-      document.getElementById("userId").textContent = user.uid;
-      document.getElementById("userEmail").textContent = user.email;
+  const user = userData[0];
+  document.getElementById("userName").textContent = user.name;
+  document.getElementById("userId").textContent = user.uid;
+  document.getElementById("userEmail").textContent = user.email;
 }
 // =============================================================================================================================
 
 // ============================= Buttons =======================================================================================
 function logout() {
-    localStorage.removeItem("currentUser");
-    window.location.href = "login.html";
+  localStorage.removeItem("currentUser");
+  window.location.href = "login.html";
 }
 
 function toggleUserMenu() {
@@ -105,7 +125,7 @@ document.addEventListener("click", function (event) {
 function setupSidebar(userRole, userId) {
   let sidebarHTML = "";
 
-  if (oca_access.includes(userRole)){
+  if (oca_access.includes(userRole)) {
     sidebarHTML = `
       <button class="sidebar-btn active" onclick="showHomePage()">
         <span class="icon">
@@ -116,10 +136,6 @@ function setupSidebar(userRole, userId) {
         fill="#6BB4F1">
         <path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg></span>
         Home
-      </button>
-      <button class="sidebar-btn" onclick="showAllClubs()">
-        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></span>
-        All Clubs
       </button>
       <button class="sidebar-btn" onclick="showClubApproval()">
         <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4f1"><path d="m424-318 282-282-56-56-226 226-114-114-56 56 170 170ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h168q13-36 43.5-58t68.5-22q38 0 68.5 22t43.5 58h168q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm280-670q13 0 21.5-8.5T510-820q0-13-8.5-21.5T480-850q-13 0-21.5 8.5T450-820q0 13 8.5 21.5T480-790Z"/></svg></span>
@@ -133,10 +149,10 @@ function setupSidebar(userRole, userId) {
         <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4f1"><path d="m438-338 226-226-57-57-169 169-84-84-57 57 141 141Zm42 258q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Z"/></svg></span>
         Account Verification
       </button>
-  `;}
+  `;} 
   
   else if (student_access.includes(userRole)){
-      sidebarHTML = `
+    sidebarHTML = `
         <button class="sidebar-btn active" onclick="showHomePage()">
           <span class="icon"><svg 
         xmlns="http://www.w3.org/2000/svg" 
@@ -162,8 +178,8 @@ function setupSidebar(userRole, userId) {
         </div>
         `;}
 
-  else if (advisor_access.includes(userRole)){      
-      sidebarHTML = `
+  else if (advisor_access.includes(userRole)){
+    sidebarHTML = `
         <button class="sidebar-btn active" onclick="showHomePage()">
           <span class="icon"><svg 
         xmlns="http://www.w3.org/2000/svg" 
@@ -181,33 +197,36 @@ function setupSidebar(userRole, userId) {
           <span class="icon">✅</span>
           Approve Activities
         </button>
-      `;};
+      `;
+  }
 
   const sidebarContent = document.querySelector(".sidebar-content"); // class er vitore html insert korbe
   sidebarContent.innerHTML = sidebarHTML;
 
-  show_manage_club(userRole,userId) // OCA, Advisor, Student(P and VP) ke dekhabe only
+  show_manage_club(userRole, userId); // OCA, Advisor, Student(P and VP) ke dekhabe only
 }
 
 // Check if student is a president of any club
-async function show_manage_club(userRole,userId) {
-  if (userRole == "student"){ // Student hoile P and VP khali dkehte parbe
+async function show_manage_club(userRole, userId) {
+  if (userRole == "student") {
+    // Student hoile P and VP khali dkehte parbe
     const student_check = await get_data({
-      sql: `SELECT cid FROM members WHERE student_uid = ? AND (position = 'President' or position = 'Vice President')`, 
-      params: [userId]});
+      sql: `SELECT cid FROM members WHERE student_uid = ? AND (position = 'President' or position = 'Vice President')`,
+      params: [userId],
+    });
 
     if (student_check.length > 0) {
       document.getElementById("manage-clubs-btn").style.display = "block";
     }
-  }
-  else if (manage_club_access.includes(userRole)){ // OCA ar Advisor direct access
+  } else if (manage_club_access.includes(userRole)) {
+    // OCA ar Advisor direct access
     document.getElementById("manage-clubs-btn").style.display = "block";
-  };
+  }
 }
 
 // Sidebar Clicks
 function setActiveButton(clickedBtn) {
-  // Sob side button er jeita jeita diplay korte silo off kore 
+  // Sob side button er jeita jeita diplay korte silo off kore
   document.querySelectorAll(".sidebar-btn").forEach((btn) => {
     btn.classList.remove("active");
   });
@@ -217,30 +236,72 @@ function setActiveButton(clickedBtn) {
 //==============================================================================================================================
 
 // ============================= Announcement ==================================================================================
-// Load latest 3 announcements
+// Load latest 3 announcements based on user role
 async function loadRecentAnnouncements() {
-  const announcements = await get_data({
-    sql: `SELECT a.subject as subject, a.date_time as date, u.name as author 
-          FROM announcement a LEFT JOIN user u ON a.uid = u.uid
-          ORDER BY a.date_time DESC LIMIT 3`});
+  // Use global variables instead of querying database again
+  const userRole = currentUserRole;
+  const currentUser = currentUserId;
+
+  let announcements = [];
+
+  if (userRole === "oca") {
+    // OCA can see all announcements
+    announcements = await get_data({
+      sql: `SELECT a.subject as subject, a.date_time as date, u.name as author 
+            FROM announcement a LEFT JOIN user u ON a.uid = u.uid
+            ORDER BY a.date_time DESC LIMIT 3`,
+    });
+  } else if (userRole === "student") {
+    // Student can see announcements from OCA users and clubs they are members of
+    announcements = await get_data({
+      sql: `SELECT DISTINCT a.subject as subject, a.date_time as date, u.name as author 
+            FROM announcement a 
+            LEFT JOIN user u ON a.uid = u.uid
+            LEFT JOIN page p ON a.pid = p.pid
+            LEFT JOIN club c ON p.cid = c.cid
+            LEFT JOIN oca o ON u.uid = o.uid
+            LEFT JOIN members m ON c.cid = m.cid AND m.student_uid = ?
+            WHERE o.uid IS NOT NULL OR m.student_uid IS NOT NULL
+            ORDER BY a.date_time DESC LIMIT 3`,
+      params: [currentUser],
+    });
+  } else if (userRole === "advisor") {
+    // Advisor can see announcements from OCA users and clubs they advise
+    announcements = await get_data({
+      sql: `SELECT DISTINCT a.subject as subject, a.date_time as date, u.name as author 
+            FROM announcement a 
+            LEFT JOIN user u ON a.uid = u.uid
+            LEFT JOIN page p ON a.pid = p.pid
+            LEFT JOIN club c ON p.cid = c.cid
+            LEFT JOIN oca o ON u.uid = o.uid
+            WHERE o.uid IS NOT NULL OR c.advisor_uid = ?
+            ORDER BY a.date_time DESC LIMIT 3`,
+      params: [currentUser],
+    });
+  }
 
   if (announcements.length > 0) {
-    val = announcements.map((i) => // Map er karone, db theke jei data gula list er moddhe ashce, sob gula iterate hobe ar ei html template e boshbe  
-      `<div class="announcement-item">
+    val = announcements.map(
+      (
+        i // Map er karone, db theke jei data gula list er moddhe ashce, sob gula iterate hobe ar ei html template e boshbe
+      ) =>
+        `<div class="announcement-item">
         <div class="announcement-content">
           <h4>${i.subject}</h4>
-          <small>Posted by ${i.author} on ${new Date(i.date).toLocaleDateString()}</small> <!-- Time dekhte ektu jater korar jonne -->
+          <small>Posted by ${i.author} on ${new Date(
+          i.date
+        ).toLocaleDateString()}</small> <!-- Time dekhte ektu jater korar jonne -->
         </div>
-      </div>`);
+      </div>`
+    );
 
-    val = val.join("") // As upore theke val ekta list hoye ashce, join kore puratake ekta tring banaisi html er
-
+    val = val.join(""); // As upore theke val ekta list hoye ashce, join kore puratake ekta string banaisi html er
   } else {
     val = '<p class="no-announcements">No recent announcements</p>';
   }
 
   const announcementsList = document.getElementById("announcements-list");
-  announcementsList.innerHTML = val // Announcement element er moddhe html insert korbe
+  announcementsList.innerHTML = val; // Announcement element er moddhe html insert korbe
 }
 
 // Sob announcement dekhar jnno
@@ -262,14 +323,51 @@ async function viewAllAnnouncements() {
     // Add modal to body
     document.body.insertAdjacentHTML("beforeend", modalHTML);
 
-    // Load all announcements
-    const announcements = await get_data({
-      sql: `SELECT a.subject as title, a.body as content, a.date_time as date, u.name as author 
-            FROM announcement a LEFT JOIN user u ON a.uid = u.uid
-            ORDER BY a.date_time DESC`,
-    });
+    // Use global variables instead of querying database again
+    const userRole = currentUserRole;
+    const currentUser = currentUserId;
 
-    const allAnnouncementsList = document.getElementById("all-announcements-list");
+    let announcements = [];
+
+    if (userRole === "oca") {
+      // OCA can see all announcements
+      announcements = await get_data({
+        sql: `SELECT a.subject as title, a.body as content, a.date_time as date, u.name as author 
+              FROM announcement a LEFT JOIN user u ON a.uid = u.uid
+              ORDER BY a.date_time DESC`,
+      });
+    } else if (userRole === "student") {
+      // Student can see announcements from OCA users and clubs they are members of
+      announcements = await get_data({
+        sql: `SELECT DISTINCT a.subject as title, a.body as content, a.date_time as date, u.name as author 
+              FROM announcement a 
+              LEFT JOIN user u ON a.uid = u.uid
+              LEFT JOIN page p ON a.pid = p.pid
+              LEFT JOIN club c ON p.cid = c.cid
+              LEFT JOIN oca o ON u.uid = o.uid
+              LEFT JOIN members m ON c.cid = m.cid AND m.student_uid = ?
+              WHERE o.uid IS NOT NULL OR m.student_uid IS NOT NULL
+              ORDER BY a.date_time DESC`,
+        params: [currentUser],
+      });
+    } else if (userRole === "advisor") {
+      // Advisor can see announcements from OCA users and clubs they advise
+      announcements = await get_data({
+        sql: `SELECT DISTINCT a.subject as title, a.body as content, a.date_time as date, u.name as author 
+              FROM announcement a 
+              LEFT JOIN user u ON a.uid = u.uid
+              LEFT JOIN page p ON a.pid = p.pid
+              LEFT JOIN club c ON p.cid = c.cid
+              LEFT JOIN oca o ON u.uid = o.uid
+              WHERE o.uid IS NOT NULL OR c.advisor_uid = ?
+              ORDER BY a.date_time DESC`,
+        params: [currentUser],
+      });
+    }
+
+    const allAnnouncementsList = document.getElementById(
+      "all-announcements-list"
+    );
 
     if (announcements.length > 0) {
       allAnnouncementsList.innerHTML = announcements
@@ -328,7 +426,7 @@ function showHomePage() {
   document.querySelector(".welcome-section").style.display = "block"; // Welcome er class load korbe
 
   const announcementSection = document.getElementById("announcement-section");
-  announcementSection.style.display = "block"; // Announcement er block visible korbe 
+  announcementSection.style.display = "block"; // Announcement er block visible korbe
 
   loadRecentAnnouncements();
 
