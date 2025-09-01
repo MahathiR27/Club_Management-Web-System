@@ -22,45 +22,6 @@ async function setupOCADashboard(userId) {
   showHomePage();
 }
 
-// Show All Clubs content
-async function showAllClubs() {
-  const clickedBtn = event?.target || document.querySelector(".sidebar-btn");
-  setActiveButton(clickedBtn);
-
-  // Hide welcome message for OCA
-  document.querySelector(".welcome-section").style.display = "none";
-  document.getElementById("announcement-section").style.display = "none";
-
-  const dynamicContent = document.getElementById("dynamic-content");
-  dynamicContent.innerHTML = `
-    <div class="dashboard-section">
-      <div class="section-header">
-        <div class="section-title">
-          <div class="section-icon"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg></div>
-          <h3>All Clubs</h3>
-        </div>
-      </div>
-      <div class="oca-content" id="all-clubs-content">
-        <div class="oca-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 48v65H0Zm240 0v-65q0-32 17.5-58.5T307-410q32-20 76.5-30t96.5-10q53 0 97.5 10t76.5 30q32 20 49 46.5t17 58.5v65H240Zm540 0v-65q0-26-6.5-49T754-397q11-2 22.5-2.5t23.5-.5q72 0 116 26.5t44 70.5v63H780ZM160-440q-33 0-56.5-23.5T80-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-34 23.5-57t56.5-23q34 0 57 23t23 57q0 33-23 56.5T800-440Zm-320-40q-50 0-85-35t-35-85q0-51 35-85.5t85-34.5q51 0 85.5 34.5T600-600q0 50-34.5 85T480-480Z"/></svg> Active Clubs</h4>
-          <p>View and manage all active clubs in the system</p>
-          <button class="oca-btn" onclick="alert('Active clubs management coming soon!')">View Active Clubs</button>
-        </div>
-        <div class="oca-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4f1"><path d="M280-280h80v-200h-80v200Zm320 0h80v-400h-80v400Zm-160 0h80v-120h-80v120Zm0-200h80v-80h-80v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Z"/></svg> Club Statistics</h4>
-          <p>View comprehensive statistics about all clubs</p>
-          <button class="oca-btn" onclick="alert('Club statistics coming soon!')">View Statistics</button>
-        </div>
-        <div class="oca-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="m640-120-12-60q-12-5-22.5-10.5T584-204l-58 18-40-68 46-40q-2-14-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T628-460l12-60h80l12 60q12 5 22.5 11t21.5 15l58-20 40 70-46 40q2 12 2 25t-2 25l46 40-40 68-58-18q-11 8-21.5 13.5T732-180l-12 60h-80ZM80-160v-112q0-33 17-62t47-44q51-26 115-44t141-18h14q6 0 12 2-29 72-24 143t48 135H80Zm600-80q33 0 56.5-23.5T760-320q0-33-23.5-56.5T680-400q-33 0-56.5 23.5T600-320q0 33 23.5 56.5T680-240ZM400-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Z"/></svg> Club Settings</h4>
-          <p>Manage global club settings and policies</p>
-          <button class="oca-btn" onclick="alert('Club settings coming soon!')">Manage Settings</button>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
 // Show Approvals tab with three buttons
 async function showClubApproval() {
   const clickedBtn = event?.target;
@@ -258,17 +219,12 @@ async function showAnnouncements() {
         <div class="oca-card">
           <h4><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg> Create Announcement</h4>
           <p>Send system-wide announcements and notifications</p>
-          <button class="oca-btn" onclick="alert('Create announcement coming soon!')">Create New</button>
+          <button class="oca-btn" onclick="create_system_announcement()">Create New</button>
         </div>
         <div class="oca-card">
           <h4><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4F1"><path d="m640-120-12-60q-12-5-22.5-10.5T584-204l-58 18-40-68 46-40q-2-14-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T628-460l12-60h80l12 60q12 5 22.5 11t21.5 15l58-20 40 70-46 40q2 12 2 25t-2 25l46 40-40 68-58-18q-11 8-21.5 13.5T732-180l-12 60h-80ZM80-160v-112q0-33 17-62t47-44q51-26 115-44t141-18h14q6 0 12 2-29 72-24 143t48 135H80Zm600-80q33 0 56.5-23.5T760-320q0-33-23.5-56.5T680-400q-33 0-56.5 23.5T600-320q0 33 23.5 56.5T680-240ZM400-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Z"/></svg> Manage Announcements</h4>
           <p>View and manage existing announcements</p>
           <button class="oca-btn" onclick="alert('Manage announcements coming soon!')">Manage Existing</button>
-        </div>
-        <div class="oca-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#6BB4f1"><path d="M280-280h80v-200h-80v200Zm320 0h80v-400h-80v400Zm-160 0h80v-120h-80v120Zm0-200h80v-80h-80v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Z"/></svg> Announcement Analytics</h4>
-          <p>View announcement reach and engagement</p>
-          <button class="oca-btn" onclick="alert('Announcement analytics coming soon!')">View Analytics</button>
         </div>
       </div>
     </div>
@@ -352,7 +308,6 @@ async function approveUser(userId) {
       sql: `UPDATE user SET status = 'active' WHERE uid = ?`,
       params: [userId],
     });
-    // alert("User approved successfully!");
     await loadPendingVerifications(); // Refresh the list
   } catch (error) {
     console.error("Error approving user:", error);
@@ -477,5 +432,119 @@ OCA`,
         await loadPendingVerifications();
       });
     });
+  }
+}
+
+// Create system-wide announcement (for OCA users)
+async function create_system_announcement() {
+  const currentUser = localStorage.getItem("currentUser");
+  
+  // Check if user is OCA
+  const oca_check = await get_data({
+    sql: `SELECT * FROM oca WHERE uid = ?`,
+    params: [currentUser]
+  });
+
+  if (oca_check.length === 0) {
+    alert("Only OCA members can create system-wide announcements!");
+    return;
+  }
+
+  // For system announcements, we'll use a default page (you might want to create a system page)
+  // For now, we'll use the first available page or create announcements without page association
+  // Let's get the first page as a default system page
+  const system_page = await get_data({
+    sql: `SELECT pid FROM page LIMIT 1`
+  });
+
+  if (system_page.length === 0) {
+    alert("No pages available for announcements!");
+    return;
+  }
+
+  const pageId = system_page[0].pid;
+
+  // Create announcement modal
+  const modalHTML = `
+    <div id="oca_announcement_panel" class="announcements-overlay show">
+      <div class="announcements-modal" style="width: 600px; max-width: 90vw;">
+        <button class="announcements-close-btn" onclick="close_oca_announcement()" title="Close">&times;</button>
+        <h3>Create System Announcement</h3>
+        <form id="oca-announcement-form" style="padding: 20px;">
+          <div style="margin-bottom: 15px;">
+            <label for="oca-ann-type" style="display: block; margin-bottom: 5px; font-weight: bold;">Type:</label>
+            <select id="oca-ann-type" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+              <option value="notice">Notice</option>
+              <option value="event">Event</option>
+              <option value="update">Update</option>
+            </select>
+          </div>
+          <div style="margin-bottom: 15px;">
+            <label for="oca-ann-subject" style="display: block; margin-bottom: 5px; font-weight: bold;">Subject:</label>
+            <input type="text" id="oca-ann-subject" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Enter announcement subject" required>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label for="oca-ann-body" style="display: block; margin-bottom: 5px; font-weight: bold;">Message:</label>
+            <textarea id="oca-ann-body" rows="6" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;" placeholder="Enter announcement message" required></textarea>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" class="oca-btn" onclick="close_oca_announcement()" style="background-color: #ccc;">Cancel</button>
+            <button type="submit" class="oca-btn" style="background-color: #6BB4F1;">Create Announcement</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  // Add modal to page
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  // Handle form submission
+  document.getElementById("oca-announcement-form").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    
+    const type = document.getElementById("oca-ann-type").value;
+    const subject = document.getElementById("oca-ann-subject").value.trim();
+    const body = document.getElementById("oca-ann-body").value.trim();
+
+    if (!subject || !body) {
+      alert("Please fill in all fields!");
+      return;
+    }
+
+    try {
+      // Insert announcement into database
+      await get_data({
+        sql: `INSERT INTO announcement (type, subject, body, date_time, pid, uid) 
+              VALUES (?, ?, ?, NOW(), ?, ?)`,
+        params: [type, subject, body, pageId, currentUser]
+      });
+
+      close_oca_announcement();
+      
+      // Refresh announcements if on home page
+      if (document.getElementById("announcements-list")) {
+        loadRecentAnnouncements();
+      }
+      
+    } catch (error) {
+      console.error("Error creating announcement:", error);
+      alert("Error creating announcement. Please try again.");
+    }
+  });
+
+  // Add event listener for closing by clicking outside
+  document.getElementById("oca_announcement_panel").addEventListener("click", function(e) {
+    if (e.target === this) {
+      close_oca_announcement();
+    }
+  });
+}
+
+// Close OCA announcement modal
+function close_oca_announcement() {
+  const modal = document.getElementById("oca_announcement_panel");
+  if (modal) {
+    modal.remove();
   }
 }
