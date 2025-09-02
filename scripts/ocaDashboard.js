@@ -561,6 +561,7 @@ async function create_system_announcement() {
       <div class="announcements-modal" style="width: 600px; max-width: 90vw;">
         <button class="announcements-close-btn" onclick="close_oca_announcement()" title="Close">&times;</button>
         <h3>Create System Announcement</h3>
+        <div id="announcement-warning" style="display: none; background: #fee; border: 1px solid #fcc; color: #c66; padding: 10px; margin: 10px 20px; border-radius: 4px;"></div>
         <form id="oca-announcement-form" style="padding: 20px;">
           <div style="margin-bottom: 15px;">
             <label for="oca-ann-subject" style="display: block; margin-bottom: 5px; font-weight: bold;">Subject:</label>
@@ -590,11 +591,16 @@ async function create_system_announcement() {
 
       const subject = document.getElementById("oca-ann-subject").value.trim();
       const body = document.getElementById("oca-ann-body").value.trim();
+      const warningDiv = document.getElementById("announcement-warning");
 
       if (!subject || !body) {
-        alert("Please fill in all fields!");
+        warningDiv.textContent = "Please fill in all fields!";
+        warningDiv.style.display = "block";
         return;
       }
+
+      // Hide warning if fields are filled
+      warningDiv.style.display = "none";
 
       try {
         // Insert announcement into database
@@ -612,7 +618,9 @@ async function create_system_announcement() {
         }
       } catch (error) {
         console.error("Error creating announcement:", error);
-        alert("Error creating announcement. Please try again.");
+        const warningDiv = document.getElementById("announcement-warning");
+        warningDiv.textContent = "Error creating announcement. Please try again.";
+        warningDiv.style.display = "block";
       }
     });
 
