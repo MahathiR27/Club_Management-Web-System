@@ -813,8 +813,8 @@ async function club_announcement(clubId) {
     .addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      const subject = document.getElementById("ann-subject").value.trim();
-      const body = document.getElementById("ann-body").value.trim();
+      const subject = document.getElementById("ann-subject").value;
+      const body = document.getElementById("ann-body").value;
 
       if (!subject || !body) {
         alert("Please fill in all fields!");
@@ -827,10 +827,6 @@ async function club_announcement(clubId) {
         params: [subject, body, clubId, currentUser],
       });
       close_club_announcement();
-
-      if (document.getElementById("announcements-list")) {
-        loadRecentAnnouncements();
-      }
     });
 
   // Add event listener for closing by clicking outside
