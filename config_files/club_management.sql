@@ -211,7 +211,7 @@ INSERT INTO oca VALUES
 (538745);
 
 INSERT INTO club (cid, email, name, description, advisor_uid) VALUES
-('ROBU', 'roboticsclub@bracu.ac.bd', 'Robotics Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623781),
+('ROBU', 'md.mahathir.alam@g.bracu.ac.bd', 'Robotics Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623781),
 ('BUCUC', 'culturalclub@bracu.ac.bd', 'Cultural Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623785),
 ('BUDC', 'debateclub@bracu.ac.bd', 'Debate Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623784),
 ('BUCC', 'computerclub@bracu.ac.bd', 'Computer Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623782),
