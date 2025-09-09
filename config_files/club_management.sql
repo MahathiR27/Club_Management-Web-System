@@ -22,18 +22,6 @@ CREATE TABLE student (
     ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE advisor (
-  uid INT NOT NULL,
-  department VARCHAR(120) NOT NULL,
-  initial VARCHAR(16) NOT NULL,
-  designation VARCHAR(120) NOT NULL,
-  room VARCHAR(32),
-  PRIMARY KEY (uid),
-  CONSTRAINT fk_advisor_user
-    FOREIGN KEY (uid) REFERENCES user(uid)
-    ON UPDATE CASCADE ON DELETE CASCADE
-);
-
 CREATE TABLE oca (
   uid  INT  NOT NULL,
   PRIMARY KEY (uid),
@@ -48,11 +36,7 @@ CREATE TABLE club (
   name VARCHAR(160) NOT NULL,
   description TEXT NOT NULL,
   status VARCHAR(32) DEFAULT 'active',
-  advisor_uid  INT,
-  PRIMARY KEY (cid),
-  CONSTRAINT fk_club_advisor
-    FOREIGN KEY (advisor_uid) REFERENCES advisor(uid)
-    ON UPDATE CASCADE
+  PRIMARY KEY (cid)
 );
 
 CREATE TABLE announcement (
@@ -148,9 +132,8 @@ CREATE TABLE approval (
 -- Populating
 
 INSERT INTO user (uid, email, pass, name, phone) VALUES
-(24341269, 'md.mahathir.alam@g.bracu.ac.bd', '12345', 'Md. Mahathir Alam', '01854943188'),
 (24241289, 'mahinul.islam.mahin@g.bracu.ac.bd', '12345', 'Mahinul Islam', '01518918916'),
-(23301451, 'arunima.das1@bracu.ac.bd','12345', 'Arunima Das', '01782345678'),
+(23301451, 'arunima.das1@g.bracu.ac.bd','12345', 'Arunima Das', '01782345678'),
 (24241235, 'tahmidul.islam.tanmoy@bracu.ac.bd', '12345', 'Syed Tahmidul Islam Tanmoy', '01912876543'),
 (23311234, 'tahsin.haque.fake@g.bracu.ac.bd', '12345', 'Tahsin Haque', '01693452781'),
 (24302345, 'farhan.kabir.fake@g.bracu.ac.bd', '12345', 'Farhan Kabir', '01578234961'),
@@ -164,12 +147,6 @@ INSERT INTO user (uid, email, pass, name, phone) VALUES
 (25316789, 'reshmi.akter.fake@g.bracu.ac.bd', '12345', 'Reshmi Akter', '01769012345'),
 (25319012, 'raiyan.islam.fake@g.bracu.ac.bd', '12345', 'Raiyan Islam', '01501928374'),
 (25322334, 'nishat.tasnim.fake@g.bracu.ac.bd', '12345', 'Nishat Tasnim', '01307596824'),
-
-(623781, 'sadia.afrin.fake@g.bracu.ac.bd', '12345', 'Sadia Afrin', '01754356288'), -- Advisors
-(623782, 'tasnim.rahman.fake@bracu.ac.bd', '12345', 'Tasnim Rahman', '01782345671'),
-(623783, 'sakib.karim.fake@bracu.ac.bd', '12345', 'Sakib Karim', '01923874652'),
-(623784, 'nayeem.hassan.fake@bracu.ac.bd', '12345', 'Nayeem Hassan', '01692837465'),
-(623785, 'mehnaz.akter.fake@bracu.ac.bd', '12345', 'Mehnaz Akter', '01589237461'),
 
 (538741, 'mas.rafi.islam.fake@bracu.ac.bd', '12345', 'Mas Rafi Islam', '01521266159'),
 (538742, 'abdullah.al.noman.fake@g.bracu.ac.bd', '12345', 'Abdullah Al Noman', '01521766134'),
@@ -193,15 +170,7 @@ INSERT INTO student VALUES
 (25313456, 'ARC', 'Spring 2024'),
 (25316789, 'CSE', 'Summer 2024'),
 (25319012, 'BBS', 'Spring 2025'),
-(25322334, 'MNS', 'Summer 2025'),
-(24341269, 'CSE', 'Fall 2024');
-
-INSERT INTO advisor VALUES
-(623781, 'CSE', 'AHS', 'Professor', '4G-10D'),
-(623782, 'CSE', 'TRH', 'Associate Professor', '4G-11D'),
-(623783, 'CSE', 'SKK', 'Assistant Professor', '4G-12D'),
-(623784, 'MNS', 'NHS', 'Professor', '4F-5D'),
-(623785, 'EEE', 'MAA', 'Associate Professor', '3E-7B');
+(25322334, 'MNS', 'Summer 2025');
 
 INSERT INTO oca VALUES
 (538741),
@@ -210,12 +179,12 @@ INSERT INTO oca VALUES
 (538744),
 (538745);
 
-INSERT INTO club (cid, email, name, description, advisor_uid) VALUES
-('ROBU', 'md.mahathir.alam@g.bracu.ac.bd', 'Robotics Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623781),
-('BUCUC', 'culturalclub@bracu.ac.bd', 'Cultural Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623785),
-('BUDC', 'debateclub@bracu.ac.bd', 'Debate Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623784),
-('BUCC', 'computerclub@bracu.ac.bd', 'Computer Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623782),
-('BUESC', 'esportsclub@bracu.ac.bd', 'Esports Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.', 623783);
+INSERT INTO club (cid, email, name, description) VALUES
+('ROBU', 'md.mahathir.alam@g.bracu.ac.bd', 'Robotics Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.'),
+('BUCUC', 'culturalclub@bracu.ac.bd', 'Cultural Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.'),
+('BUDC', 'debateclub@bracu.ac.bd', 'Debate Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.'),
+('BUCC', 'computerclub@bracu.ac.bd', 'Computer Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.'),
+('BUESC', 'esportsclub@bracu.ac.bd', 'Esports Club', 'A community that brings people together to learn, share, and grow through passion, teamwork, and creativity.');
 
 INSERT INTO requisition (cid, date_time) VALUES
 ('ROBU', '2025-09-20 10:00:00'),
@@ -241,13 +210,11 @@ INSERT INTO members (cid, student_uid, position, joining_sem) VALUES
 ('BUCC', 24302345, 'President', 'Summer 2024'),
 ('BUCC', 25301234, 'Member', 'Summer 2025'),
 ('BUESC', 23311234, 'President', 'Spring 2024'),
-('BUESC', 25307891, 'Member', 'Spring 2023');
+('BUESC', 25307891, 'Member', 'Spring 2023'),
+('BUESC', 24308912, 'Vice President', 'Spring 2025');
 
 INSERT INTO announcement (subject, body, date_time, cid, uid) VALUES
-('Welcome', 'Semester starts soon',   '2025-08-24 09:00:00', 'ROBU', 24341269),
-('Club Fair', 'UB3, 11am', '2025-08-26 11:00:00', 'ROBU', 24341269),
-('Room Change', 'R212 -> R210', '2025-08-27 10:30:00', 'BUCUC', 623785),
-('Workshop', 'Git basics', '2025-08-28 15:00:00', 'BUCC', 623782),
+('Welcome', 'Semester starts soon', '2025-08-24 09:00:00', 'ROBU', 23301451),
 ('Recruitment', 'Apply online', '2025-08-29 12:00:00', 'BUESC', 24308912),
 ('Debate', 'Tryouts Fri', '2025-08-30 17:00:00', 'BUDC', 24241289),
 ('Agenda', 'Check mail', '2025-08-31 10:00:00', 'ROBU', 25316789),
@@ -257,7 +224,4 @@ INSERT INTO approval (oca_uid, rid) VALUES
 (538741, 1),
 (538742, 2);
 
-UPDATE user SET status='active' WHERE uid IN (538741, 538742, 538743, 538744, 538745, 23301451, 25316789);
-INSERT INTO applied (cid, uid) VALUES ('ROBU', 24341269);
-INSERT INTO applied (cid, uid) VALUES ('ROBU', 24241289);
-
+UPDATE user SET status='active' WHERE uid IN (538741, 538742, 538743, 538744, 538745, 23301451, 25316789, 24308912, 24241289);
