@@ -18,17 +18,15 @@ npm install multer
 So far completed:
 
 ```
-   1. Recieve all announcemnets(Club members)
-   2. Apply for diffrent clubs, club application approval
-   3. OTP 
-   4. Notification Mails
-   5. Student Account approval (OCA)
-   6. OCA Room Approval
-   7. Manage Members
-   8. OCA Bill Approval
-   9. Send Announcements
-   10. OCA Delete Announcements
-   11. Reset applications by dropping and creating the table again
+   1. Receive, send Club announcement -m
+   2. Apply for different clubs, club application approval -m
+   3. OTP -m
+   4. Notification Mails -m
+   5. Student Account approval (OCA) -m
+   6. OCA Room Approval -a
+   7. Manage Members -m
+   8. OCA Bill Approval -a
+   9. Send Announcements, Delete Announcements -a
 ```
 
 ```

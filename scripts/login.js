@@ -91,6 +91,7 @@ async function sendOTP() {
     document.getElementById('ExistingMemberText').style.display = 'block';
     return;
   }
+  document.getElementById('ExistingMemberText').style.display = 'none';
   // Send OTP ----------------------------------------------------------------
   await send_email({ receiver: email, subject: `OTP`,body:`replace`});
   
