@@ -527,15 +527,14 @@ OCA`,
 
 // Reject user account
 async function rejectUser(userId) {
+  const user_data = await get_data({ sql: `SELECT * FROM user WHERE uid = ?`,params: [userId]});
   const user = user_data[0];
   
   await get_data({
     sql: `UPDATE user SET status = 'rejected' WHERE uid = ?`,
     params: [userId],
   });
-
-  const user_data = await get_data({ sql: `SELECT * FROM user WHERE uid = ?`,params: [userId]});
-
+  await loadPendingVerifications(); // Refresh the list
   await send_email({
     receiver: user.email,
     subject: `Account Application Rejected`,
@@ -546,8 +545,6 @@ Your account application has been rejected.
 Best regards,
 OCA`,
 });
-  
-  await loadPendingVerifications(); // Refresh the list
 }
 //============================================================================================================================
 
