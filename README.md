@@ -1,6 +1,9 @@
 
 # Club_Management-Web_System
-Lightweight club management web backend + frontend assets used for BRACU course work. This repo contains a simple Express server (`main.js`), a small MySQL wrapper (`database.js`) and client-side dashboard scripts under `scripts/`.
+The Club Management System is a web-based application developed to make it easier for both the BRAC University Office of Co-curricular Activities (OCA) and students to manage clubs. It brings together the main tasks of club management into one platform, where students can apply to join clubs, receive updates, while club leaders and OCA staff can oversee requests, share notices, and organize membership records.
+The system uses a Node.js backend with REST APIs to handle the database, file uploads, and email notifications. On the other side, the frontend is designed to be responsive and role-based, so that different users, students, leaders, and OCA see and use the features that are only relevant to them. With a well-structured database, the application runs smoothly, keeps records accurate, and ensures faster access to information.
+Overall, this project aims to solve everyday problems faced in club management at BRACU by reducing manual work, improving communication, and making the process more transparent for everyone involved.
+
 
   
 
